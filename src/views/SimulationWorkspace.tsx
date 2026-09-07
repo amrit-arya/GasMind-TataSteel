@@ -1,188 +1,431 @@
 import React, { useState } from 'react';
-import { useGasData } from '../context/GasDataContext';
-import { Sliders, Play, RotateCcw, DollarSign, Leaf, Activity } from 'lucide-react';
+import { 
+  Sliders, 
+  Play, 
+  RotateCcw, 
+  AlertTriangle, 
+  Flame, 
+  Factory, 
+  CheckCircle2, 
+  ArrowRight, 
+  Zap, 
+  ShieldCheck,
+  RefreshCw,
+  HelpCircle
+} from 'lucide-react';
+
+interface GeneratorOption {
+  id: string;
+  name: string;
+  gasType: 'BF Gas' | 'CO Gas' | 'LD Gas';
+  lossRate: number; // Nm³/h
+}
+
+interface ConsumerOption {
+  id: string;
+  name: string;
+  gasType: 'BF Gas' | 'CO Gas' | 'LD Gas';
+  reductionRate: number; // Nm³/h
+}
+
+const generators: GeneratorOption[] = [
+  { id: 'bf-i', name: 'Blast Furnace I (-465,000 Nm³/h)', gasType: 'BF Gas', lossRate: 465000 },
+  { id: 'bf-h', name: 'Blast Furnace H (-450,000 Nm³/h)', gasType: 'BF Gas', lossRate: 450000 },
+  { id: 'bf-g', name: 'Blast Furnace G (-322,000 Nm³/h)', gasType: 'BF Gas', lossRate: 322000 },
+  { id: 'bf-f', name: 'Blast Furnace F (-240,000 Nm³/h)', gasType: 'BF Gas', lossRate: 240000 },
+  { id: 'bf-c', name: 'Blast Furnace C (-162,000 Nm³/h)', gasType: 'BF Gas', lossRate: 162000 },
+  { id: 'bf-e', name: 'Blast Furnace E (-82,200 Nm³/h)', gasType: 'BF Gas', lossRate: 82200 },
+  { id: 'co-old', name: 'Old BPP Batt 8,9 (-62,000 Nm³/h)', gasType: 'CO Gas', lossRate: 62000 },
+  { id: 'co-new', name: 'New BPP Batt 10,11 (-80,000 Nm³/h)', gasType: 'CO Gas', lossRate: 80000 },
+  { id: 'ld-1-3', name: 'LD-1 & LD-3 Converter (-85,000 Nm³/h)', gasType: 'LD Gas', lossRate: 85000 },
+  { id: 'ld-2', name: 'LD-2 Converter (-65,000 Nm³/h)', gasType: 'LD Gas', lossRate: 65000 }
+];
+
+const consumers: ConsumerOption[] = [
+  { id: 'ph6', name: 'Power House #6 (-300,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 300000 },
+  { id: 'coke', name: 'Coke Plant Heating (-270,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 270000 },
+  { id: 'ph3', name: 'Power House #3 (-190,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 190000 },
+  { id: 'ph4', name: 'Power House #4 (-150,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 150000 },
+  { id: 'ph5', name: 'Power House #5 (-130,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 130000 },
+  { id: 'hsm', name: 'HSM Mill (-105,000 Nm³/h)', gasType: 'CO Gas', reductionRate: 105000 },
+  { id: 'pellet', name: 'Pellet Plant (-78,000 Nm³/h)', gasType: 'CO Gas', reductionRate: 78000 }
+];
 
 export const SimulationWorkspace: React.FC = () => {
-  const { simParams, setSimParams } = useGasData();
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simResults, setSimResults] = useState<{
-    netBalanceDelta: number;
-    hourlyCostDelta: number;
-    carbonDelta: number;
-    depletionHours: number;
-  } | null>(null);
+  // Event state
+  const [selectedGenerator, setSelectedGenerator] = useState<string>('none');
+  const [selectedConsumer, setSelectedConsumer] = useState<string>('none');
+  const [generationScale, setGenerationScale] = useState<number>(100);
+  const [consumptionScale, setConsumptionScale] = useState<number>(100);
+
+  const [isComputing, setIsComputing] = useState(false);
+  const [simulationRun, setSimulationRun] = useState(false);
+
+  // Baselines from Excel dataset
+  const bfBaseGen = 1721200;
+  const bfBaseCons = 1736000;
+  const coBaseGen = 142000;
+  const coBaseCons = 134600;
+  const ldBaseGen = 150000;
+
+  // Calculate simulated values
+  const genLoss = selectedGenerator !== 'none' 
+    ? generators.find(g => g.id === selectedGenerator)?.lossRate || 0 
+    : 0;
+  
+  const genGasType = selectedGenerator !== 'none'
+    ? generators.find(g => g.id === selectedGenerator)?.gasType
+    : null;
+
+  const consDrop = selectedConsumer !== 'none'
+    ? consumers.find(c => c.id === selectedConsumer)?.reductionRate || 0
+    : 0;
+
+  const consGasType = selectedConsumer !== 'none'
+    ? consumers.find(c => c.id === selectedConsumer)?.gasType
+    : null;
+
+  // Net streams after events
+  let simBfGen = (bfBaseGen * (generationScale / 100)) - (genGasType === 'BF Gas' ? genLoss : 0);
+  let simBfCons = (bfBaseCons * (consumptionScale / 100)) - (consGasType === 'BF Gas' ? consDrop : 0);
+  let simBfBal = simBfGen - simBfCons;
+
+  let simCoGen = (coBaseGen * (generationScale / 100)) - (genGasType === 'CO Gas' ? genLoss : 0);
+  let simCoCons = (coBaseCons * (consumptionScale / 100)) - (consGasType === 'CO Gas' ? consDrop : 0);
+  let simCoBal = simCoGen - simCoCons;
+
+  let simLdGen = (ldBaseGen * (generationScale / 100)) - (genGasType === 'LD Gas' ? genLoss : 0);
+
+  // Depletion windows
+  const bfDepletionHours = simBfBal < 0 ? Math.abs(68000 / simBfBal) : 999;
+  const coDepletionHours = simCoBal < 0 ? Math.abs(67200 / simCoBal) : 999;
 
   const handleRunSimulation = () => {
-    setIsSimulating(true);
+    setIsComputing(true);
     setTimeout(() => {
-      let balanceDelta = 0;
-      if (simParams.bf1Shutdown) balanceDelta -= 465000;
-      if (simParams.cob2Maintenance) balanceDelta -= 62000;
-      balanceDelta -= (simParams.rollingMillRampUp - 100) * 3400;
-      balanceDelta += (simParams.flareLossReduction - 85) * 1200;
-
-      const hourlyCost = Math.abs(balanceDelta) * (simParams.externalGasPrice / 10000);
-      const carbon = Math.abs(balanceDelta) * 0.00018;
-
-      setSimResults({
-        netBalanceDelta: balanceDelta,
-        hourlyCostDelta: hourlyCost,
-        carbonDelta: carbon,
-        depletionHours: balanceDelta < 0 ? Math.abs(68000 / balanceDelta) : 999
-      });
-      setIsSimulating(false);
-    }, 800);
+      setIsComputing(false);
+      setSimulationRun(true);
+    }, 600);
   };
 
   const handleReset = () => {
-    setSimParams({
-      bf1Shutdown: false,
-      cob2Maintenance: false,
-      rollingMillRampUp: 100,
-      flareLossReduction: 85,
-      externalGasPrice: 8.5
-    });
-    setSimResults(null);
+    setSelectedGenerator('none');
+    setSelectedConsumer('none');
+    setGenerationScale(100);
+    setConsumptionScale(100);
+    setSimulationRun(false);
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center pb-4 border-b border-[#CBD5E1]">
         <div>
           <h2 className="font-display text-2xl font-bold text-[#0F172A] tracking-tight flex items-center gap-2">
             <Sliders className="w-6 h-6 text-[#FF6B00]" />
-            Simulation Workspace & What-If Sandbox
+            Simulation & Smart Gas Redistribution Sandbox
           </h2>
-          <p className="text-xs text-[#475569] font-mono mt-1">Simulate unit outages, production ramp-ups, gas flare mitigation, and economic impact.</p>
+          <p className="text-xs text-[#475569] font-mono mt-1">
+            Simulate generator failures, consumer outages, load changes, and inspect priority-based gas redistribution logic.
+          </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 space-y-5 shadow-sm">
-          <h3 className="font-display text-base font-bold text-[#0F172A] pb-2 border-b border-[#E2E8F0]">
-            Simulation Variables & Contingency Controls
-          </h3>
-
-          <div className="flex items-center justify-between p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded">
-            <div>
-              <p className="text-xs font-bold text-[#0F172A]">Blast Furnace I (BF-I) Emergency Outage</p>
-              <p className="text-[10px] font-mono text-[#64748B]">Simulate -465,000 Nm³/h BF Gas loss</p>
-            </div>
-            <input 
-              type="checkbox" 
-              checked={simParams.bf1Shutdown}
-              onChange={(e) => setSimParams({ ...simParams, bf1Shutdown: e.target.checked })}
-              className="w-4 h-4 accent-[#FF6B00] cursor-pointer"
-            />
+      {/* Grid Layout: Control Panel (Left) & Live Impact Matrix (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Controls Column (5 cols) */}
+        <div className="lg:col-span-5 bg-white border border-[#CBD5E1] rounded-lg p-5 space-y-5 shadow-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <h3 className="font-display text-base font-bold text-[#0F172A] flex items-center gap-2">
+              <Zap className="w-4 h-4 text-[#FF6B00]" />
+              Event Contingency Triggers
+            </h3>
+            <span className="text-[10px] font-mono text-[#64748B] uppercase font-bold">Interactive Sandbox</span>
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded">
-            <div>
-              <p className="text-xs font-bold text-[#0F172A]">Old BPP (Batt 8 & 9) Maintenance Outage</p>
-              <p className="text-[10px] font-mono text-[#64748B]">Simulate -62,000 Nm³/h CO Gas loss</p>
-            </div>
-            <input 
-              type="checkbox" 
-              checked={simParams.cob2Maintenance}
-              onChange={(e) => setSimParams({ ...simParams, cob2Maintenance: e.target.checked })}
-              className="w-4 h-4 accent-[#FF6B00] cursor-pointer"
-            />
+          {/* 1. Generator Failure */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-mono font-bold text-[#0F172A] flex items-center gap-1.5">
+              <Factory className="w-3.5 h-3.5 text-[#FF6B00]" />
+              Generator Outage / Trip Event
+            </label>
+            <select
+              value={selectedGenerator}
+              onChange={(e) => setSelectedGenerator(e.target.value)}
+              className="w-full p-2.5 bg-[#F8F9FA] border border-[#CBD5E1] rounded text-xs font-mono text-[#0F172A] focus:border-[#FF6B00] focus:outline-none cursor-pointer"
+            >
+              <option value="none">-- No Generator Outage (Nominal Baseline) --</option>
+              {generators.map(g => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
           </div>
 
+          {/* 2. Consumer Stop */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-mono font-bold text-[#0F172A] flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-[#D97706]" />
+              Consumer Shutdown / Stop Event
+            </label>
+            <select
+              value={selectedConsumer}
+              onChange={(e) => setSelectedConsumer(e.target.value)}
+              className="w-full p-2.5 bg-[#F8F9FA] border border-[#CBD5E1] rounded text-xs font-mono text-[#0F172A] focus:border-[#FF6B00] focus:outline-none cursor-pointer"
+            >
+              <option value="none">-- No Consumer Shutdown (Nominal Baseline) --</option>
+              {consumers.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 3. Plant Generation Scale */}
           <div className="p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded space-y-2">
             <div className="flex justify-between text-xs font-mono">
-              <span className="text-[#0F172A] font-bold">Rolling Mill Production Demand Rate</span>
-              <span className="text-[#FF6B00] font-bold">{simParams.rollingMillRampUp}%</span>
+              <span className="text-[#0F172A] font-bold">Plant Generation Rate Scale</span>
+              <span className="text-[#FF6B00] font-bold">{generationScale}%</span>
             </div>
             <input 
-              type="range"
-              min="50"
-              max="150"
-              value={simParams.rollingMillRampUp}
-              onChange={(e) => setSimParams({ ...simParams, rollingMillRampUp: Number(e.target.value) })}
+              type="range" 
+              min="50" 
+              max="100" 
+              value={generationScale}
+              onChange={(e) => setGenerationScale(Number(e.target.value))}
               className="w-full accent-[#FF6B00] cursor-pointer"
             />
           </div>
 
+          {/* 4. Plant Consumption Scale */}
           <div className="p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded space-y-2">
             <div className="flex justify-between text-xs font-mono">
-              <span className="text-[#0F172A] font-bold">Flare Gas Recovery Efficiency</span>
-              <span className="text-[#059669] font-bold">{simParams.flareLossReduction}%</span>
+              <span className="text-[#0F172A] font-bold">Plant Consumption Demand Scale</span>
+              <span className="text-[#D97706] font-bold">{consumptionScale}%</span>
             </div>
             <input 
-              type="range"
-              min="50"
-              max="98"
-              value={simParams.flareLossReduction}
-              onChange={(e) => setSimParams({ ...simParams, flareLossReduction: Number(e.target.value) })}
-              className="w-full accent-[#059669] cursor-pointer"
+              type="range" 
+              min="100" 
+              max="150" 
+              value={consumptionScale}
+              onChange={(e) => setConsumptionScale(Number(e.target.value))}
+              className="w-full accent-[#D97706] cursor-pointer"
             />
           </div>
 
+          {/* Action Buttons */}
           <div className="flex gap-3 pt-2">
             <button 
               onClick={handleRunSimulation}
-              disabled={isSimulating}
+              disabled={isComputing}
               className="flex-1 py-2.5 bg-flame-gradient text-white rounded font-mono text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer shadow-md glow-flame"
             >
               <Play className="w-4 h-4" />
-              {isSimulating ? 'Computing Neural Model...' : 'Run Simulation Model'}
+              {isComputing ? 'Computing Redistribution Engine...' : 'Run Simulation & Redistribution'}
             </button>
             <button 
               onClick={handleReset}
               className="px-4 py-2.5 bg-[#F1F3F5] text-[#334155] border border-[#CBD5E1] rounded font-mono text-xs font-bold hover:bg-[#E9ECEF] transition-colors cursor-pointer"
+              title="Reset Parameters"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 flex flex-col shadow-sm">
-          <h3 className="font-display text-base font-bold text-[#0F172A] pb-2 border-b border-[#E2E8F0] flex items-center gap-2">
-            <Activity className="w-4 h-4 text-[#FF6B00]" />
-            Simulated Contingency Impact Matrix
-          </h3>
+        {/* Live Cascade & Buffer Impact Matrix (7 cols) */}
+        <div className="lg:col-span-7 bg-white border border-[#CBD5E1] rounded-lg p-5 space-y-4 shadow-sm flex flex-col justify-between">
+          <div className="pb-2 border-b border-[#E2E8F0] flex justify-between items-center">
+            <h3 className="font-display text-base font-bold text-[#0F172A]">
+              Simulated Stream Balances & Buffer Windows
+            </h3>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+              simulationRun ? 'bg-[#D1FAE5] text-[#059669]' : 'bg-[#FEF3C7] text-[#D97706]'
+            }`}>
+              {simulationRun ? 'Simulation Active' : 'Live Preview'}
+            </span>
+          </div>
 
-          {simResults ? (
-            <div className="space-y-4 mt-4 flex-1">
-              <div className="p-4 bg-[#F8F9FA] border border-[#DC2626]/40 rounded-lg">
-                <span className="text-[10px] font-mono text-[#64748B] uppercase font-bold">Net Supply Balance Shift</span>
-                <p className={`text-2xl font-mono font-bold mt-1 ${simResults.netBalanceDelta < 0 ? 'text-[#DC2626]' : 'text-[#059669]'}`}>
-                  {simResults.netBalanceDelta > 0 ? `+${simResults.netBalanceDelta.toLocaleString()}` : simResults.netBalanceDelta.toLocaleString()} Nm³/h
-                </p>
+          {/* 3 Stream Impact Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono">
+            {/* BF Gas Impact */}
+            <div className="p-3.5 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg relative overflow-hidden">
+              <span className="text-[10px] text-[#64748B] uppercase font-bold">BF Gas Stream</span>
+              <p className={`text-lg font-bold mt-1 ${simBfBal < 0 ? 'text-[#DC2626]' : 'text-[#059669]'}`}>
+                {simBfBal > 0 ? `+${(simBfBal / 1000).toFixed(1)}k` : `${(simBfBal / 1000).toFixed(1)}k`} Nm³/h
+              </p>
+              <p className="text-[10px] text-[#64748B] mt-1">
+                {simBfBal < 0 
+                  ? `Holder Buffer: ${bfDepletionHours.toFixed(1)} hrs left` 
+                  : 'Buffer Stock Accumulating'}
+              </p>
+            </div>
+
+            {/* CO Gas Impact */}
+            <div className="p-3.5 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg relative overflow-hidden">
+              <span className="text-[10px] text-[#64748B] uppercase font-bold">CO Gas Stream</span>
+              <p className={`text-lg font-bold mt-1 ${simCoBal < 0 ? 'text-[#DC2626]' : 'text-[#059669]'}`}>
+                {simCoBal > 0 ? `+${(simCoBal / 1000).toFixed(1)}k` : `${(simCoBal / 1000).toFixed(1)}k`} Nm³/h
+              </p>
+              <p className="text-[10px] text-[#64748B] mt-1">
+                {simCoBal < 0 
+                  ? `Holder Buffer: ${coDepletionHours.toFixed(1)} hrs left` 
+                  : 'Surplus to 80k Holder'}
+              </p>
+            </div>
+
+            {/* LD Gas Impact */}
+            <div className="p-3.5 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg relative overflow-hidden">
+              <span className="text-[10px] text-[#64748B] uppercase font-bold">LD Gas Recovery</span>
+              <p className="text-lg font-bold text-[#8B5CF6] mt-1">
+                +{(simLdGen / 1000).toFixed(1)}k Nm³/h
+              </p>
+              <p className="text-[10px] text-[#64748B] mt-1">Available Co-Firing Supply</p>
+            </div>
+          </div>
+
+          {/* Quick Summary Banner */}
+          <div className="p-3 bg-[#FFF3E0] border border-[#FF6B00]/30 rounded text-xs font-mono">
+            <p className="text-[#FF6B00] font-bold flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>
+                {selectedGenerator !== 'none' || selectedConsumer !== 'none' || generationScale !== 100 || consumptionScale !== 100
+                  ? `Simulated Net Byproduct Shift: ${((simBfBal + simCoBal + simLdGen) / 1000).toFixed(1)}k Nm³/h net gas flow.`
+                  : 'Operating at Nominal Baseline. Click "Run Simulation & Redistribution" to trigger prescription.'}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Priority Allocation & Redistribution Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Priority-Based Allocation Protocol Table */}
+        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 space-y-3 shadow-sm">
+          <div className="pb-2 border-b border-[#E2E8F0] flex items-center justify-between">
+            <h3 className="font-display text-base font-bold text-[#0F172A] flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-[#059669]" />
+              Priority-Based Gas Allocation Protocol
+            </h3>
+            <span className="text-xs font-mono text-[#059669] font-bold">Plant Rule Engine</span>
+          </div>
+
+          <div className="space-y-3 text-xs font-mono">
+            {/* Priority 1 */}
+            <div className="p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
+              <div className="flex justify-between items-center mb-1">
+                <span className="px-2 py-0.5 bg-[#FEE2E2] text-[#DC2626] rounded text-[10px] font-bold uppercase">
+                  Priority 1: Critical (Zero Interruption)
+                </span>
+                <span className="text-[#0F172A] font-bold">274,800 Nm³/h Protected</span>
               </div>
+              <p className="text-[#0F172A] font-bold mt-1">Coke Oven Battery Underfiring & Blast Furnace Tuyeres</p>
+              <p className="text-[#64748B] text-[11px] mt-0.5">
+                Must maintain 100% fuel supply at all times to prevent battery silica refractory collapse and furnace chill.
+              </p>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-4 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
-                  <div className="flex items-center gap-1 text-[#D97706] text-xs font-mono mb-1 font-bold">
-                    <DollarSign className="w-4 h-4" />
-                    <span>Hourly Cost Delta</span>
-                  </div>
-                  <p className="text-lg font-mono font-bold text-[#0F172A]">${simResults.hourlyCostDelta.toFixed(0)} / hr</p>
-                </div>
-
-                <div className="p-4 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
-                  <div className="flex items-center gap-1 text-[#059669] text-xs font-mono mb-1 font-bold">
-                    <Leaf className="w-4 h-4" />
-                    <span>Carbon Impact</span>
-                  </div>
-                  <p className="text-lg font-mono font-bold text-[#0F172A]">{simResults.carbonDelta.toFixed(1)} tCO2e/hr</p>
-                </div>
+            {/* Priority 2 */}
+            <div className="p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
+              <div className="flex justify-between items-center mb-1">
+                <span className="px-2 py-0.5 bg-[#FEF3C7] text-[#D97706] rounded text-[10px] font-bold uppercase">
+                  Priority 2: High Value Rolling Mills
+                </span>
+                <span className="text-[#0F172A] font-bold">112,000 Nm³/h Standard</span>
               </div>
+              <p className="text-[#0F172A] font-bold mt-1">Hot Strip Mill Reheating Furnace & Cold Rolling Mill</p>
+              <p className="text-[#64748B] text-[11px] mt-0.5">
+                Draw from 80k CO Gasholder buffer; throttle up to 15% before initiating standby heavy oil firing.
+              </p>
+            </div>
 
-              <div className="p-4 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
-                <span className="text-[10px] font-mono text-[#64748B] uppercase font-bold">Estimated Gasholder Buffer Depletion Window</span>
-                <p className="text-base font-mono font-bold text-[#D97706] mt-1">
-                  {simResults.depletionHours < 900 ? `${simResults.depletionHours.toFixed(1)} hours remaining` : 'Holder level stable'}
+            {/* Priority 3 */}
+            <div className="p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
+              <div className="flex justify-between items-center mb-1">
+                <span className="px-2 py-0.5 bg-[#D1FAE5] text-[#059669] rounded text-[10px] font-bold uppercase">
+                  Priority 3: Flexible Utilities (Boiler Switch)
+                </span>
+                <span className="text-[#0F172A] font-bold">1,100,000 Nm³/h Flexible</span>
+              </div>
+              <p className="text-[#0F172A] font-bold mt-1">Power Houses #3, #4, #5, #6 & Sinter Plant</p>
+              <p className="text-[#64748B] text-[11px] mt-0.5">
+                Co-fire with available LD Gas surplus (+150k Nm³/h) or switch boilers to Imported Natural Gas buffer.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Step-by-Step Gas Redistribution Simulation Output */}
+        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 flex flex-col justify-between shadow-sm">
+          <div className="pb-2 border-b border-[#E2E8F0] flex items-center justify-between">
+            <h3 className="font-display text-base font-bold text-[#0F172A] flex items-center gap-2">
+              <RefreshCw className="w-5 h-5 text-[#FF6B00]" />
+              Smart Gas Redistribution Simulation Execution
+            </h3>
+            <span className="text-xs font-mono text-[#FF6B00] font-bold">Automated Protocol</span>
+          </div>
+
+          <div className="space-y-3 font-mono text-xs my-3 flex-1">
+            {/* Step 1 */}
+            <div className="flex items-start gap-3 p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
+              <span className="w-6 h-6 rounded-full bg-[#FF6B00] text-white flex items-center justify-center font-bold text-xs shrink-0">1</span>
+              <div>
+                <p className="text-[#0F172A] font-bold">Contingency Event Detection</p>
+                <p className="text-[#64748B] text-[11px]">
+                  {selectedGenerator !== 'none' 
+                    ? `Generator Trip Detected: ${generators.find(g => g.id === selectedGenerator)?.name}.`
+                    : selectedConsumer !== 'none'
+                    ? `Consumer Shutdown Detected: ${consumers.find(c => c.id === selectedConsumer)?.name}.`
+                    : 'System operating at nominal baseline.'}
                 </p>
               </div>
             </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-[#64748B] font-mono text-xs border border-dashed border-[#CBD5E1] rounded mt-4">
-              <Sliders className="w-8 h-8 text-[#CBD5E1] mb-2" />
-              <span>Adjust simulation parameters on the left and click "Run Simulation Model" to preview impacts.</span>
+
+            {/* Step 2 */}
+            <div className="flex items-start gap-3 p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
+              <span className="w-6 h-6 rounded-full bg-[#D97706] text-white flex items-center justify-center font-bold text-xs shrink-0">2</span>
+              <div>
+                <p className="text-[#0F172A] font-bold">Gasholder Buffer Deployment</p>
+                <p className="text-[#64748B] text-[11px]">
+                  {simBfBal < 0 
+                    ? `Drawing ${Math.abs(simBfBal).toLocaleString()} Nm³/h from BF 100k Gasholder (Depletion window: ${bfDepletionHours.toFixed(1)} hrs).` 
+                    : 'BF Gasholder stock stable.'}
+                </p>
+              </div>
             </div>
-          )}
+
+            {/* Step 3 */}
+            <div className="flex items-start gap-3 p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
+              <span className="w-6 h-6 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0">3</span>
+              <div>
+                <p className="text-[#0F172A] font-bold">Priority Protection & LD Gas Co-Firing Rerouting</p>
+                <p className="text-[#64748B] text-[11px]">
+                  {simBfBal < 0 
+                    ? `Rerouting +150,000 Nm³/h LD Gas surplus to Power House #6 boilers. Priority 1 Coke Underfiring protected at 100%.`
+                    : 'Priority 1, 2, and 3 consumers receiving full contracted gas rates.'}
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex items-start gap-3 p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg">
+              <span className="w-6 h-6 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center font-bold text-xs shrink-0">4</span>
+              <div>
+                <p className="text-[#0F172A] font-bold">Natural Gas Buffer Fuel Switch & Stabilization</p>
+                <p className="text-[#64748B] text-[11px]">
+                  {simBfBal < -150000 
+                    ? `Initiated Natural Gas buffer fuel-switch (+${(Math.abs(simBfBal + 150000) / 1000).toFixed(0)}k Nm³/h equiv) at Boiler #4.`
+                    : 'Plant thermal equilibrium maintained with zero production downtime penalty.'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3 bg-[#D1FAE5] border border-[#059669]/30 rounded text-xs font-mono text-[#059669] font-bold flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Redistribution Protocol Status: Optimal & Active</span>
+            </span>
+            <span>0% Thermal Outage</span>
+          </div>
         </div>
       </div>
     </div>

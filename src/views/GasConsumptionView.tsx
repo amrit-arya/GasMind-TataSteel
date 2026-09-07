@@ -9,7 +9,7 @@ interface ConsumerItem {
   name: string;
   primaryGas: 'BF Gas' | 'CO Gas' | 'LD Gas' | 'Mixed';
   flow: number;
-  status: 'Optimal' | 'High Consumption' | 'Buffer Standard';
+  status: 'Optimal' | 'High Consumption' | 'Buffer Standard' | 'Holder Storage Only';
 }
 
 const allConsumers: ConsumerItem[] = [
@@ -43,11 +43,14 @@ const allConsumers: ConsumerItem[] = [
   { name: 'Power House #5 (CO Gas)', primaryGas: 'CO Gas', flow: 2000, status: 'Buffer Standard' },
   { name: 'Tube Division', primaryGas: 'CO Gas', flow: 1500, status: 'Buffer Standard' },
   { name: 'SP (Sinter Plant 1-4)', primaryGas: 'CO Gas', flow: 1200, status: 'Buffer Standard' },
-  { name: 'Power House #3 (CO Gas)', primaryGas: 'CO Gas', flow: 1100, status: 'Buffer Standard' }
+  { name: 'Power House #3 (CO Gas)', primaryGas: 'CO Gas', flow: 1100, status: 'Buffer Standard' },
+
+  // LD Gas Destination
+  { name: 'LD Gasholder 50k Storage (Direct Line Consumption: 0)', primaryGas: 'LD Gas', flow: 150000, status: 'Holder Storage Only' }
 ];
 
 export const GasConsumptionView: React.FC = () => {
-  const [filterStream, setFilterStream] = useState<'ALL' | 'BF Gas' | 'CO Gas'>('ALL');
+  const [filterStream, setFilterStream] = useState<'ALL' | 'BF Gas' | 'CO Gas' | 'LD Gas'>('ALL');
 
   const filteredConsumers = filterStream === 'ALL' 
     ? allConsumers 
@@ -101,11 +104,11 @@ export const GasConsumptionView: React.FC = () => {
             Gas Consumption Intelligence
           </h2>
           <p className="text-xs text-[#475569] font-mono mt-1">
-            Plant-wide industrial consumer breakdown from Excel telemetry data (Total: {(totalConsumption / 1000).toFixed(1)}k Nm³/h).
+            Plant-wide industrial consumer breakdown from Excel telemetry data (Filtered Total: {(totalConsumption / 1000).toFixed(1)}k Nm³/h).
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-white border border-[#CBD5E1] p-1 rounded font-mono text-xs shadow-sm">
+        <div className="flex items-center gap-1.5 bg-white border border-[#CBD5E1] p-1 rounded font-mono text-xs shadow-sm">
           <Filter className="w-3.5 h-3.5 text-[#64748B] ml-2" />
           <button 
             onClick={() => setFilterStream('ALL')}
@@ -113,7 +116,7 @@ export const GasConsumptionView: React.FC = () => {
               filterStream === 'ALL' ? 'bg-[#FF6B00] text-white' : 'text-[#64748B] hover:text-[#0F172A]'
             }`}
           >
-            All Consumers ({allConsumers.length})
+            All Streams ({allConsumers.length})
           </button>
           <button 
             onClick={() => setFilterStream('BF Gas')}
@@ -121,7 +124,7 @@ export const GasConsumptionView: React.FC = () => {
               filterStream === 'BF Gas' ? 'bg-[#FF6B00] text-white' : 'text-[#64748B] hover:text-[#0F172A]'
             }`}
           >
-            BF Gas Stream
+            BF Gas (10)
           </button>
           <button 
             onClick={() => setFilterStream('CO Gas')}
@@ -129,7 +132,15 @@ export const GasConsumptionView: React.FC = () => {
               filterStream === 'CO Gas' ? 'bg-[#FF6B00] text-white' : 'text-[#64748B] hover:text-[#0F172A]'
             }`}
           >
-            CO Gas Stream
+            CO Gas (18)
+          </button>
+          <button 
+            onClick={() => setFilterStream('LD Gas')}
+            className={`px-3 py-1 rounded cursor-pointer transition-colors font-bold ${
+              filterStream === 'LD Gas' ? 'bg-[#FF6B00] text-white' : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            LD Gas (1)
           </button>
         </div>
       </div>
@@ -146,10 +157,10 @@ export const GasConsumptionView: React.FC = () => {
       <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-display text-base font-bold text-[#0F172A]">
-            Plant Industrial Consumer Units Breakdown ({filteredConsumers.length} Units)
+            Plant Industrial Consumer Units Breakdown ({filteredConsumers.length} Items)
           </h3>
           <span className="text-xs font-mono text-[#FF6B00] font-bold">
-            Total Stream Cons: {(totalConsumption).toLocaleString()} Nm³/h
+            Total Stream Flow: {(totalConsumption).toLocaleString()} Nm³/h
           </span>
         </div>
 
@@ -172,7 +183,9 @@ export const GasConsumptionView: React.FC = () => {
                     <td className="py-3 font-bold text-[#0F172A]">{item.name}</td>
                     <td className="py-3">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        item.primaryGas === 'BF Gas' ? 'bg-[#FFF3E0] text-[#FF6B00]' : 'bg-[#D1FAE5] text-[#059669]'
+                        item.primaryGas === 'BF Gas' ? 'bg-[#FFF3E0] text-[#FF6B00]' :
+                        item.primaryGas === 'CO Gas' ? 'bg-[#D1FAE5] text-[#059669]' :
+                        'bg-[#F3E8FF] text-[#8B5CF6]'
                       }`}>
                         {item.primaryGas}
                       </span>
@@ -183,6 +196,7 @@ export const GasConsumptionView: React.FC = () => {
                       <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${
                         item.status === 'Optimal' ? 'bg-[#D1FAE5] text-[#059669]' :
                         item.status === 'High Consumption' ? 'bg-[#FEE2E2] text-[#DC2626]' :
+                        item.status === 'Holder Storage Only' ? 'bg-[#F3E8FF] text-[#8B5CF6]' :
                         'bg-[#FEF3C7] text-[#D97706]'
                       }`}>
                         {item.status}

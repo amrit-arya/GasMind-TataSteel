@@ -1,12 +1,14 @@
-import React from 'react';
-import { Factory } from 'lucide-react';
+import React, { useState } from 'react';
+import { Factory, Filter } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export const GasGenerationView: React.FC = () => {
-  const generationUnits = [
+  const [filterGas, setFilterGas] = useState<'ALL' | 'BF Gas' | 'CO Gas' | 'LD Gas'>('ALL');
+
+  const allGenerationUnits = [
     { name: 'Blast Furnace I', gas: 'BF Gas', output: 465000, maxCapacity: 500000, efficiency: 96.5, status: 'Normal', pressure: '14.8 kPa', temp: '185°C' },
     { name: 'Blast Furnace H', gas: 'BF Gas', output: 450000, maxCapacity: 480000, efficiency: 95.8, status: 'Normal', pressure: '14.5 kPa', temp: '180°C' },
     { name: 'Blast Furnace G', gas: 'BF Gas', output: 322000, maxCapacity: 350000, efficiency: 94.2, status: 'Normal', pressure: '14.2 kPa', temp: '178°C' },
@@ -19,18 +21,24 @@ export const GasGenerationView: React.FC = () => {
     { name: 'LD-2 Converter', gas: 'LD Gas', output: 65000, maxCapacity: 75000, efficiency: 87.8, status: 'Normal', pressure: '17.8 kPa', temp: '1220°C' }
   ];
 
+  const filteredUnits = filterGas === 'ALL'
+    ? allGenerationUnits
+    : allGenerationUnits.filter(u => u.gas === filterGas);
+
+  const totalOutput = filteredUnits.reduce((acc, u) => acc + u.output, 0);
+
   const chartData = {
-    labels: generationUnits.map(u => u.name),
+    labels: filteredUnits.map(u => u.name),
     datasets: [
       {
         label: 'Current Production (Nm³/h)',
-        data: generationUnits.map(u => u.output),
+        data: filteredUnits.map(u => u.output),
         backgroundColor: '#FF6B00',
         borderRadius: 4
       },
       {
         label: 'Max Nameplate Capacity (Nm³/h)',
-        data: generationUnits.map(u => u.maxCapacity),
+        data: filteredUnits.map(u => u.maxCapacity),
         backgroundColor: '#E2E8F0',
         borderRadius: 4
       }
@@ -52,30 +60,85 @@ export const GasGenerationView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center pb-4 border-b border-[#CBD5E1]">
+      {/* Title & Filter Options */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-[#CBD5E1]">
         <div>
           <h2 className="font-display text-2xl font-bold text-[#0F172A] tracking-tight flex items-center gap-2">
             <Factory className="w-6 h-6 text-[#FF6B00]" />
             Gas Generation Intelligence
           </h2>
-          <p className="text-xs text-[#475569] font-mono mt-1">Real-time volumetric output from primary iron & steelmaking units.</p>
+          <p className="text-xs text-[#475569] font-mono mt-1">
+            Real-time volumetric generation output from primary iron & steelmaking units (Filtered Output: {(totalOutput / 1000).toFixed(1)}k Nm³/h).
+          </p>
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex items-center gap-1.5 bg-white border border-[#CBD5E1] p-1 rounded font-mono text-xs shadow-sm">
+          <Filter className="w-3.5 h-3.5 text-[#64748B] ml-2" />
+          <button
+            onClick={() => setFilterGas('ALL')}
+            className={`px-3 py-1 rounded cursor-pointer transition-colors font-bold ${
+              filterGas === 'ALL' ? 'bg-[#FF6B00] text-white' : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            All Streams ({allGenerationUnits.length})
+          </button>
+          <button
+            onClick={() => setFilterGas('BF Gas')}
+            className={`px-3 py-1 rounded cursor-pointer transition-colors font-bold ${
+              filterGas === 'BF Gas' ? 'bg-[#FF6B00] text-white' : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            BF Gas (6)
+          </button>
+          <button
+            onClick={() => setFilterGas('CO Gas')}
+            className={`px-3 py-1 rounded cursor-pointer transition-colors font-bold ${
+              filterGas === 'CO Gas' ? 'bg-[#FF6B00] text-white' : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            CO Gas (2)
+          </button>
+          <button
+            onClick={() => setFilterGas('LD Gas')}
+            className={`px-3 py-1 rounded cursor-pointer transition-colors font-bold ${
+              filterGas === 'LD Gas' ? 'bg-[#FF6B00] text-white' : 'text-[#64748B] hover:text-[#0F172A]'
+            }`}
+          >
+            LD Gas (2)
+          </button>
         </div>
       </div>
 
+      {/* Chart Section */}
       <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
-        <h3 className="font-display text-base font-bold text-[#0F172A] mb-4">Unit Generation Output vs Nameplate Capacity</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-display text-base font-bold text-[#0F172A]">
+            Unit Generation Output vs Nameplate Capacity ({filterGas === 'ALL' ? 'All Gas Streams' : filterGas})
+          </h3>
+          <span className="text-xs font-mono text-[#FF6B00] font-bold">
+            Total Active Generation: {totalOutput.toLocaleString()} Nm³/h
+          </span>
+        </div>
         <div className="h-[260px] w-full">
           <Bar data={chartData} options={chartOptions} />
         </div>
       </div>
 
+      {/* Unit Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {generationUnits.map((unit, idx) => (
+        {filteredUnits.map((unit, idx) => (
           <div key={idx} className="bg-white border border-[#CBD5E1] rounded-lg p-5 relative hover:border-[#FF6B00] transition-colors shadow-sm">
             <div className="flex justify-between items-start mb-3">
               <div>
                 <h4 className="font-display font-bold text-[#0F172A] text-sm">{unit.name}</h4>
-                <span className="text-xs font-mono text-[#FF6B00] font-semibold">{unit.gas}</span>
+                <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                  unit.gas === 'BF Gas' ? 'bg-[#FFF3E0] text-[#FF6B00]' :
+                  unit.gas === 'CO Gas' ? 'bg-[#D1FAE5] text-[#059669]' :
+                  'bg-[#F3E8FF] text-[#8B5CF6]'
+                }`}>
+                  {unit.gas}
+                </span>
               </div>
               <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
                 unit.status === 'Warning' ? 'bg-[#FEF3C7] text-[#D97706]' : 'bg-[#D1FAE5] text-[#059669]'
@@ -87,7 +150,7 @@ export const GasGenerationView: React.FC = () => {
             <div className="space-y-2 text-xs font-mono mt-4">
               <div className="flex justify-between text-[#475569]">
                 <span>Volumetric Output:</span>
-                <span className="text-[#0F172A] font-bold">{(unit.output / 1000).toFixed(0)}k Nm³/h</span>
+                <span className="text-[#0F172A] font-bold">{(unit.output / 1000).toFixed(1)}k Nm³/h</span>
               </div>
               <div className="flex justify-between text-[#475569]">
                 <span>Operating Efficiency:</span>
