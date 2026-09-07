@@ -38,7 +38,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'generation', label: 'Gas Generation', icon: Factory },
     { id: 'consumption', label: 'Gas Consumption', icon: Flame },
     { id: 'balance', label: 'Gas Balance', icon: Scale },
-    { id: 'network', label: 'Gas Network', icon: Network },
+    { id: 'network', label: 'Gas Sankey Flow', icon: Network },
     { id: 'simulation', label: 'Simulation Workspace', icon: Sliders },
     { id: 'scenario', label: 'Scenario Analysis', icon: TrendingUp },
     { id: 'alerts', label: 'Operational Alerts', icon: AlertTriangle, badge: unacknowledgedCritical },
