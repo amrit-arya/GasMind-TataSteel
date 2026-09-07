@@ -11,11 +11,16 @@ import {
 import { DistributingFurnaceState, ConsumerDisruptionImpact } from '../types';
 
 const initialFurnaces: DistributingFurnaceState[] = [
-  { id: 'bf1', name: 'Blast Furnace 1 (BF-1)', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 430000, isOnline: true },
-  { id: 'bf2', name: 'Blast Furnace 2 (BF-2)', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 420000, isOnline: true },
-  { id: 'cob1', name: 'Coke Oven Battery 1 (COB-1)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 310000, isOnline: true },
-  { id: 'cob2', name: 'Coke Oven Battery 2 (COB-2)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 310000, isOnline: true },
-  { id: 'ld', name: 'LD Converter Plant (SMS-2)', type: 'Converter', gasType: 'LD Gas', capacity: 250000, isOnline: true }
+  { id: 'bf-i', name: 'Blast Furnace I', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 465000, isOnline: true },
+  { id: 'bf-h', name: 'Blast Furnace H', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 450000, isOnline: true },
+  { id: 'bf-g', name: 'Blast Furnace G', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 322000, isOnline: true },
+  { id: 'bf-f', name: 'Blast Furnace F', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 240000, isOnline: true },
+  { id: 'bf-c', name: 'Blast Furnace C', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 162000, isOnline: true },
+  { id: 'bf-e', name: 'Blast Furnace E', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 82200, isOnline: true },
+  { id: 'cob-new', name: 'New BPP (Batt 10, 11)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 80000, isOnline: true },
+  { id: 'cob-old', name: 'Old BPP (Batt 8, 9)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 62000, isOnline: true },
+  { id: 'ld-1-3', name: 'LD-1 & LD-3 Converter', type: 'Converter', gasType: 'LD Gas', capacity: 85000, isOnline: true },
+  { id: 'ld-2', name: 'LD-2 Converter', type: 'Converter', gasType: 'LD Gas', capacity: 65000, isOnline: true }
 ];
 
 export const ScenarioAnalysisView: React.FC = () => {
@@ -33,8 +38,8 @@ export const ScenarioAnalysisView: React.FC = () => {
   const totalCoSupply = furnaces.filter(f => f.gasType === 'CO Gas' && f.isOnline).reduce((acc, f) => acc + f.capacity, 0);
 
   const computeConsumerImpacts = (): ConsumerDisruptionImpact[] => {
-    const bfRatio = totalBfSupply / 850000;
-    const coRatio = totalCoSupply / 620000;
+    const bfRatio = totalBfSupply / 1721200;
+    const coRatio = totalCoSupply / 142000;
 
     const hsmAvailable = Math.min(340000, 340000 * coRatio);
     const hsmLoad = Math.round((hsmAvailable / 340000) * 100);
@@ -165,7 +170,7 @@ export const ScenarioAnalysisView: React.FC = () => {
             <p className="text-xs text-[#64748B] font-mono">Toggle unit operational states to view immediate downstream impacts.</p>
           </div>
           <div className="flex items-center gap-3 text-xs font-mono">
-            <span className="text-[#059669] font-bold">Online: {furnaces.filter(f => f.isOnline).length} / 5</span>
+            <span className="text-[#059669] font-bold">Online: {furnaces.filter(f => f.isOnline).length} / {furnaces.length}</span>
             <span className="text-[#DC2626] font-bold">Tripped: {furnaces.filter(f => !f.isOnline).length}</span>
           </div>
         </div>

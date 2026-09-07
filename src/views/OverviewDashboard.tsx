@@ -49,8 +49,8 @@ export const OverviewDashboard: React.FC = () => {
     labels: hours,
     datasets: [
       {
-        label: 'Total Generation (Nm³/h)',
-        data: [1680000, 1710000, 1695000, 1730000, 1725000, 1740000, 1715000, 1720000, totalGen],
+        label: 'Total Byproduct Generation (Nm³/h)',
+        data: [1980000, 2005000, 1990000, 2020000, 2015000, 2030000, 2000000, 2010000, totalGen],
         borderColor: '#FF6B00',
         backgroundColor: 'rgba(255, 107, 0, 0.08)',
         fill: true,
@@ -58,8 +58,8 @@ export const OverviewDashboard: React.FC = () => {
         pointRadius: 3
       },
       {
-        label: 'Total Consumption (Nm³/h)',
-        data: [1690000, 1700000, 1710000, 1725000, 1730000, 1735000, 1725000, 1730000, totalCons],
+        label: 'Total Plant Consumption (Nm³/h)',
+        data: [1850000, 1860000, 1855000, 1875000, 1870000, 1865000, 1860000, 1870000, totalCons],
         borderColor: '#D97706',
         backgroundColor: 'rgba(217, 119, 6, 0.04)',
         fill: true,
@@ -67,9 +67,9 @@ export const OverviewDashboard: React.FC = () => {
         pointRadius: 3
       },
       {
-        label: 'Net Balance (Nm³/h)',
-        data: [-10000, 10000, -15000, 5000, -5000, 5000, -10000, -10000, netBal],
-        borderColor: '#DC2626',
+        label: 'Net Byproduct Surplus (Nm³/h)',
+        data: [130000, 145000, 135000, 145000, 145000, 165000, 140000, 140000, netBal],
+        borderColor: '#059669',
         borderDash: [5, 5],
         fill: false,
         tension: 0.35,
@@ -183,12 +183,12 @@ export const OverviewDashboard: React.FC = () => {
         </div>
 
         {/* Net Balance */}
-        <div className="bg-white p-5 border border-[#CBD5E1] rounded-lg relative overflow-hidden group hover:border-[#DC2626] transition-all shadow-sm">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#DC2626]" />
+        <div className={`bg-white p-5 border border-[#CBD5E1] rounded-lg relative overflow-hidden group transition-all shadow-sm ${netBal >= 0 ? 'hover:border-[#059669]' : 'hover:border-[#DC2626]'}`}>
+          <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${netBal >= 0 ? 'bg-[#059669]' : 'bg-[#DC2626]'}`} />
           <div className="flex justify-between items-start mb-3">
-            <h3 className="text-[11px] font-mono text-[#64748B] uppercase tracking-wider font-bold">Net Balance</h3>
-            <span className="p-1.5 rounded bg-[#FEE2E2] text-[#DC2626]">
-              <TrendingDown className="w-4 h-4" />
+            <h3 className="text-[11px] font-mono text-[#64748B] uppercase tracking-wider font-bold">Net Byproduct Balance</h3>
+            <span className={`p-1.5 rounded ${netBal >= 0 ? 'bg-[#D1FAE5] text-[#059669]' : 'bg-[#FEE2E2] text-[#DC2626]'}`}>
+              {netBal >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             </span>
           </div>
           <div className="flex items-baseline gap-2">
@@ -197,8 +197,8 @@ export const OverviewDashboard: React.FC = () => {
             </span>
             <span className="text-xs font-mono text-[#64748B]">Nm³/h</span>
           </div>
-          <p className="text-[11px] text-[#DC2626] font-mono mt-2 font-bold">
-            Critical network deficit
+          <p className={`text-[11px] font-mono mt-2 font-bold ${netBal >= 0 ? 'text-[#059669]' : 'text-[#DC2626]'}`}>
+            {netBal >= 0 ? 'Net byproduct surplus' : 'Critical network deficit'}
           </p>
         </div>
 

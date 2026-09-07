@@ -16,8 +16,8 @@ export const SimulationWorkspace: React.FC = () => {
     setIsSimulating(true);
     setTimeout(() => {
       let balanceDelta = 0;
-      if (simParams.bf1Shutdown) balanceDelta -= 430000;
-      if (simParams.cob2Maintenance) balanceDelta -= 310000;
+      if (simParams.bf1Shutdown) balanceDelta -= 465000;
+      if (simParams.cob2Maintenance) balanceDelta -= 62000;
       balanceDelta -= (simParams.rollingMillRampUp - 100) * 3400;
       balanceDelta += (simParams.flareLossReduction - 85) * 1200;
 
@@ -65,8 +65,8 @@ export const SimulationWorkspace: React.FC = () => {
 
           <div className="flex items-center justify-between p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded">
             <div>
-              <p className="text-xs font-bold text-[#0F172A]">Blast Furnace 1 (BF-1) Emergency Outage</p>
-              <p className="text-[10px] font-mono text-[#64748B]">Simulate -430,000 Nm³/h BF Gas loss</p>
+              <p className="text-xs font-bold text-[#0F172A]">Blast Furnace I (BF-I) Emergency Outage</p>
+              <p className="text-[10px] font-mono text-[#64748B]">Simulate -465,000 Nm³/h BF Gas loss</p>
             </div>
             <input 
               type="checkbox" 
@@ -78,8 +78,8 @@ export const SimulationWorkspace: React.FC = () => {
 
           <div className="flex items-center justify-between p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded">
             <div>
-              <p className="text-xs font-bold text-[#0F172A]">Coke Battery 2 Maintenance</p>
-              <p className="text-[10px] font-mono text-[#64748B]">Simulate -310,000 Nm³/h CO Gas reduction</p>
+              <p className="text-xs font-bold text-[#0F172A]">Old BPP (Batt 8 & 9) Maintenance Outage</p>
+              <p className="text-[10px] font-mono text-[#64748B]">Simulate -62,000 Nm³/h CO Gas loss</p>
             </div>
             <input 
               type="checkbox" 

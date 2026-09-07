@@ -7,11 +7,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export const GasGenerationView: React.FC = () => {
   const generationUnits = [
-    { name: 'Blast Furnace 1 (BF-1)', gas: 'BF Gas', output: 430000, maxCapacity: 450000, efficiency: 95.5, status: 'Normal', pressure: '14.5 kPa', temp: '180°C' },
-    { name: 'Blast Furnace 2 (BF-2)', gas: 'BF Gas', output: 420000, maxCapacity: 450000, efficiency: 93.3, status: 'Warning', pressure: '13.9 kPa', temp: '175°C' },
-    { name: 'Coke Oven Battery 1', gas: 'CO Gas', output: 310000, maxCapacity: 325000, efficiency: 95.3, status: 'Normal', pressure: '29.0 kPa', temp: '820°C' },
-    { name: 'Coke Oven Battery 2', gas: 'CO Gas', output: 310000, maxCapacity: 325000, efficiency: 95.3, status: 'Normal', pressure: '28.0 kPa', temp: '815°C' },
-    { name: 'LD Converter Plant (SMS-2)', gas: 'LD Gas', output: 250000, maxCapacity: 280000, efficiency: 89.2, status: 'Normal', pressure: '18.0 kPa', temp: '1250°C' }
+    { name: 'Blast Furnace I', gas: 'BF Gas', output: 465000, maxCapacity: 500000, efficiency: 96.5, status: 'Normal', pressure: '14.8 kPa', temp: '185°C' },
+    { name: 'Blast Furnace H', gas: 'BF Gas', output: 450000, maxCapacity: 480000, efficiency: 95.8, status: 'Normal', pressure: '14.5 kPa', temp: '180°C' },
+    { name: 'Blast Furnace G', gas: 'BF Gas', output: 322000, maxCapacity: 350000, efficiency: 94.2, status: 'Normal', pressure: '14.2 kPa', temp: '178°C' },
+    { name: 'Blast Furnace F', gas: 'BF Gas', output: 240000, maxCapacity: 260000, efficiency: 92.3, status: 'Warning', pressure: '13.9 kPa', temp: '172°C' },
+    { name: 'Blast Furnace C', gas: 'BF Gas', output: 162000, maxCapacity: 180000, efficiency: 90.0, status: 'Normal', pressure: '13.8 kPa', temp: '170°C' },
+    { name: 'Blast Furnace E', gas: 'BF Gas', output: 82200, maxCapacity: 90000, efficiency: 91.3, status: 'Normal', pressure: '13.5 kPa', temp: '165°C' },
+    { name: 'New BPP (Batt 10, 11)', gas: 'CO Gas', output: 80000, maxCapacity: 90000, efficiency: 96.0, status: 'Normal', pressure: '28.5 kPa', temp: '820°C' },
+    { name: 'Old BPP (Batt 8, 9)', gas: 'CO Gas', output: 62000, maxCapacity: 70000, efficiency: 94.5, status: 'Normal', pressure: '29.0 kPa', temp: '810°C' },
+    { name: 'LD-1 & LD-3 Converter', gas: 'LD Gas', output: 85000, maxCapacity: 95000, efficiency: 89.5, status: 'Normal', pressure: '18.2 kPa', temp: '1240°C' },
+    { name: 'LD-2 Converter', gas: 'LD Gas', output: 65000, maxCapacity: 75000, efficiency: 87.8, status: 'Normal', pressure: '17.8 kPa', temp: '1220°C' }
   ];
 
   const chartData = {

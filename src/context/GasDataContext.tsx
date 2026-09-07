@@ -27,9 +27,9 @@ const initialMetrics: GasTypeMetrics[] = [
     id: 'bf-gas',
     name: 'BF Gas',
     fullName: 'Blast Furnace Gas',
-    generation: 850000,
-    consumption: 862000,
-    balance: -12000,
+    generation: 1721200,
+    consumption: 1736000,
+    balance: -14800,
     status: 'Deficit',
     pressure: 14.2,
     calorificValue: 920,
@@ -40,9 +40,9 @@ const initialMetrics: GasTypeMetrics[] = [
     id: 'co-gas',
     name: 'CO Gas',
     fullName: 'Coke Oven Gas',
-    generation: 620000,
-    consumption: 612000,
-    balance: 8000,
+    generation: 142000,
+    consumption: 134600,
+    balance: 7400,
     status: 'Surplus',
     pressure: 28.5,
     calorificValue: 4250,
@@ -53,10 +53,10 @@ const initialMetrics: GasTypeMetrics[] = [
     id: 'ld-gas',
     name: 'LD Gas',
     fullName: 'Linz-Donawitz Converter Gas',
-    generation: 250000,
-    consumption: 253400,
-    balance: -3400,
-    status: 'Deficit',
+    generation: 150000,
+    consumption: 0,
+    balance: 150000,
+    status: 'Surplus',
     pressure: 18.0,
     calorificValue: 2100,
     holderLevel: 45,
@@ -78,30 +78,39 @@ const initialMetrics: GasTypeMetrics[] = [
 ];
 
 const initialNodes: NetworkNode[] = [
-  { id: 'bf1', name: 'Blast Furnace 1', type: 'generator', gasType: 'BF Gas', flowRate: 430000, pressure: 14.5, status: 'normal', x: 100, y: 150, details: 'Operating at 96% capacity. Clean gas temperature 180°C.' },
-  { id: 'bf2', name: 'Blast Furnace 2', type: 'generator', gasType: 'BF Gas', flowRate: 420000, pressure: 13.9, status: 'warning', x: 100, y: 320, details: 'Minor pressure drop detected in scrubber unit.' },
-  { id: 'cob1', name: 'Coke Battery 1', type: 'generator', gasType: 'CO Gas', flowRate: 310000, pressure: 29.0, status: 'normal', x: 100, y: 490, details: 'Gas booster compressor A running nominally.' },
-  { id: 'cob2', name: 'Coke Battery 2', type: 'generator', gasType: 'CO Gas', flowRate: 310000, pressure: 28.0, status: 'normal', x: 100, y: 650, details: 'Gas booster compressor B running nominally.' },
+  { id: 'bf-i', name: 'Blast Furnace I', type: 'generator', gasType: 'BF Gas', flowRate: 465000, pressure: 14.8, status: 'normal', x: 100, y: 100, details: 'Generation: 465k Nm³/h, Internal Cons: 194k Nm³/h. Net output: 271k Nm³/h.' },
+  { id: 'bf-h', name: 'Blast Furnace H', type: 'generator', gasType: 'BF Gas', flowRate: 450000, pressure: 14.5, status: 'normal', x: 100, y: 200, details: 'Generation: 450k Nm³/h, Internal Cons: 115k Nm³/h. Net output: 335k Nm³/h.' },
+  { id: 'bf-g', name: 'Blast Furnace G', type: 'generator', gasType: 'BF Gas', flowRate: 322000, pressure: 14.2, status: 'normal', x: 100, y: 300, details: 'Generation: 322k Nm³/h, Internal Cons: 90k Nm³/h. Net output: 232k Nm³/h.' },
+  { id: 'bf-f', name: 'Blast Furnace F', type: 'generator', gasType: 'BF Gas', flowRate: 240000, pressure: 13.9, status: 'warning', x: 100, y: 400, details: 'Generation: 240k Nm³/h, Internal Cons: 80k Nm³/h.' },
+  { id: 'bf-c', name: 'Blast Furnace C', type: 'generator', gasType: 'BF Gas', flowRate: 162000, pressure: 13.8, status: 'normal', x: 100, y: 500, details: 'Generation: 162k Nm³/h, Internal Cons: 32k Nm³/h.' },
+  { id: 'bf-e', name: 'Blast Furnace E', type: 'generator', gasType: 'BF Gas', flowRate: 82200, pressure: 13.5, status: 'normal', x: 100, y: 600, details: 'Generation: 82.2k Nm³/h, Internal Cons: 25k Nm³/h.' },
   
-  { id: 'holder1', name: 'BF Gasholder 100k', type: 'holder', gasType: 'BF Gas', flowRate: 0, pressure: 14.2, status: 'normal', x: 450, y: 230, details: 'Current stock: 68,000 m³ (68% capacity).' },
-  { id: 'holder2', name: 'CO Gasholder 80k', type: 'holder', gasType: 'CO Gas', flowRate: 0, pressure: 28.5, status: 'normal', x: 450, y: 570, details: 'Current stock: 67,200 m³ (84% capacity).' },
+  { id: 'co-old', name: 'Old BPP (Batt 8 & 9)', type: 'generator', gasType: 'CO Gas', flowRate: 62000, pressure: 29.0, status: 'normal', x: 100, y: 680, details: 'Generation: 62k Nm³/h from Batteries 8 & 9.' },
+  { id: 'co-new', name: 'New BPP (Batt 10 & 11)', type: 'generator', gasType: 'CO Gas', flowRate: 80000, pressure: 28.5, status: 'normal', x: 100, y: 740, details: 'Generation: 80k Nm³/h from Batteries 10 & 11.' },
   
-  { id: 'powerplant', name: 'Thermal Power Plant', type: 'consumer', gasType: 'BF Gas', flowRate: 520000, pressure: 12.8, status: 'normal', x: 800, y: 120, details: 'Boilers 1-4 consuming mixed gas fuel.' },
-  { id: 'hotstrip', name: 'Hot Strip Mill', type: 'consumer', gasType: 'CO Gas', flowRate: 340000, pressure: 26.5, status: 'normal', x: 800, y: 280, details: 'Reheating furnace 2 active.' },
-  { id: 'sinter', name: 'Sinter Plant 3', type: 'consumer', gasType: 'BF Gas', flowRate: 240000, pressure: 13.1, status: 'normal', x: 800, y: 440, details: 'Ignition furnace running on BF/CO mix.' },
-  { id: 'pellet', name: 'Pelletizing Plant', type: 'consumer', gasType: 'CO Gas', flowRate: 210000, pressure: 27.0, status: 'normal', x: 800, y: 600, details: 'Burners operating at 88% efficiency.' }
+  { id: 'holder-bf', name: 'BF Gasholder 100k', type: 'holder', gasType: 'BF Gas', flowRate: 0, pressure: 14.2, status: 'normal', x: 450, y: 250, details: 'Current stock: 68,000 m³ (68% capacity).' },
+  { id: 'holder-co', name: 'CO Gasholder 80k', type: 'holder', gasType: 'CO Gas', flowRate: 0, pressure: 28.5, status: 'normal', x: 450, y: 500, details: 'Current stock: 67,200 m³ (84% capacity).' },
+  { id: 'holder-ld', name: 'LD Gasholder 50k', type: 'holder', gasType: 'LD Gas', flowRate: 0, pressure: 18.0, status: 'normal', x: 450, y: 720, details: 'Current stock: 22,500 m³ (45% capacity).' },
+  
+  { id: 'ph6', name: 'Power House #6', type: 'consumer', gasType: 'BF Gas', flowRate: 303000, pressure: 12.8, status: 'normal', x: 800, y: 120, details: 'BF Gas: 300,000 Nm³/h + CO Gas: 3,000 Nm³/h.' },
+  { id: 'coke-plant', name: 'Coke Plant Heating', type: 'consumer', gasType: 'BF Gas', flowRate: 270000, pressure: 13.0, status: 'normal', x: 800, y: 220, details: 'BF Gas consumption for battery underfiring.' },
+  { id: 'ph3', name: 'Power House #3', type: 'consumer', gasType: 'BF Gas', flowRate: 191100, pressure: 12.9, status: 'normal', x: 800, y: 320, details: 'BF Gas: 190,000 Nm³/h + CO Gas: 1,100 Nm³/h.' },
+  { id: 'ph4', name: 'Power House #4', type: 'consumer', gasType: 'BF Gas', flowRate: 172000, pressure: 13.1, status: 'normal', x: 800, y: 420, details: 'BF Gas: 150,000 Nm³/h + CO Gas: 22,000 Nm³/h.' },
+  { id: 'ph5', name: 'Power House #5', type: 'consumer', gasType: 'BF Gas', flowRate: 132000, pressure: 13.0, status: 'normal', x: 800, y: 520, details: 'BF Gas: 130,000 Nm³/h + CO Gas: 2,000 Nm³/h.' },
+  { id: 'hsm', name: 'HSM Mill', type: 'consumer', gasType: 'CO Gas', flowRate: 105000, pressure: 26.5, status: 'normal', x: 800, y: 620, details: 'BF Gas: 75,000 Nm³/h + CO Gas: 30,000 Nm³/h.' },
+  { id: 'pellet', name: 'Pelletizing Plant', type: 'consumer', gasType: 'CO Gas', flowRate: 78000, pressure: 27.0, status: 'normal', x: 800, y: 720, details: 'BF Gas: 60,000 Nm³/h + CO Gas: 18,000 Nm³/h.' }
 ];
 
 const initialPipelines: NetworkPipeline[] = [
-  { id: 'p1', fromId: 'bf1', toId: 'holder1', flowRate: 430000, capacity: 500000, gasType: 'BF Gas', status: 'active' },
-  { id: 'p2', fromId: 'bf2', toId: 'holder1', flowRate: 420000, capacity: 500000, gasType: 'BF Gas', status: 'active' },
-  { id: 'p3', fromId: 'holder1', toId: 'powerplant', flowRate: 520000, capacity: 600000, gasType: 'BF Gas', status: 'active' },
-  { id: 'p4', fromId: 'holder1', toId: 'sinter', flowRate: 240000, capacity: 300000, gasType: 'BF Gas', status: 'active' },
-  
-  { id: 'p5', fromId: 'cob1', toId: 'holder2', flowRate: 310000, capacity: 400000, gasType: 'CO Gas', status: 'active' },
-  { id: 'p6', fromId: 'cob2', toId: 'holder2', flowRate: 310000, capacity: 400000, gasType: 'CO Gas', status: 'active' },
-  { id: 'p7', fromId: 'holder2', toId: 'hotstrip', flowRate: 340000, capacity: 450000, gasType: 'CO Gas', status: 'active' },
-  { id: 'p8', fromId: 'holder2', toId: 'pellet', flowRate: 210000, capacity: 300000, gasType: 'CO Gas', status: 'active' }
+  { id: 'p1', fromId: 'bf-i', toId: 'holder-bf', flowRate: 465000, capacity: 500000, gasType: 'BF Gas', status: 'active' },
+  { id: 'p2', fromId: 'bf-h', toId: 'holder-bf', flowRate: 450000, capacity: 500000, gasType: 'BF Gas', status: 'active' },
+  { id: 'p3', fromId: 'bf-g', toId: 'holder-bf', flowRate: 322000, capacity: 400000, gasType: 'BF Gas', status: 'active' },
+  { id: 'p4', fromId: 'holder-bf', toId: 'ph6', flowRate: 300000, capacity: 350000, gasType: 'BF Gas', status: 'active' },
+  { id: 'p5', fromId: 'holder-bf', toId: 'coke-plant', flowRate: 270000, capacity: 300000, gasType: 'BF Gas', status: 'active' },
+  { id: 'p6', fromId: 'co-old', toId: 'holder-co', flowRate: 62000, capacity: 100000, gasType: 'CO Gas', status: 'active' },
+  { id: 'p7', fromId: 'co-new', toId: 'holder-co', flowRate: 80000, capacity: 120000, gasType: 'CO Gas', status: 'active' },
+  { id: 'p8', fromId: 'holder-co', toId: 'hsm', flowRate: 30000, capacity: 50000, gasType: 'CO Gas', status: 'active' },
+  { id: 'p9', fromId: 'holder-co', toId: 'ph4', flowRate: 22000, capacity: 35000, gasType: 'CO Gas', status: 'active' }
 ];
 
 const initialAlerts: AlertItem[] = [
@@ -109,34 +118,34 @@ const initialAlerts: AlertItem[] = [
     id: 'alt-101',
     timestamp: '01:14:22 UTC',
     severity: 'critical',
-    title: 'BF Gas Network Deficit Alarm',
-    location: 'Blast Furnace Gas Main Trunk B',
+    title: 'BF Gas Network Deficit Alarm (-14,800 Nm³/h)',
+    location: 'Blast Furnace Gas Main Trunk',
     gasType: 'BF Gas',
-    description: 'Predicted -12,000 Nm³/h deficit due to unexpected dust collector bypass at BF-2.',
+    description: 'Total BF Gas generation (1,721,200 Nm³/h) is below total plant demand (1,736,000 Nm³/h). Deficit: -14,800 Nm³/h.',
     acknowledged: false,
-    actionRequired: 'Reroute 15,000 Nm³/h from Gasholder 100k or switch Boiler 3 to CO Gas mix.'
+    actionRequired: 'Reroute CO Gas surplus (+7,400 Nm³/h) to boilers or draw from 100k BF Gasholder.'
   },
   {
     id: 'alt-102',
     timestamp: '00:52:10 UTC',
     severity: 'warning',
-    title: 'LD Gas Scrubber Pressure Fluctuating',
-    location: 'Steel Melting Shop #2',
+    title: 'LD Gas Generation Surplus (+150,000 Nm³/h)',
+    location: 'Steel Melting Shop (LD-1, LD-2, LD-3)',
     gasType: 'LD Gas',
-    description: 'Telemetry jitter on differential pressure sensor PT-804 (±2.4 kPa).',
+    description: '150,000 Nm³/h available LD Gas generation. 0 Nm³/h direct line consumption. Holder buffering active.',
     acknowledged: false,
-    actionRequired: 'Dispatch field technician for calibration.'
+    actionRequired: 'Review recovery system to maximize power plant co-firing.'
   },
   {
     id: 'alt-103',
     timestamp: '00:30:00 UTC',
     severity: 'info',
-    title: 'CO Gas Holder High Level Warning',
+    title: 'CO Gas Holder High Buffer Warning',
     location: 'Gasholder Compound 80k',
     gasType: 'CO Gas',
-    description: 'Volume reached 84% capacity. Buffer headroom 12,800 m³ remaining.',
+    description: 'Volume reached 84% capacity (+7,400 Nm³/h net surplus). Headroom 12,800 m³ remaining.',
     acknowledged: true,
-    actionRequired: 'Increase Power Plant CO firing rate if level exceeds 88%.'
+    actionRequired: 'Increase Power House #4 CO gas firing rate.'
   }
 ];
 
