@@ -11,6 +11,7 @@ import {
   TrendingUp, 
   AlertTriangle, 
   FileText,
+  Clock,
   FlameKindling,
   ChevronLeft,
   ChevronRight
@@ -42,7 +43,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'simulation', label: 'Simulation Workspace', icon: Sliders },
     { id: 'scenario', label: 'Scenario Analysis', icon: TrendingUp },
     { id: 'alerts', label: 'Operational Alerts', icon: AlertTriangle, badge: unacknowledgedCritical },
-    { id: 'reports', label: 'Reports & Exports', icon: FileText }
+    { id: 'reports', label: 'Reports & Exports', icon: FileText },
+    { id: 'timeline', label: 'Event Timeline', icon: Clock }
   ];
 
   return (

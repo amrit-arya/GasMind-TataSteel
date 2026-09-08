@@ -11,6 +11,7 @@ import { SimulationWorkspace } from './views/SimulationWorkspace';
 import { ScenarioAnalysisView } from './views/ScenarioAnalysisView';
 import { AlertsConsoleView } from './views/AlertsConsoleView';
 import { ReportsView } from './views/ReportsView';
+import { EventTimelineView } from './views/EventTimelineView';
 
 const MainContent: React.FC<{ 
   setMobileOpen: (open: boolean) => void;
@@ -39,6 +40,8 @@ const MainContent: React.FC<{
         return <AlertsConsoleView />;
       case 'reports':
         return <ReportsView />;
+      case 'timeline':
+        return <EventTimelineView />;
       default:
         return <OverviewDashboard />;
     }

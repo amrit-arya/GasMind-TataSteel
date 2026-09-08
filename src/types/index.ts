@@ -7,7 +7,8 @@ export type ViewMode =
   | 'simulation'
   | 'scenario'
   | 'alerts'
-  | 'reports';
+  | 'reports'
+  | 'timeline';
 
 export type GasType = 'BF Gas' | 'CO Gas' | 'LD Gas' | 'Natural Gas';
 
