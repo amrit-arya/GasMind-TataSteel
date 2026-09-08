@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useGasData } from '../context/GasDataContext';
 import { 
   Sliders, 
   Play, 
@@ -11,7 +12,11 @@ import {
   Zap, 
   ShieldCheck,
   RefreshCw,
-  HelpCircle
+  HelpCircle,
+  User,
+  UserCheck,
+  FileSpreadsheet,
+  AlertCircle
 } from 'lucide-react';
 
 interface GeneratorOption {
@@ -52,6 +57,14 @@ const consumers: ConsumerOption[] = [
 ];
 
 export const SimulationWorkspace: React.FC = () => {
+  const { addAuditLog, setCurrentView } = useGasData();
+
+  // Mandatory Operator Credentials
+  const [operatorName, setOperatorName] = useState<string>('Rajesh Kumar');
+  const [operatorDesignation, setOperatorDesignation] = useState<string>('Shift In-Charge / Sr. Energy Engineer');
+  const [operatorDept, setOperatorDept] = useState<string>('Energy Management Division (EMP-4819)');
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   // Event state
   const [selectedGenerator, setSelectedGenerator] = useState<string>('none');
   const [selectedConsumer, setSelectedConsumer] = useState<string>('none');
@@ -60,6 +73,7 @@ export const SimulationWorkspace: React.FC = () => {
 
   const [isComputing, setIsComputing] = useState(false);
   const [simulationRun, setSimulationRun] = useState(false);
+  const [lastAuditId, setLastAuditId] = useState<string | null>(null);
 
   // Baselines from Excel dataset
   const bfBaseGen = 1721200;
@@ -101,10 +115,48 @@ export const SimulationWorkspace: React.FC = () => {
   const coDepletionHours = simCoBal < 0 ? Math.abs(67200 / simCoBal) : 999;
 
   const handleRunSimulation = () => {
+    if (!operatorName.trim() || !operatorDesignation.trim()) {
+      setValidationError('Operator Name and Designation are mandatory to execute simulation and log audit record.');
+      return;
+    }
+
+    setValidationError(null);
     setIsComputing(true);
+    
     setTimeout(() => {
       setIsComputing(false);
       setSimulationRun(true);
+
+      const genObj = generators.find(g => g.id === selectedGenerator);
+      const consObj = consumers.find(c => c.id === selectedConsumer);
+
+      const genText = genObj ? genObj.name : 'Nominal Baseline';
+      const consText = consObj ? consObj.name : 'Nominal Baseline';
+
+      const resultDesc = `Simulated Net BF Balance: ${simBfBal > 0 ? '+' : ''}${simBfBal.toLocaleString()} Nm³/h | Net CO Balance: ${simCoBal > 0 ? '+' : ''}${simCoBal.toLocaleString()} Nm³/h. ` +
+        (simBfBal < 0 ? `BF Gasholder depletion window: ${bfDepletionHours.toFixed(2)} hours.` : `BF Gasholder buffer safe.`);
+
+      addAuditLog({
+        category: 'simulation',
+        userName: operatorName,
+        userDesignation: operatorDesignation,
+        userDepartment: operatorDept,
+        actionTitle: `Simulation Executed: Gen: ${selectedGenerator !== 'none' ? genObj?.name : 'Nominal'}, Cons: ${selectedConsumer !== 'none' ? consObj?.name : 'Nominal'}`,
+        details: {
+          targetEquipment: selectedGenerator !== 'none' ? genObj?.name : selectedConsumer !== 'none' ? consObj?.name : 'All Plant Nodes',
+          parametersUsed: {
+            outageGenerator: selectedGenerator,
+            outageConsumer: selectedConsumer,
+            generationScale: `${generationScale}%`,
+            consumptionScale: `${consumptionScale}%`
+          },
+          resultsProduced: resultDesc,
+          netDeficitSurplus: `${simBfBal > 0 ? '+' : ''}${simBfBal.toLocaleString()} Nm³/h (BF Gas)`,
+          mitigationStatus: simBfBal < 0 ? 'Action Required: Priority Redistribution Generated' : 'Normal Operation Maintained'
+        }
+      });
+
+      setLastAuditId(`AUD-SIM-${Math.floor(1000 + Math.random() * 9000)}`);
     }, 600);
   };
 
@@ -135,6 +187,62 @@ export const SimulationWorkspace: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Controls Column (5 cols) */}
         <div className="lg:col-span-5 bg-white border border-[#CBD5E1] rounded-lg p-5 space-y-5 shadow-sm">
+          {/* Operator Credentials (Mandatory for Audit Trail) */}
+          <div className="p-3 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg space-y-3">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-2">
+              <span className="text-xs font-mono font-bold text-[#0F172A] flex items-center gap-1.5">
+                <UserCheck className="w-4 h-4 text-[#FF6B00]" />
+                Mandatory Operator Credentials
+              </span>
+              <span className="px-1.5 py-0.5 bg-[#FF6B00]/10 text-[#FF6B00] text-[9px] font-mono font-bold rounded uppercase">
+                Audit Required
+              </span>
+            </div>
+
+            <div className="space-y-2 text-xs font-mono">
+              <div>
+                <label className="text-[#64748B] text-[10px] uppercase font-bold block mb-0.5">Operator Name *</label>
+                <input
+                  type="text"
+                  value={operatorName}
+                  onChange={(e) => setOperatorName(e.target.value)}
+                  placeholder="Enter your full name"
+                  className="w-full p-2 bg-white border border-[#CBD5E1] rounded text-xs text-[#0F172A] focus:border-[#FF6B00] focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[#64748B] text-[10px] uppercase font-bold block mb-0.5">Designation *</label>
+                  <input
+                    type="text"
+                    value={operatorDesignation}
+                    onChange={(e) => setOperatorDesignation(e.target.value)}
+                    placeholder="e.g. Shift In-Charge"
+                    className="w-full p-2 bg-white border border-[#CBD5E1] rounded text-xs text-[#0F172A] focus:border-[#FF6B00] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[#64748B] text-[10px] uppercase font-bold block mb-0.5">Department / Emp ID</label>
+                  <input
+                    type="text"
+                    value={operatorDept}
+                    onChange={(e) => setOperatorDept(e.target.value)}
+                    placeholder="e.g. Energy Management"
+                    className="w-full p-2 bg-white border border-[#CBD5E1] rounded text-xs text-[#0F172A] focus:border-[#FF6B00] focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {validationError && (
+              <div className="p-2 bg-[#FEE2E2] border border-[#DC2626]/30 rounded flex items-center gap-2 text-[#DC2626] text-[11px] font-mono font-bold">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{validationError}</span>
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
             <h3 className="font-display text-base font-bold text-[#0F172A] flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#FF6B00]" />
@@ -233,6 +341,26 @@ export const SimulationWorkspace: React.FC = () => {
 
         {/* Live Cascade & Buffer Impact Matrix (7 cols) */}
         <div className="lg:col-span-7 bg-white border border-[#CBD5E1] rounded-lg p-5 space-y-4 shadow-sm flex flex-col justify-between">
+          {simulationRun && lastAuditId && (
+            <div className="p-3 bg-[#ECFDF5] border border-[#059669]/30 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-[#059669]" />
+                <div className="text-xs font-mono">
+                  <span className="font-bold text-[#059669]">Audit Trail Record Created: </span>
+                  <span className="font-mono text-[#0F172A] font-bold">{lastAuditId}</span>
+                  <p className="text-[10px] text-[#64748B]">Logged by {operatorName} ({operatorDesignation})</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setCurrentView('audit')}
+                className="flex items-center gap-1 px-2.5 py-1 bg-[#059669] text-white rounded text-[10px] font-mono font-bold hover:bg-[#047857] transition-colors cursor-pointer"
+              >
+                <FileSpreadsheet className="w-3 h-3" />
+                View Audit Trail
+              </button>
+            </div>
+          )}
+
           <div className="pb-2 border-b border-[#E2E8F0] flex justify-between items-center">
             <h3 className="font-display text-base font-bold text-[#0F172A]">
               Simulated Stream Balances & Buffer Windows

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { ViewMode, GasTypeMetrics, NetworkNode, NetworkPipeline, AlertItem, SimulationParams, AIInsight } from '../types';
+import { ViewMode, GasTypeMetrics, NetworkNode, NetworkPipeline, AlertItem, SimulationParams, AIInsight, AuditItem } from '../types';
 import { playAlertSound, playSuccessSound, setMuted as setSoundMuted, getMuted } from '../utils/soundNotifications';
 
 interface GasDataContextType {
@@ -23,6 +23,9 @@ interface GasDataContextType {
   exportNotification: string | null;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
+  auditLogs: AuditItem[];
+  addAuditLog: (entry: Omit<AuditItem, 'id' | 'timestamp'>) => void;
+  exportAuditLogsToCSV: () => void;
 }
 
 const initialMetrics: GasTypeMetrics[] = [
@@ -375,6 +378,121 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => clearInterval(interval);
   }, [isLive]);
 
+  const [auditLogs, setAuditLogs] = useState<AuditItem[]>([
+    {
+      id: 'AUD-SIM-9042',
+      timestamp: '2026-09-08 22:45:12 UTC',
+      category: 'simulation',
+      userName: 'Rajesh Kumar',
+      userDesignation: 'Shift In-Charge / Sr. Energy Engineer',
+      userDepartment: 'Energy Management Division (Emp ID: EMP-4819)',
+      actionTitle: 'Blast Furnace I Trip Contingency Simulation',
+      details: {
+        targetEquipment: 'Blast Furnace I (-465,000 Nm³/h)',
+        parametersUsed: { outageGenerator: 'bf-i', generationScale: '100%', consumerOutage: 'none' },
+        resultsProduced: 'BF Gas deficit increased to -479,800 Nm³/h. Depletion window: 0.14 hrs. Recommended: Throttle Power House #3 by 35% and switch HSM to CO Gas.',
+        netDeficitSurplus: '-479,800 Nm³/h Deficit',
+        mitigationStatus: 'Priority Strategy Generated'
+      }
+    },
+    {
+      id: 'AUD-EXP-9038',
+      timestamp: '2026-09-08 21:12:00 UTC',
+      category: 'report_export',
+      userName: 'Amitabh Roy',
+      userDesignation: 'Chief Energy Manager',
+      userDepartment: 'Plant Logistics & Utilities (Emp ID: EMP-1022)',
+      actionTitle: 'Exported Executive Gas Balance Summary',
+      details: {
+        exportFormat: 'PDF',
+        reportType: 'Executive Summary & Tri-Gas Balance Report',
+        resultsProduced: 'Generated official PDF report containing BF/CO/LD live metrics, gasholder inventory, and financial impact matrix.'
+      }
+    },
+    {
+      id: 'AUD-SIM-9025',
+      timestamp: '2026-09-08 19:30:45 UTC',
+      category: 'simulation',
+      userName: 'Priya Sharma',
+      userDesignation: 'Principal Process Analyst',
+      userDepartment: 'Process Optimization Cell (Emp ID: EMP-3304)',
+      actionTitle: 'Power House #6 Load Drop Contingency Simulation',
+      details: {
+        targetEquipment: 'Power House #6 (-300,000 Nm³/h)',
+        parametersUsed: { outageGenerator: 'none', generationScale: '100%', consumerOutage: 'ph6' },
+        resultsProduced: 'BF Gas balance shifted from -14,800 Nm³/h deficit to +285,200 Nm³/h surplus. 100k Gasholder fill rate increased by +4.2%/hr.',
+        netDeficitSurplus: '+285,200 Nm³/h Surplus',
+        mitigationStatus: 'Buffer Drawdown Prevented'
+      }
+    },
+    {
+      id: 'AUD-EXP-9011',
+      timestamp: '2026-09-08 17:05:20 UTC',
+      category: 'report_export',
+      userName: 'Rajesh Kumar',
+      userDesignation: 'Shift In-Charge / Sr. Energy Engineer',
+      userDepartment: 'Energy Management Division (Emp ID: EMP-4819)',
+      actionTitle: 'Exported Incident Failure Impact Simulation Logs',
+      details: {
+        exportFormat: 'CSV',
+        reportType: 'Incident & Failure Impact Report (Excel/CSV)',
+        resultsProduced: 'Exported raw simulation telemetry log data for Blast Furnace trip scenarios to Excel/CSV for departmental audit.'
+      }
+    },
+    {
+      id: 'AUD-SYS-8990',
+      timestamp: '2026-09-08 15:40:00 UTC',
+      category: 'parameter_change',
+      userName: 'Suresh Patel',
+      userDesignation: 'Control Room Controller',
+      userDepartment: 'Automation & SCADA Control (Emp ID: EMP-5512)',
+      actionTitle: 'CO Gas Gasholder Upper Safety Limit Threshold Adjusted',
+      details: {
+        targetEquipment: 'CO Gasholder 80k',
+        parametersUsed: { previousThreshold: '80%', newThreshold: '85%' },
+        resultsProduced: 'Buffer threshold updated to prevent premature flaring during CO Gas generation surges.'
+      }
+    }
+  ]);
+
+  const addAuditLog = useCallback((entry: Omit<AuditItem, 'id' | 'timestamp'>) => {
+    const now = new Date();
+    const formattedDate = `${now.toISOString().split('T')[0]} ${now.toTimeString().split(' ')[0]} UTC`;
+    const newLog: AuditItem = {
+      ...entry,
+      id: `AUD-${entry.category === 'simulation' ? 'SIM' : entry.category === 'report_export' ? 'EXP' : 'SYS'}-${Math.floor(1000 + Math.random() * 9000)}`,
+      timestamp: formattedDate
+    };
+    setAuditLogs(prev => [newLog, ...prev]);
+  }, []);
+
+  const exportAuditLogsToCSV = useCallback(() => {
+    const headers = ['Audit ID', 'Timestamp', 'Category', 'User Name', 'Designation', 'Department', 'Action Title', 'Target Equipment', 'Export Format / Result'];
+    const rows = auditLogs.map(item => [
+      item.id,
+      item.timestamp,
+      item.category,
+      `"${item.userName}"`,
+      `"${item.userDesignation}"`,
+      `"${item.userDepartment || ''}"`,
+      `"${item.actionTitle}"`,
+      `"${item.details.targetEquipment || ''}"`,
+      `"${item.details.resultsProduced || item.details.exportFormat || ''}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `GASMIND_Departmental_Audit_Trail_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setExportNotification('Departmental Audit Trail exported successfully to CSV.');
+    setTimeout(() => setExportNotification(null), 4000);
+  }, [auditLogs]);
+
   const acknowledgeAlert = (id: string) => {
     setAlerts(prev => prev.map(a => a.id === id ? { ...a, acknowledged: true } : a));
     playSuccessSound();
@@ -392,10 +510,24 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const triggerExport = () => {
+    // Record export audit log automatically
+    addAuditLog({
+      category: 'report_export',
+      userName: 'Rajesh Kumar',
+      userDesignation: 'Shift In-Charge / Sr. Energy Engineer',
+      userDepartment: 'Energy Management Division (Emp ID: EMP-4819)',
+      actionTitle: 'Exported Quick Command Center Telemetry Summary',
+      details: {
+        exportFormat: 'PDF',
+        reportType: 'Quick Command Center Summary',
+        resultsProduced: 'Exported active gas network dashboard telemetry snapshot.'
+      }
+    });
+
     setExportNotification('Exporting GASMIND Command Center Telemetry Report (PDF/CSV)...');
     playInfoAlert();
     setTimeout(() => {
-      setExportNotification('Report successfully exported and saved to downloads.');
+      setExportNotification('Report successfully exported & logged in Audit Trail.');
       setTimeout(() => setExportNotification(null), 4000);
     }, 1500);
   };
@@ -421,7 +553,10 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       triggerExport,
       exportNotification,
       soundEnabled,
-      setSoundEnabled
+      setSoundEnabled,
+      auditLogs,
+      addAuditLog,
+      exportAuditLogsToCSV
     }}>
       {children}
     </GasDataContext.Provider>

@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   FileText,
   Clock,
+  ClipboardCheck,
   ArrowRight,
   Command,
   X
@@ -53,6 +54,7 @@ const navPageIcon: Record<string, React.ReactNode> = {
   alerts: <AlertTriangle className="w-4 h-4" />,
   reports: <FileText className="w-4 h-4" />,
   timeline: <Clock className="w-4 h-4" />,
+  audit: <ClipboardCheck className="w-4 h-4" />,
 };
 
 const navPages: { id: ViewMode; label: string; keywords: string[] }[] = [
@@ -66,6 +68,7 @@ const navPages: { id: ViewMode; label: string; keywords: string[] }[] = [
   { id: 'alerts', label: 'Operational Alerts', keywords: ['alerts', 'alarm', 'notification', 'warning', 'critical', 'sound'] },
   { id: 'reports', label: 'Reports & Exports', keywords: ['report', 'export', 'pdf', 'csv', 'download', 'generate'] },
   { id: 'timeline', label: 'Event Timeline', keywords: ['timeline', 'history', 'event', 'log', 'chronological'] },
+  { id: 'audit', label: 'Departmental Audit Trail', keywords: ['audit', 'trail', 'governance', 'log', 'who', 'simulation', 'export', 'operator'] },
 ];
 
 export const Header: React.FC<HeaderProps> = ({

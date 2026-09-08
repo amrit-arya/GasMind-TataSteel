@@ -12,6 +12,7 @@ import {
   AlertTriangle, 
   FileText,
   Clock,
+  ClipboardCheck,
   FlameKindling,
   ChevronLeft,
   ChevronRight
@@ -44,7 +45,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'scenario', label: 'Scenario Analysis', icon: TrendingUp },
     { id: 'alerts', label: 'Operational Alerts', icon: AlertTriangle, badge: unacknowledgedCritical },
     { id: 'reports', label: 'Reports & Exports', icon: FileText },
-    { id: 'timeline', label: 'Event Timeline', icon: Clock }
+    { id: 'timeline', label: 'Event Timeline', icon: Clock },
+    { id: 'audit', label: 'Audit Trail', icon: ClipboardCheck }
   ];
 
   return (

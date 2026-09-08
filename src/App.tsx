@@ -12,6 +12,7 @@ import { ScenarioAnalysisView } from './views/ScenarioAnalysisView';
 import { AlertsConsoleView } from './views/AlertsConsoleView';
 import { ReportsView } from './views/ReportsView';
 import { EventTimelineView } from './views/EventTimelineView';
+import { AuditTrailView } from './views/AuditTrailView';
 
 const MainContent: React.FC<{ 
   setMobileOpen: (open: boolean) => void;
@@ -42,6 +43,8 @@ const MainContent: React.FC<{
         return <ReportsView />;
       case 'timeline':
         return <EventTimelineView />;
+      case 'audit':
+        return <AuditTrailView />;
       default:
         return <OverviewDashboard />;
     }

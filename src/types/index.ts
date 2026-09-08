@@ -8,7 +8,29 @@ export type ViewMode =
   | 'scenario'
   | 'alerts'
   | 'reports'
-  | 'timeline';
+  | 'timeline'
+  | 'audit';
+
+export type AuditCategory = 'simulation' | 'report_export' | 'system_alert' | 'parameter_change';
+
+export interface AuditItem {
+  id: string;
+  timestamp: string;
+  category: AuditCategory;
+  userName: string;
+  userDesignation: string;
+  userDepartment?: string;
+  actionTitle: string;
+  details: {
+    targetEquipment?: string;
+    parametersUsed?: Record<string, any>;
+    resultsProduced?: string;
+    exportFormat?: 'PDF' | 'CSV' | 'Excel';
+    reportType?: string;
+    mitigationStatus?: string;
+    netDeficitSurplus?: string;
+  };
+}
 
 export type GasType = 'BF Gas' | 'CO Gas' | 'LD Gas' | 'Natural Gas';
 
