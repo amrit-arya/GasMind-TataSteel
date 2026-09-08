@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { ViewMode, GasTypeMetrics, NetworkNode, NetworkPipeline, AlertItem, SimulationParams, AIInsight } from '../types';
+import { playAlertSound, playSuccessSound, setMuted as setSoundMuted, getMuted } from '../utils/soundNotifications';
 
 interface GasDataContextType {
   currentView: ViewMode;
@@ -20,6 +21,8 @@ interface GasDataContextType {
   setSearchQuery: (query: string) => void;
   triggerExport: () => void;
   exportNotification: string | null;
+  soundEnabled: boolean;
+  setSoundEnabled: (enabled: boolean) => void;
 }
 
 const initialMetrics: GasTypeMetrics[] = [
@@ -173,6 +176,12 @@ const initialInsights: AIInsight[] = [
 
 const GasDataContext = createContext<GasDataContextType | undefined>(undefined);
 
+// Helper: generate timestamp string
+function nowTimestamp(): string {
+  const d = new Date();
+  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' UTC';
+}
+
 export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentView, setCurrentView] = useState<ViewMode>('overview');
   const [gasMetrics, setGasMetrics] = useState<GasTypeMetrics[]>(initialMetrics);
@@ -183,6 +192,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isLive, setIsLive] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [exportNotification, setExportNotification] = useState<string | null>(null);
+  const [soundEnabled, setSoundEnabledState] = useState<boolean>(true);
 
   const [simParams, setSimParams] = useState<SimulationParams>({
     bf1Shutdown: false,
@@ -191,6 +201,156 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     flareLossReduction: 85,
     externalGasPrice: 8.5
   });
+
+  // Track which auto-alert IDs have already been triggered to prevent duplicate sounds
+  const triggeredAlertIds = useRef<Set<string>>(new Set(['alt-101', 'alt-102', 'alt-103']));
+
+  const setSoundEnabled = useCallback((enabled: boolean) => {
+    setSoundEnabledState(enabled);
+    setSoundMuted(!enabled);
+  }, []);
+
+  // Auto-alert engine: monitors gasMetrics and generates alerts based on real conditions
+  useEffect(() => {
+    if (!isLive) return;
+
+    const bf = gasMetrics.find(m => m.id === 'bf-gas');
+    const co = gasMetrics.find(m => m.id === 'co-gas');
+    const ld = gasMetrics.find(m => m.id === 'ld-gas');
+    if (!bf || !co || !ld) return;
+
+    const newAlerts: AlertItem[] = [];
+
+    // CRITICAL: BF Gas deficit (consumption > generation)
+    if (bf.balance < -5000) {
+      const alertId = `auto-bf-deficit-${Math.abs(Math.round(bf.balance / 5000) * 5000)}`;
+      if (!triggeredAlertIds.current.has(alertId)) {
+        newAlerts.push({
+          id: alertId,
+          timestamp: nowTimestamp(),
+          severity: 'critical',
+          title: `BF Gas Deficit Alarm (${(bf.balance / 1000).toFixed(1)}k Nm³/h)`,
+          location: 'Blast Furnace Gas Main Trunk',
+          gasType: 'BF Gas',
+          description: `BF Gas generation (${(bf.generation / 1000).toFixed(0)}k) below demand (${(bf.consumption / 1000).toFixed(0)}k). Deficit: ${(bf.balance / 1000).toFixed(1)}k Nm³/h. Gasholder draw-down active.`,
+          acknowledged: false,
+          actionRequired: 'Draw from BF Gasholder buffer or reroute CO Gas surplus to dual-fuel consumers.'
+        });
+        triggeredAlertIds.current.add(alertId);
+      }
+    }
+
+    // CRITICAL: Holder level critically low (< 30%)
+    if (bf.holderLevel < 30) {
+      const alertId = `auto-bf-holder-crit-${Math.round(bf.holderLevel / 5) * 5}`;
+      if (!triggeredAlertIds.current.has(alertId)) {
+        newAlerts.push({
+          id: alertId,
+          timestamp: nowTimestamp(),
+          severity: 'critical',
+          title: `BF Gasholder Critical Low (${bf.holderLevel}%)`,
+          location: 'BF Gasholder 100k m³',
+          gasType: 'BF Gas',
+          description: `BF Gasholder dropped to ${bf.holderLevel}% capacity. Buffer nearing exhaustion — emergency protocols may be required.`,
+          acknowledged: false,
+          actionRequired: 'Reduce non-essential BF Gas consumers or activate emergency natural gas supply.'
+        });
+        triggeredAlertIds.current.add(alertId);
+      }
+    }
+
+    // WARNING: CO Holder approaching capacity (> 85%)
+    if (co.holderLevel > 85) {
+      const alertId = `auto-co-holder-high-${Math.round(co.holderLevel / 5) * 5}`;
+      if (!triggeredAlertIds.current.has(alertId)) {
+        newAlerts.push({
+          id: alertId,
+          timestamp: nowTimestamp(),
+          severity: 'warning',
+          title: `CO Gasholder High Level (${co.holderLevel}%)`,
+          location: 'CO Gasholder 80k m³',
+          gasType: 'CO Gas',
+          description: `CO Gasholder at ${co.holderLevel}% — approaching overflow threshold. Surplus: +${(co.balance / 1000).toFixed(1)}k Nm³/h.`,
+          acknowledged: false,
+          actionRequired: 'Increase PH#4 CO Gas firing rate or divert to HSM reheating furnace.'
+        });
+        triggeredAlertIds.current.add(alertId);
+      }
+    }
+
+    // WARNING: LD Gas utilization at 0%
+    if (ld.consumption === 0 && ld.generation > 100000) {
+      const alertId = `auto-ld-underutil`;
+      if (!triggeredAlertIds.current.has(alertId)) {
+        newAlerts.push({
+          id: alertId,
+          timestamp: nowTimestamp(),
+          severity: 'warning',
+          title: `LD Gas Under-Utilization (${(ld.generation / 1000).toFixed(0)}k Nm³/h wasted)`,
+          location: 'Steel Melting Shop',
+          gasType: 'LD Gas',
+          description: `LD Gas generation at ${(ld.generation / 1000).toFixed(0)}k Nm³/h but 0 Nm³/h direct consumption. Cross-firing potential untapped.`,
+          acknowledged: false,
+          actionRequired: 'Review LD Gas recovery pipeline for co-firing opportunities.'
+        });
+        triggeredAlertIds.current.add(alertId);
+      }
+    }
+
+    // WARNING: High pressure deviation
+    if (bf.pressure > 16.0 || bf.pressure < 12.0) {
+      const alertId = `auto-bf-pressure-${Math.round(bf.pressure)}`;
+      if (!triggeredAlertIds.current.has(alertId)) {
+        newAlerts.push({
+          id: alertId,
+          timestamp: nowTimestamp(),
+          severity: 'warning',
+          title: `BF Gas Pressure ${bf.pressure > 16.0 ? 'High' : 'Low'} (${bf.pressure.toFixed(1)} kPa)`,
+          location: 'BF Gas Network Main Line',
+          gasType: 'BF Gas',
+          description: `BF Gas pressure at ${bf.pressure.toFixed(1)} kPa — ${bf.pressure > 16.0 ? 'above' : 'below'} nominal range (12.5–15.5 kPa).`,
+          acknowledged: false,
+          actionRequired: `${bf.pressure > 16.0 ? 'Open safety relief valves or increase consumer demand.' : 'Check for pipeline leaks or reduce consumer draw.'}`
+        });
+        triggeredAlertIds.current.add(alertId);
+      }
+    }
+
+    // INFO: CO Gas balance surplus healthy
+    if (co.balance > 10000 && co.balance < 15000) {
+      const alertId = `auto-co-optimal`;
+      if (!triggeredAlertIds.current.has(alertId)) {
+        newAlerts.push({
+          id: alertId,
+          timestamp: nowTimestamp(),
+          severity: 'info',
+          title: `CO Gas Operating in Optimal Surplus (+${(co.balance / 1000).toFixed(1)}k Nm³/h)`,
+          location: 'Coke Oven Gas Network',
+          gasType: 'CO Gas',
+          description: `CO Gas network is operating with a healthy surplus margin. No action required.`,
+          acknowledged: false
+        });
+        triggeredAlertIds.current.add(alertId);
+      }
+    }
+
+    // Add new alerts and trigger sounds
+    if (newAlerts.length > 0) {
+      setAlerts(prev => [...newAlerts, ...prev]);
+
+      // Play sound for the highest severity alert
+      const hasCritical = newAlerts.some(a => a.severity === 'critical');
+      const hasWarning = newAlerts.some(a => a.severity === 'warning');
+
+      if (hasCritical) {
+        playAlertSound('critical');
+      } else if (hasWarning) {
+        playAlertSound('warning');
+      } else {
+        playAlertSound('info');
+      }
+    }
+  }, [gasMetrics, isLive]);
 
   // Live telemetry pulse animation & random minor variations
   useEffect(() => {
@@ -217,6 +377,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const acknowledgeAlert = (id: string) => {
     setAlerts(prev => prev.map(a => a.id === id ? { ...a, acknowledged: true } : a));
+    playSuccessSound();
   };
 
   const dismissAlert = (id: string) => {
@@ -226,11 +387,13 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const applyInsight = (id: string) => {
     setInsights(prev => prev.map(i => i.id === id ? { ...i, applied: true } : i));
     setExportNotification('AI Optimization Applied: CO Gas rerouted to Boiler Unit 4 successfully.');
+    playSuccessSound();
     setTimeout(() => setExportNotification(null), 4000);
   };
 
   const triggerExport = () => {
     setExportNotification('Exporting GASMIND Command Center Telemetry Report (PDF/CSV)...');
+    playInfoAlert();
     setTimeout(() => {
       setExportNotification('Report successfully exported and saved to downloads.');
       setTimeout(() => setExportNotification(null), 4000);
@@ -256,7 +419,9 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       searchQuery,
       setSearchQuery,
       triggerExport,
-      exportNotification
+      exportNotification,
+      soundEnabled,
+      setSoundEnabled
     }}>
       {children}
     </GasDataContext.Provider>
@@ -270,3 +435,8 @@ export const useGasData = () => {
   }
   return context;
 };
+
+// Re-export for direct use
+function playInfoAlert() {
+  playAlertSound('info');
+}
