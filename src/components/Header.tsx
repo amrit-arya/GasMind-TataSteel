@@ -275,22 +275,23 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className={`
-        h-16 fixed top-0 right-0 left-0 bg-white border-b border-[#E2E8F0] flex items-center justify-between px-4 md:px-6 z-20 shadow-sm
+        h-16 fixed top-0 right-0 left-0 bg-white border-b border-[#E2E8F0] flex items-center justify-between px-2.5 sm:px-4 md:px-6 z-20 shadow-sm
         transition-all duration-300 ease-in-out
         ${isCollapsed ? 'md:left-[68px]' : 'md:left-[280px]'}
       `}>
         {/* Left: Mobile Toggle + Search Trigger */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1 mr-2">
           <button
             onClick={() => setMobileOpen(true)}
-            className="md:hidden text-[#0F172A] p-2 hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer"
+            className="md:hidden text-[#0F172A] p-2 hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer shrink-0"
+            aria-label="Open Mobile Menu"
           >
             <Menu className="w-5 h-5" />
           </button>
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden md:flex p-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer"
+            className="hidden md:flex p-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer shrink-0"
             title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -299,22 +300,22 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Global Search Trigger */}
           <button
             onClick={() => { setSearchOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
-            className="flex items-center gap-2 px-3 py-1.5 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg hover:border-[#FF6B00] hover:bg-white transition-all cursor-pointer w-48 sm:w-72"
+            className="flex items-center gap-2 px-2.5 py-1.5 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg hover:border-[#FF6B00] hover:bg-white transition-all cursor-pointer flex-1 max-w-[280px]"
           >
-            <Search className="w-4 h-4 text-[#94A3B8]" />
-            <span className="text-xs font-mono text-[#94A3B8] flex-1 text-left">Search anything...</span>
-            <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 bg-white border border-[#E2E8F0] rounded text-[9px] font-mono text-[#94A3B8]">
+            <Search className="w-4 h-4 text-[#94A3B8] shrink-0" />
+            <span className="text-xs font-mono text-[#94A3B8] flex-1 text-left truncate">Search anything...</span>
+            <kbd className="hidden md:flex items-center gap-0.5 px-1.5 py-0.5 bg-white border border-[#E2E8F0] rounded text-[9px] font-mono text-[#94A3B8]">
               <Command className="w-2.5 h-2.5" />K
             </kbd>
           </button>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Sound Toggle */}
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`p-2 rounded-lg transition-colors cursor-pointer ${
+            className={`p-1.5 sm:p-2 rounded-lg transition-colors cursor-pointer ${
               soundEnabled
                 ? 'text-[#059669] hover:bg-[#D1FAE5]'
                 : 'text-[#DC2626] hover:bg-[#FEE2E2]'
@@ -327,7 +328,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Live Toggle */}
           <button
             onClick={() => setIsLive(!isLive)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded border text-xs font-mono font-bold transition-colors ${
+            className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded border text-[11px] font-mono font-bold transition-colors ${
               isLive
                 ? 'bg-[#FFF3E0] text-[#FF6B00] border-[#FF6B00]/40 hover:bg-[#FFE0B2]'
                 : 'bg-[#FEF3C7] text-[#D97706] border-[#D97706]/30 hover:bg-[#FDE68A]'
@@ -341,7 +342,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Export */}
           <button
             onClick={triggerExport}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-flame-gradient text-white rounded text-xs font-bold hover:opacity-90 transition-opacity shadow-md glow-flame cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-flame-gradient text-white rounded text-[11px] sm:text-xs font-bold hover:opacity-90 transition-opacity shadow-md glow-flame cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Export</span>
@@ -351,11 +352,11 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative">
             <button
               onClick={() => setAlertsMenuOpen(!alertsMenuOpen)}
-              className="p-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer relative"
+              className="p-1.5 sm:p-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer relative"
             >
-              <Bell className="w-5 h-5" />
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
               {unacknowledged.length > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-[#DC2626] rounded-full text-white text-[8px] font-mono font-bold flex items-center justify-center animate-pulse glow-rose">
+                <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#DC2626] rounded-full text-white text-[8px] font-mono font-bold flex items-center justify-center animate-pulse glow-rose">
                   {unacknowledged.length}
                 </span>
               )}
