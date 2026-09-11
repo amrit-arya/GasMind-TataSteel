@@ -3,73 +3,74 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    background-color: #F8F9FA;
-    color: #0F172A;
+  html, body {
+    background-color: #000000 !important;
+    color: #FAFAFA;
     font-family: 'Inter', sans-serif;
+    filter: grayscale(100%) !important;
   }
 }
 
-/* Flame Gradients */
+/* Monochrome Gradients */
 .bg-flame-gradient {
-  background: linear-gradient(135deg, #FF3D00 0%, #FF6B00 50%, #FF9E00 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, #A1A1AA 50%, #27272A 100%);
 }
 
 .bg-flame-gradient-subtle {
-  background: linear-gradient(135deg, rgba(255, 61, 0, 0.08) 0%, rgba(255, 107, 0, 0.12) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(161, 161, 170, 0.18) 100%);
 }
 
 .text-flame-gradient {
-  background: linear-gradient(135deg, #FF3D00 0%, #FF6B00 50%, #FF9E00 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, #A1A1AA 50%, #52525B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Light Technical Grid Overlay */
+/* Dark Technical Grid Overlay */
 .tech-grid-bg {
-  background-image: linear-gradient(to right, rgba(203, 213, 225, 0.4) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(203, 213, 225, 0.4) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
-/* Custom Scrollbar */
+/* Custom Monochrome Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F1F3F5;
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #3F3F46;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF6B00;
+  background: #FFFFFF;
 }
 
-/* LED Glow effects */
+/* Monochrome LED Glow effects */
 .glow-flame {
-  box-shadow: 0 0 14px rgba(255, 107, 0, 0.45);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
 }
 
 .glow-emerald {
-  box-shadow: 0 0 12px rgba(5, 150, 105, 0.25);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
 }
 
 .glow-orange {
-  box-shadow: 0 0 14px rgba(255, 107, 0, 0.35);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.3);
 }
 
 .glow-amber {
-  box-shadow: 0 0 12px rgba(217, 119, 6, 0.25);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
 }
 
 .glow-rose {
-  box-shadow: 0 0 12px rgba(220, 38, 38, 0.25);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
 }
 
 /* Pulse animation for active flow lines */

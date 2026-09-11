@@ -51,8 +51,8 @@ export const OverviewDashboard: React.FC = () => {
       {
         label: 'Total Byproduct Generation (Nm³/h)',
         data: [1980000, 2005000, 1990000, 2020000, 2015000, 2030000, 2000000, 2010000, totalGen],
-        borderColor: '#FF6B00',
-        backgroundColor: 'rgba(255, 107, 0, 0.08)',
+        borderColor: '#FFFFFF',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
         fill: true,
         tension: 0.35,
         pointRadius: 3
@@ -60,8 +60,8 @@ export const OverviewDashboard: React.FC = () => {
       {
         label: 'Total Plant Consumption (Nm³/h)',
         data: [1850000, 1860000, 1855000, 1875000, 1870000, 1865000, 1860000, 1870000, totalCons],
-        borderColor: '#D97706',
-        backgroundColor: 'rgba(217, 119, 6, 0.04)',
+        borderColor: '#A1A1AA',
+        backgroundColor: 'rgba(161, 161, 170, 0.05)',
         fill: true,
         tension: 0.35,
         pointRadius: 3
@@ -69,7 +69,7 @@ export const OverviewDashboard: React.FC = () => {
       {
         label: 'Net Byproduct Surplus (Nm³/h)',
         data: [130000, 145000, 135000, 145000, 145000, 165000, 140000, 140000, netBal],
-        borderColor: '#059669',
+        borderColor: '#71717A',
         borderDash: [5, 5],
         fill: false,
         tension: 0.35,
@@ -85,32 +85,32 @@ export const OverviewDashboard: React.FC = () => {
       legend: {
         position: 'top' as const,
         labels: {
-          color: '#334155',
+          color: '#E4E4E7',
           font: { family: 'JetBrains Mono', size: 11, weight: 600 }
         }
       },
       tooltip: {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#CBD5E1',
+        backgroundColor: '#09090B',
+        borderColor: '#27272A',
         borderWidth: 1,
-        titleColor: '#0F172A',
-        bodyColor: '#0F172A',
+        titleColor: '#FFFFFF',
+        bodyColor: '#FAFAFA',
         titleFont: { family: 'Inter', size: 12, weight: 700 },
         bodyFont: { family: 'JetBrains Mono', size: 12 }
       }
     },
     scales: {
       x: {
-        ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 10 } },
-        grid: { color: '#E2E8F0' }
+        ticks: { color: '#A1A1AA', font: { family: 'JetBrains Mono', size: 10 } },
+        grid: { color: '#27272A' }
       },
       y: {
         ticks: { 
-          color: '#64748B', 
+          color: '#A1A1AA', 
           font: { family: 'JetBrains Mono', size: 10 },
           callback: (value: any) => `${(value / 1000).toFixed(0)}k`
         },
-        grid: { color: '#E2E8F0' }
+        grid: { color: '#27272A' }
       }
     }
   };

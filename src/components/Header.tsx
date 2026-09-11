@@ -275,7 +275,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className={`
-        h-16 fixed top-0 right-0 left-0 bg-white border-b border-[#E2E8F0] flex items-center justify-between px-2.5 sm:px-4 md:px-6 z-20 shadow-sm
+        h-16 fixed top-0 right-0 left-0 bg-[#09090B] border-b border-zinc-800 flex items-center justify-between px-2.5 sm:px-4 md:px-6 z-20 shadow-2xl text-white
         transition-all duration-300 ease-in-out
         ${isCollapsed ? 'md:left-[68px]' : 'md:left-[280px]'}
       `}>
@@ -283,7 +283,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1 mr-2">
           <button
             onClick={() => setMobileOpen(true)}
-            className="md:hidden text-[#0F172A] p-2 hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer shrink-0"
+            className="md:hidden text-zinc-300 p-2 hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer shrink-0"
             aria-label="Open Mobile Menu"
           >
             <Menu className="w-5 h-5" />
@@ -291,7 +291,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden md:flex p-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer shrink-0"
+            className="hidden md:flex p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer shrink-0"
             title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -300,11 +300,11 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Global Search Trigger */}
           <button
             onClick={() => { setSearchOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
-            className="flex items-center gap-2 px-2.5 py-1.5 bg-[#F8F9FA] border border-[#CBD5E1] rounded-lg hover:border-[#FF6B00] hover:bg-white transition-all cursor-pointer flex-1 max-w-[280px]"
+            className="flex items-center gap-2 px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-white hover:bg-zinc-800/80 transition-all cursor-pointer flex-1 max-w-[280px]"
           >
-            <Search className="w-4 h-4 text-[#94A3B8] shrink-0" />
-            <span className="text-xs font-mono text-[#94A3B8] flex-1 text-left truncate">Search anything...</span>
-            <kbd className="hidden md:flex items-center gap-0.5 px-1.5 py-0.5 bg-white border border-[#E2E8F0] rounded text-[9px] font-mono text-[#94A3B8]">
+            <Search className="w-4 h-4 text-zinc-400 shrink-0" />
+            <span className="text-xs font-mono text-zinc-400 flex-1 text-left truncate">Search anything...</span>
+            <kbd className="hidden md:flex items-center gap-0.5 px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-[9px] font-mono text-zinc-400">
               <Command className="w-2.5 h-2.5" />K
             </kbd>
           </button>
@@ -317,8 +317,8 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setSoundEnabled(!soundEnabled)}
             className={`p-1.5 sm:p-2 rounded-lg transition-colors cursor-pointer ${
               soundEnabled
-                ? 'text-[#059669] hover:bg-[#D1FAE5]'
-                : 'text-[#DC2626] hover:bg-[#FEE2E2]'
+                ? 'text-zinc-200 hover:bg-zinc-800'
+                : 'text-zinc-500 hover:bg-zinc-900'
             }`}
             title={soundEnabled ? 'Sound notifications ON' : 'Sound notifications OFF'}
           >
@@ -330,19 +330,19 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => setIsLive(!isLive)}
             className={`flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded border text-[11px] font-mono font-bold transition-colors ${
               isLive
-                ? 'bg-[#FFF3E0] text-[#FF6B00] border-[#FF6B00]/40 hover:bg-[#FFE0B2]'
-                : 'bg-[#FEF3C7] text-[#D97706] border-[#D97706]/30 hover:bg-[#FDE68A]'
+                ? 'bg-zinc-800 text-white border-zinc-600 hover:bg-zinc-700'
+                : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800'
             }`}
             title="Toggle live telemetry stream"
           >
-            <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-[#FF6B00] animate-pulse glow-flame' : 'bg-[#D97706]'}`} />
+            <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-white animate-pulse glow-flame' : 'bg-zinc-600'}`} />
             <span className="hidden sm:inline">{isLive ? 'LIVE' : 'PAUSED'}</span>
           </button>
 
           {/* Export */}
           <button
             onClick={triggerExport}
-            className="flex items-center gap-1 px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-flame-gradient text-white rounded text-[11px] sm:text-xs font-bold hover:opacity-90 transition-opacity shadow-md glow-flame cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-zinc-800 text-white border border-zinc-700 hover:border-white rounded text-[11px] sm:text-xs font-bold transition-all shadow-md cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Export</span>
@@ -352,29 +352,29 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative">
             <button
               onClick={() => setAlertsMenuOpen(!alertsMenuOpen)}
-              className="p-1.5 sm:p-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer relative"
+              className="p-1.5 sm:p-2 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer relative"
             >
               <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
               {unacknowledged.length > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#DC2626] rounded-full text-white text-[8px] font-mono font-bold flex items-center justify-center animate-pulse glow-rose">
+                <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-white text-black rounded-full text-[8px] font-mono font-bold flex items-center justify-center animate-pulse glow-rose">
                   {unacknowledged.length}
                 </span>
               )}
             </button>
 
             {alertsMenuOpen && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-[#CBD5E1] rounded-lg shadow-2xl z-50 p-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-50 p-4 text-white">
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
                   <div className="flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4 text-[#DC2626]" />
-                    <h3 className="text-sm font-bold text-[#0F172A]">Operational Alerts</h3>
+                    <ShieldAlert className="w-4 h-4 text-white" />
+                    <h3 className="text-sm font-bold text-white">Operational Alerts</h3>
                   </div>
                   <button
                     onClick={() => {
                       setCurrentView('alerts');
                       setAlertsMenuOpen(false);
                     }}
-                    className="text-xs text-[#FF6B00] hover:underline font-mono font-bold cursor-pointer"
+                    className="text-xs text-zinc-300 hover:underline font-mono font-bold cursor-pointer"
                   >
                     View Console ({alerts.length})
                   </button>
@@ -382,16 +382,13 @@ export const Header: React.FC<HeaderProps> = ({
 
                 <div className="mt-3 space-y-2 max-h-64 overflow-y-auto">
                   {alerts.slice(0, 4).map((a) => (
-                    <div key={a.id} className="p-2.5 bg-[#F8F9FA] border border-[#E2E8F0] rounded text-xs">
-                      <div className="flex items-center justify-between text-[#64748B] mb-1 font-mono">
-                        <span className={`font-bold uppercase ${
-                          a.severity === 'critical' ? 'text-[#DC2626]' :
-                          a.severity === 'warning' ? 'text-[#D97706]' : 'text-[#2563EB]'
-                        }`}>{a.severity}</span>
+                    <div key={a.id} className="p-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-xs">
+                      <div className="flex items-center justify-between text-zinc-400 mb-1 font-mono">
+                        <span className="font-bold uppercase text-white">{a.severity}</span>
                         <span>{a.timestamp}</span>
                       </div>
-                      <p className="font-bold text-[#0F172A] mb-0.5">{a.title}</p>
-                      <p className="text-[#475569] text-[11px] line-clamp-2">{a.description}</p>
+                      <p className="font-bold text-white mb-0.5">{a.title}</p>
+                      <p className="text-zinc-400 text-[11px] line-clamp-2">{a.description}</p>
                     </div>
                   ))}
                 </div>
@@ -405,25 +402,25 @@ export const Header: React.FC<HeaderProps> = ({
       {searchOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-20">
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => { setSearchOpen(false); setLocalSearch(''); }} />
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => { setSearchOpen(false); setLocalSearch(''); }} />
 
           {/* Search Panel */}
-          <div ref={searchRef} className="relative w-full max-w-2xl mx-4 bg-white rounded-xl shadow-2xl border border-[#CBD5E1] overflow-hidden">
+          <div ref={searchRef} className="relative w-full max-w-2xl mx-4 bg-zinc-950 rounded-xl shadow-2xl border border-zinc-800 overflow-hidden text-white">
             {/* Input */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-[#E2E8F0]">
-              <Search className="w-5 h-5 text-[#FF6B00] shrink-0" />
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800">
+              <Search className="w-5 h-5 text-white shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
                 value={localSearch}
                 onChange={e => setLocalSearch(e.target.value)}
                 placeholder="Search pages, generators, consumers, alerts, gas types..."
-                className="flex-1 text-sm font-mono text-[#0F172A] placeholder-[#94A3B8] focus:outline-none bg-transparent"
+                className="flex-1 text-sm font-mono text-white placeholder-zinc-500 focus:outline-none bg-transparent"
                 autoFocus
               />
               <button
                 onClick={() => { setSearchOpen(false); setLocalSearch(''); }}
-                className="p-1 text-[#94A3B8] hover:text-[#0F172A] cursor-pointer"
+                className="p-1 text-zinc-400 hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -433,37 +430,36 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="max-h-[400px] overflow-y-auto py-2">
               {searchResults.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <Search className="w-6 h-6 text-[#CBD5E1] mx-auto mb-2" />
-                  <p className="text-xs font-mono text-[#64748B]">No results found for "{localSearch}"</p>
+                  <Search className="w-6 h-6 text-zinc-700 mx-auto mb-2" />
+                  <p className="text-xs font-mono text-zinc-400">No results found for "{localSearch}"</p>
                 </div>
               ) : (
                 <>
                   {!localSearch && (
-                    <p className="px-4 py-1.5 text-[10px] font-mono text-[#94A3B8] uppercase tracking-wider">Quick Navigation</p>
+                    <p className="px-4 py-1.5 text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Quick Navigation</p>
                   )}
                   {searchResults.map((result, i) => {
-                    const colors = categoryColor(result.category);
                     return (
                       <button
                         key={result.id}
                         onClick={result.action}
                         onMouseEnter={() => setSelectedIndex(i)}
                         className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors cursor-pointer ${
-                          selectedIndex === i ? 'bg-[#FFF7ED]' : 'hover:bg-[#F8F9FA]'
+                          selectedIndex === i ? 'bg-zinc-800 text-white' : 'hover:bg-zinc-900 text-zinc-300'
                         }`}
                       >
-                        <div className={`p-1.5 rounded ${colors.bg} ${colors.text} shrink-0`}>
+                        <div className="p-1.5 rounded bg-zinc-800 text-white shrink-0">
                           {result.icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-mono font-bold text-[#0F172A] truncate">{result.title}</p>
-                          <p className="text-[10px] font-mono text-[#64748B] truncate">{result.subtitle}</p>
+                          <p className="text-xs font-mono font-bold text-white truncate">{result.title}</p>
+                          <p className="text-[10px] font-mono text-zinc-400 truncate">{result.subtitle}</p>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold capitalize ${colors.bg} ${colors.text}`}>
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold capitalize bg-zinc-800 text-zinc-400">
                             {result.category.replace('-', ' ')}
                           </span>
-                          {selectedIndex === i && <ArrowRight className="w-3 h-3 text-[#FF6B00]" />}
+                          {selectedIndex === i && <ArrowRight className="w-3 h-3 text-white" />}
                         </div>
                       </button>
                     );
@@ -473,11 +469,11 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="px-4 py-2 border-t border-[#E2E8F0] bg-[#F8F9FA] flex items-center justify-between text-[9px] font-mono text-[#94A3B8]">
+            <div className="px-4 py-2 border-t border-zinc-800 bg-zinc-900/50 flex items-center justify-between text-[9px] font-mono text-zinc-400">
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 bg-white border border-[#E2E8F0] rounded">↑↓</kbd> Navigate</span>
-                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 bg-white border border-[#E2E8F0] rounded">↵</kbd> Select</span>
-                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 bg-white border border-[#E2E8F0] rounded">Esc</kbd> Close</span>
+                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-white">↑↓</kbd> Navigate</span>
+                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-white">↵</kbd> Select</span>
+                <span className="flex items-center gap-1"><kbd className="px-1 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-white">Esc</kbd> Close</span>
               </div>
               <span>{searchResults.length} results</span>
             </div>

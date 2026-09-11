@@ -71,16 +71,16 @@ export const GasConsumptionView: React.FC = () => {
       {
         data: chartDataValues,
         backgroundColor: [
-          '#FF6B00',
-          '#FF3D00',
-          '#D97706',
-          '#059669',
-          '#EC4899',
-          '#3B82F6',
-          '#8B5CF6',
-          '#64748B'
+          '#FFFFFF',
+          '#E4E4E7',
+          '#D4D4D8',
+          '#A1A1AA',
+          '#71717A',
+          '#52525B',
+          '#3F3F46',
+          '#27272A'
         ],
-        borderColor: '#FFFFFF',
+        borderColor: '#000000',
         borderWidth: 2
       }
     ]
@@ -90,8 +90,8 @@ export const GasConsumptionView: React.FC = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'right' as const, labels: { color: '#0F172A', font: { family: 'Inter', size: 11, weight: 600 } } },
-      tooltip: { backgroundColor: '#FFFFFF', borderColor: '#CBD5E1', borderWidth: 1, titleColor: '#0F172A', bodyColor: '#0F172A' }
+      legend: { position: 'right' as const, labels: { color: '#FFFFFF', font: { family: 'Inter', size: 11, weight: 600 } } },
+      tooltip: { backgroundColor: '#09090B', borderColor: '#27272A', borderWidth: 1, titleColor: '#FFFFFF', bodyColor: '#FAFAFA' }
     }
   };
 

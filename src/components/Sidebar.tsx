@@ -60,23 +60,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside className={`
-        fixed left-0 top-0 h-full bg-[#0F172A] text-white flex flex-col py-5 border-r border-[#1E293B] z-40
-        transition-all duration-300 ease-in-out shadow-xl
+        fixed left-0 top-0 h-full bg-[#09090B] text-white flex flex-col py-5 border-r border-zinc-800 z-40
+        transition-all duration-300 ease-in-out shadow-2xl
         ${isCollapsed ? 'md:w-[68px]' : 'md:w-[280px]'}
         ${mobileOpen ? 'w-[280px] translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         {/* Brand Header & Desktop Collapse Toggle */}
         <div className={`px-4 mb-6 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-flame-gradient rounded flex items-center justify-center glow-flame shrink-0">
+            <div className="w-9 h-9 bg-zinc-800 border border-zinc-700 rounded-lg flex items-center justify-center glow-flame shrink-0">
               <FlameKindling className="text-white w-5 h-5 animate-pulse" />
             </div>
             {!isCollapsed && (
               <div className="overflow-hidden whitespace-nowrap">
                 <h1 className="font-display text-lg font-extrabold tracking-wide text-white flex items-center gap-1.5">
-                  GASMIND <span className="text-[#FF9E00] text-xs font-mono px-1.5 py-0.5 bg-[#FF6B00]/20 rounded border border-[#FF6B00]/40 font-bold">AI</span>
+                  GASMIND <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-bold">AI</span>
                 </h1>
-                <p className="text-[11px] text-[#94A3B8] font-mono">Industrial Fire Command</p>
+                <p className="text-[11px] text-zinc-400 font-mono">Industrial Fire Command</p>
               </div>
             )}
           </div>
@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Desktop Collapse Toggle */}
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden md:flex p-1.5 text-[#94A3B8] hover:text-white hover:bg-[#1E293B] rounded-lg transition-colors cursor-pointer"
+            className="hidden md:flex p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
             title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
           >
             {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -93,16 +93,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Live System Indicator */}
         {!isCollapsed ? (
-          <div className="mx-3 mb-5 p-2.5 bg-[#1E293B] border border-[#334155] rounded flex items-center justify-between">
+          <div className="mx-3 mb-5 p-2.5 bg-zinc-900 border border-zinc-800 rounded flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#FF6B00] animate-pulse glow-flame" />
-              <span className="text-xs font-mono text-[#E2E8F0] font-bold">FIRE CONTROL ACTIVE</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse glow-flame" />
+              <span className="text-xs font-mono text-zinc-200 font-bold">FIRE CONTROL ACTIVE</span>
             </div>
-            <span className="text-[10px] font-mono text-[#94A3B8]">v2.4</span>
+            <span className="text-[10px] font-mono text-zinc-400">v2.4</span>
           </div>
         ) : (
           <div className="flex justify-center mb-4">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF6B00] animate-pulse glow-flame" title="Fire Control Active" />
+            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse glow-flame" title="Fire Control Active" />
           </div>
         )}
 
@@ -122,20 +122,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className={`
                   w-full flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-3'} py-2.5 rounded-lg text-xs font-bold transition-all duration-150 group cursor-pointer
                   ${isActive 
-                    ? 'bg-flame-gradient text-white shadow-lg glow-flame font-extrabold' 
-                    : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'}
+                    ? 'bg-zinc-800 text-white border border-zinc-700 shadow-lg glow-flame font-extrabold' 
+                    : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-[#94A3B8] group-hover:text-white'}`} />
+                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`} />
                   {!isCollapsed && <span className="truncate">{item.label}</span>}
                 </div>
                 {!isCollapsed && item.badge ? (
-                  <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-[#DC2626] text-white rounded-full glow-rose animate-pulse">
+                  <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-white text-black rounded-full animate-pulse">
                     {item.badge}
                   </span>
                 ) : isCollapsed && item.badge ? (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-[#DC2626] rounded-full" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full" />
                 ) : null}
               </button>
             );
@@ -143,15 +143,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* Operator Footer */}
-        <div className="px-3 pt-3 border-t border-[#1E293B] mt-auto">
-          <div className={`p-2 rounded bg-[#1E293B] border border-[#334155] flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
-            <div className="w-7 h-7 rounded-full bg-flame-gradient flex items-center justify-center text-white font-mono font-bold text-[10px] shrink-0 glow-flame">
+        <div className="px-3 pt-3 border-t border-zinc-800 mt-auto">
+          <div className={`p-2 rounded bg-zinc-900 border border-zinc-800 flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
+            <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white font-mono font-bold text-[10px] shrink-0">
               EV
             </div>
             {!isCollapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-white truncate">Elena Vance</p>
-                <p className="text-[10px] font-mono text-[#94A3B8] truncate">Fire Command Engineer</p>
+                <p className="text-[10px] font-mono text-zinc-400 truncate">Fire Command Engineer</p>
               </div>
             )}
           </div>

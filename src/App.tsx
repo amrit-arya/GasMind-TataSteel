@@ -52,7 +52,7 @@ const MainContent: React.FC<{
 
   return (
     <div className={`
-      flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out
+      flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out bg-black text-white
       ${isCollapsed ? 'md:ml-[68px]' : 'md:ml-[280px]'}
     `}>
       <Header 
@@ -60,7 +60,7 @@ const MainContent: React.FC<{
         isCollapsed={isCollapsed} 
         setIsCollapsed={setIsCollapsed} 
       />
-      <main className="flex-1 mt-16 p-4 md:p-6 bg-[#F8F9FA] overflow-x-hidden">
+      <main className="flex-1 mt-16 p-4 md:p-6 bg-black overflow-x-hidden text-white">
         {renderView()}
       </main>
     </div>
@@ -73,7 +73,7 @@ export const App: React.FC = () => {
 
   return (
     <GasDataProvider>
-      <div className="flex h-full min-h-screen bg-[#F8F9FA] text-[#0F172A]">
+      <div className="flex h-full min-h-screen bg-black text-white">
         <Sidebar 
           mobileOpen={mobileOpen} 
           setMobileOpen={setMobileOpen} 
