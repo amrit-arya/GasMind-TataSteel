@@ -289,13 +289,16 @@ export const Header: React.FC<HeaderProps> = ({
             <Menu className="w-5 h-5" />
           </button>
 
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden md:flex p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer shrink-0"
-            title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-          >
-            {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <img src="/gasmind_logo.jpg" alt="GasMind Logo" className="w-8 h-8 rounded-full object-cover border border-zinc-700 shadow shrink-0" />
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="hidden md:flex p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer shrink-0"
+              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            >
+              {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+            </button>
+          </div>
 
           {/* Global Search Trigger */}
           <button

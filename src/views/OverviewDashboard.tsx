@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGasData } from '../context/GasDataContext';
+import { ParticleCard } from '../components/MagicBento';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -120,8 +121,8 @@ export const OverviewDashboard: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 pb-4 border-b border-[#CBD5E1]">
         <div>
-          <h2 className="font-display text-2xl font-bold text-[#0F172A] tracking-tight flex items-center gap-2">
-            <Flame className="w-6 h-6 text-[#FF6B00]" />
+          <h2 className="font-display text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+            <img src="/gasmind_logo.jpg" alt="GasMind Logo" className="w-7 h-7 rounded-full object-cover border border-zinc-700 shadow" />
             Overview Dashboard
           </h2>
           <p className="text-xs text-[#475569] font-mono mt-1">Real-time network telemetry and fire-command KPIs.</p>
@@ -143,81 +144,81 @@ export const OverviewDashboard: React.FC = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Generation */}
-        <div className="bg-white p-5 border border-[#CBD5E1] rounded-lg relative overflow-hidden group hover:border-[#FF6B00] transition-all shadow-sm">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#FF6B00]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 p-5 border border-zinc-800 rounded-xl relative overflow-hidden group hover:border-white transition-all shadow-lg">
+          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-white" />
           <div className="flex justify-between items-start mb-3">
-            <h3 className="text-[11px] font-mono text-[#64748B] uppercase tracking-wider font-bold">Total Generation</h3>
-            <span className="p-1.5 rounded bg-[#FFF3E0] text-[#FF6B00]">
+            <h3 className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider font-bold">Total Generation</h3>
+            <span className="p-1.5 rounded bg-zinc-900 text-white">
               <TrendingUp className="w-4 h-4" />
             </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-mono font-bold text-[#0F172A] tracking-tight">
+            <span className="text-2xl font-mono font-bold text-white tracking-tight">
               {(totalGen / 1000000).toFixed(2)}M
             </span>
-            <span className="text-xs font-mono text-[#64748B]">Nm³/h</span>
+            <span className="text-xs font-mono text-zinc-400">Nm³/h</span>
           </div>
-          <p className="text-[11px] text-[#FF6B00] font-mono mt-2 font-bold">
+          <p className="text-[11px] text-zinc-300 font-mono mt-2 font-bold">
             +2.4% vs last hour
           </p>
-        </div>
+        </ParticleCard>
 
         {/* Total Consumption */}
-        <div className="bg-white p-5 border border-[#CBD5E1] rounded-lg relative overflow-hidden group hover:border-[#D97706] transition-all shadow-sm">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#D97706]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 p-5 border border-zinc-800 rounded-xl relative overflow-hidden group hover:border-white transition-all shadow-lg">
+          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-zinc-400" />
           <div className="flex justify-between items-start mb-3">
-            <h3 className="text-[11px] font-mono text-[#64748B] uppercase tracking-wider font-bold">Total Consumption</h3>
-            <span className="p-1.5 rounded bg-[#FEF3C7] text-[#D97706]">
+            <h3 className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider font-bold">Total Consumption</h3>
+            <span className="p-1.5 rounded bg-zinc-900 text-zinc-200">
               <TrendingUp className="w-4 h-4" />
             </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-mono font-bold text-[#0F172A] tracking-tight">
+            <span className="text-2xl font-mono font-bold text-white tracking-tight">
               {(totalCons / 1000000).toFixed(2)}M
             </span>
-            <span className="text-xs font-mono text-[#64748B]">Nm³/h</span>
+            <span className="text-xs font-mono text-zinc-400">Nm³/h</span>
           </div>
-          <p className="text-[11px] text-[#D97706] font-mono mt-2 font-bold">
+          <p className="text-[11px] text-zinc-300 font-mono mt-2 font-bold">
             +1.8% vs last hour
           </p>
-        </div>
+        </ParticleCard>
 
         {/* Net Balance */}
-        <div className={`bg-white p-5 border border-[#CBD5E1] rounded-lg relative overflow-hidden group transition-all shadow-sm ${netBal >= 0 ? 'hover:border-[#059669]' : 'hover:border-[#DC2626]'}`}>
-          <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${netBal >= 0 ? 'bg-[#059669]' : 'bg-[#DC2626]'}`} />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 p-5 border border-zinc-800 rounded-xl relative overflow-hidden group transition-all shadow-lg hover:border-white">
+          <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${netBal >= 0 ? 'bg-white' : 'bg-zinc-500'}`} />
           <div className="flex justify-between items-start mb-3">
-            <h3 className="text-[11px] font-mono text-[#64748B] uppercase tracking-wider font-bold">Net Byproduct Balance</h3>
-            <span className={`p-1.5 rounded ${netBal >= 0 ? 'bg-[#D1FAE5] text-[#059669]' : 'bg-[#FEE2E2] text-[#DC2626]'}`}>
+            <h3 className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider font-bold">Net Byproduct Balance</h3>
+            <span className="p-1.5 rounded bg-zinc-900 text-white">
               {netBal >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-mono font-bold tracking-tight ${netBal < 0 ? 'text-[#DC2626]' : 'text-[#059669]'}`}>
+            <span className="text-2xl font-mono font-bold tracking-tight text-white">
               {netBal > 0 ? `+${netBal.toLocaleString()}` : netBal.toLocaleString()}
             </span>
-            <span className="text-xs font-mono text-[#64748B]">Nm³/h</span>
+            <span className="text-xs font-mono text-zinc-400">Nm³/h</span>
           </div>
-          <p className={`text-[11px] font-mono mt-2 font-bold ${netBal >= 0 ? 'text-[#059669]' : 'text-[#DC2626]'}`}>
+          <p className="text-[11px] font-mono mt-2 font-bold text-zinc-300">
             {netBal >= 0 ? 'Net byproduct surplus' : 'Critical network deficit'}
           </p>
-        </div>
+        </ParticleCard>
 
         {/* Global Utilization */}
-        <div className="bg-white p-5 border border-[#CBD5E1] rounded-lg relative overflow-hidden group hover:border-[#FF6B00] transition-all shadow-sm">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#FF6B00]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 p-5 border border-zinc-800 rounded-xl relative overflow-hidden group hover:border-white transition-all shadow-lg">
+          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-white" />
           <div className="flex justify-between items-start mb-3">
-            <h3 className="text-[11px] font-mono text-[#64748B] uppercase tracking-wider font-bold">Global Utilization</h3>
-            <span className="p-1.5 rounded bg-[#FFF3E0] text-[#FF6B00]">
+            <h3 className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider font-bold">Global Utilization</h3>
+            <span className="p-1.5 rounded bg-zinc-900 text-white">
               <CheckCircle2 className="w-4 h-4" />
             </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-mono font-bold text-[#0F172A] tracking-tight">{globalUtil}%</span>
+            <span className="text-2xl font-mono font-bold text-white tracking-tight">{globalUtil}%</span>
           </div>
-          <p className="text-[11px] text-[#059669] font-mono mt-2 font-bold">
+          <p className="text-[11px] text-zinc-300 font-mono mt-2 font-bold">
             Optimal plant load distribution
           </p>
-        </div>
+        </ParticleCard>
       </div>
 
       {/* Bento Grid */}

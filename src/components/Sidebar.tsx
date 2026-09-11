@@ -68,13 +68,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand Header & Desktop Collapse Toggle */}
         <div className={`px-4 mb-6 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-zinc-800 border border-zinc-700 rounded-lg flex items-center justify-center glow-flame shrink-0">
-              <FlameKindling className="text-white w-5 h-5 animate-pulse" />
-            </div>
+            <img src="/gasmind_logo.jpg" alt="GasMind Official Logo" className="w-9 h-9 rounded-full object-cover border border-zinc-700 shadow-md shrink-0" />
             {!isCollapsed && (
               <div className="overflow-hidden whitespace-nowrap">
-                <h1 className="font-display text-lg font-extrabold tracking-wide text-white flex items-center gap-1.5">
-                  GASMIND <span className="text-white text-xs font-mono px-1.5 py-0.5 bg-zinc-800 rounded border border-zinc-700 font-bold">AI</span>
+                <h1 className="font-display text-lg font-extrabold tracking-wide text-white">
+                  GASMIND
                 </h1>
                 <p className="text-[11px] text-zinc-400 font-mono">Industrial Fire Command</p>
               </div>

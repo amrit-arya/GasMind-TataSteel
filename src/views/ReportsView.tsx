@@ -181,7 +181,7 @@ export const ReportsView: React.FC = () => {
     // Header
     doc.setFontSize(20);
     doc.setTextColor(15, 23, 42);
-    doc.text('GASMIND AI', 14, 20);
+    doc.text('GASMIND', 14, 20);
     doc.setFontSize(10);
     doc.setTextColor(100, 116, 139);
     doc.text('Industrial Fire Command — Tata Steel', 14, 27);
@@ -310,7 +310,7 @@ export const ReportsView: React.FC = () => {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
-      doc.text(`GASMIND AI — ${reportName} — Page ${i} of ${pageCount}`, 14, 290);
+      doc.text(`GASMIND — ${reportName} — Page ${i} of ${pageCount}`, 14, 290);
       doc.text('Confidential — Tata Steel Gas Operations', 196, 290, { align: 'right' });
     }
 

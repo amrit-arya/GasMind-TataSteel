@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Factory, Filter } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { ParticleCard } from '../components/MagicBento';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -128,57 +129,51 @@ export const GasGenerationView: React.FC = () => {
       {/* Unit Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredUnits.map((unit, idx) => (
-          <div key={idx} className="bg-white border border-[#CBD5E1] rounded-lg p-5 relative hover:border-[#FF6B00] transition-colors shadow-sm">
+          <ParticleCard key={idx} clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 relative hover:border-white transition-all shadow-lg text-white">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <h4 className="font-display font-bold text-[#0F172A] text-sm">{unit.name}</h4>
-                <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
-                  unit.gas === 'BF Gas' ? 'bg-[#FFF3E0] text-[#FF6B00]' :
-                  unit.gas === 'CO Gas' ? 'bg-[#D1FAE5] text-[#059669]' :
-                  'bg-[#F3E8FF] text-[#8B5CF6]'
-                }`}>
+                <h4 className="font-display font-bold text-white text-sm">{unit.name}</h4>
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
                   {unit.gas}
                 </span>
               </div>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
-                unit.status === 'Warning' ? 'bg-[#FEF3C7] text-[#D97706]' : 'bg-[#D1FAE5] text-[#059669]'
-              }`}>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-zinc-800 text-white border border-zinc-700">
                 {unit.status}
               </span>
             </div>
 
             <div className="space-y-2 text-xs font-mono mt-4">
-              <div className="flex justify-between text-[#475569]">
+              <div className="flex justify-between text-zinc-400">
                 <span>Volumetric Output:</span>
-                <span className="text-[#0F172A] font-bold">{(unit.output / 1000).toFixed(1)}k Nm³/h</span>
+                <span className="text-white font-bold">{(unit.output / 1000).toFixed(1)}k Nm³/h</span>
               </div>
-              <div className="flex justify-between text-[#475569]">
+              <div className="flex justify-between text-zinc-400">
                 <span>Operating Efficiency:</span>
-                <span className="text-[#059669] font-bold">{unit.efficiency}%</span>
+                <span className="text-zinc-200 font-bold">{unit.efficiency}%</span>
               </div>
-              <div className="flex justify-between text-[#475569]">
+              <div className="flex justify-between text-zinc-400">
                 <span>Header Pressure:</span>
-                <span className="text-[#0F172A] font-bold">{unit.pressure}</span>
+                <span className="text-white font-bold">{unit.pressure}</span>
               </div>
-              <div className="flex justify-between text-[#475569]">
+              <div className="flex justify-between text-zinc-400">
                 <span>Clean Gas Temp:</span>
-                <span className="text-[#0F172A] font-bold">{unit.temp}</span>
+                <span className="text-white font-bold">{unit.temp}</span>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-[#E2E8F0]">
-              <div className="flex justify-between text-[10px] font-mono text-[#64748B] mb-1">
+            <div className="mt-4 pt-3 border-t border-zinc-800">
+              <div className="flex justify-between text-[10px] font-mono text-zinc-400 mb-1">
                 <span>Load Factor</span>
                 <span>{((unit.output / unit.maxCapacity) * 100).toFixed(1)}%</span>
               </div>
-              <div className="w-full bg-[#F1F3F5] h-2 rounded overflow-hidden border border-[#CBD5E1]">
+              <div className="w-full bg-zinc-900 h-2 rounded overflow-hidden border border-zinc-800">
                 <div 
                   className="bg-flame-gradient h-full rounded transition-all duration-500" 
                   style={{ width: `${(unit.output / unit.maxCapacity) * 100}%` }}
                 />
               </div>
             </div>
-          </div>
+          </ParticleCard>
         ))}
       </div>
     </div>
