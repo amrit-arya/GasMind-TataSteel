@@ -9,6 +9,7 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
+import { ParticleCard } from '../../components/MagicBento';
 
 interface ConsumerDependency {
   id: string;
@@ -46,7 +47,7 @@ const consumerDeps: ConsumerDependency[] = [
 const gasDeps: GasDependency[] = [
   {
     gasType: 'BF Gas',
-    color: '#DC2626',
+    color: '#FFFFFF',
     totalGeneration: 1721200,
     consumers: [
       { name: 'BF Stoves (Internal)', flow: 536000, share: 30.8 },
@@ -61,7 +62,7 @@ const gasDeps: GasDependency[] = [
   },
   {
     gasType: 'CO Gas',
-    color: '#7C3AED',
+    color: '#E4E4E7',
     totalGeneration: 142000,
     consumers: [
       { name: 'HSM Reheating Furnace', flow: 30000, share: 22.3 },
@@ -77,7 +78,7 @@ const gasDeps: GasDependency[] = [
   },
   {
     gasType: 'LD Gas',
-    color: '#2563EB',
+    color: '#D4D4D8',
     totalGeneration: 150000,
     consumers: [
       { name: 'No direct consumers — holder buffer only', flow: 0, share: 0 },
@@ -85,7 +86,7 @@ const gasDeps: GasDependency[] = [
   },
   {
     gasType: 'Natural Gas',
-    color: '#D97706',
+    color: '#A1A1AA',
     totalGeneration: 115000,
     consumers: [
       { name: 'Natural Gas Buffer Consumers', flow: 115000, share: 100 },
@@ -101,14 +102,13 @@ export const DependencyAnalysis: React.FC = () => {
 
   const gasTypes = ['BF Gas', 'CO Gas', 'LD Gas', 'Nat. Gas'] as const;
 
-  // Heatmap intensity (0-1 normalized)
   const getHeatColor = (value: number, maxValue: number) => {
-    if (value === 0) return 'bg-[#F8F9FA] text-[#CBD5E1]';
+    if (value === 0) return 'bg-black text-zinc-600 border border-zinc-900';
     const intensity = value / maxValue;
-    if (intensity > 0.5) return 'bg-[#DC2626] text-white';
-    if (intensity > 0.25) return 'bg-[#FF6B00] text-white';
-    if (intensity > 0.1) return 'bg-[#FEF3C7] text-[#D97706]';
-    return 'bg-[#DBEAFE] text-[#2563EB]';
+    if (intensity > 0.5) return 'bg-white text-black font-bold';
+    if (intensity > 0.25) return 'bg-zinc-200 text-black font-bold';
+    if (intensity > 0.1) return 'bg-zinc-400 text-black font-bold';
+    return 'bg-zinc-700 text-white font-bold';
   };
 
   const maxFlow = Math.max(...consumerDeps.map(c => Math.max(c.bfGas, c.coGas, c.ldGas, c.natGas)));
@@ -120,17 +120,17 @@ export const DependencyAnalysis: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 text-white">
       {/* Sub-tabs */}
-      <div className="flex items-center gap-1 bg-[#F1F5F9] p-1 rounded-lg border border-[#CBD5E1] w-fit">
+      <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800 w-fit">
         {tabBtns.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === tab.id
-                ? 'bg-white text-[#FF6B00] shadow-sm border border-[#CBD5E1]'
-                : 'text-[#64748B] hover:text-[#0F172A] hover:bg-white/50'
+                ? 'bg-white text-black shadow-sm'
+                : 'text-zinc-400 hover:text-white'
             }`}
           >
             {tab.icon}
@@ -141,79 +141,79 @@ export const DependencyAnalysis: React.FC = () => {
 
       {/* Consumer → Gas Matrix */}
       {activeTab === 'matrix' && (
-        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-[#0F172A] flex items-center gap-2 mb-4">
-            <ArrowRight className="w-4 h-4 text-[#FF6B00]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+          <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2 mb-4">
+            <ArrowRight className="w-4 h-4 text-white" />
             Consumer → Gas Type Dependency Matrix
           </h3>
-          <p className="text-xs font-mono text-[#64748B] mb-4">
+          <p className="text-xs font-mono text-zinc-400 mb-4">
             Shows which gas types each consumer depends on. Multi-fuel consumers have higher resilience to single-gas disruptions.
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono">
               <thead>
-                <tr className="border-b-2 border-[#E2E8F0]">
-                  <th className="text-left py-3 px-3 text-[#64748B] font-bold">Consumer</th>
-                  <th className="text-center py-3 px-2 text-[#DC2626] font-bold">BF Gas</th>
-                  <th className="text-center py-3 px-2 text-[#7C3AED] font-bold">CO Gas</th>
-                  <th className="text-center py-3 px-2 text-[#2563EB] font-bold">LD Gas</th>
-                  <th className="text-center py-3 px-2 text-[#D97706] font-bold">Nat Gas</th>
-                  <th className="text-center py-3 px-2 text-[#0F172A] font-bold">Total</th>
-                  <th className="text-center py-3 px-2 text-[#0F172A] font-bold">Risk</th>
+                <tr className="border-b border-zinc-800">
+                  <th className="text-left py-3 px-3 text-zinc-400 font-bold">Consumer</th>
+                  <th className="text-center py-3 px-2 text-white font-bold">BF Gas</th>
+                  <th className="text-center py-3 px-2 text-zinc-300 font-bold">CO Gas</th>
+                  <th className="text-center py-3 px-2 text-zinc-300 font-bold">LD Gas</th>
+                  <th className="text-center py-3 px-2 text-zinc-400 font-bold">Nat Gas</th>
+                  <th className="text-center py-3 px-2 text-white font-bold">Total</th>
+                  <th className="text-center py-3 px-2 text-white font-bold">Risk</th>
                 </tr>
               </thead>
               <tbody>
                 {consumerDeps.map(c => (
-                  <tr key={c.id} className="border-b border-[#F1F5F9] hover:bg-[#F8F9FA] transition-colors">
-                    <td className="py-2.5 px-3 text-[#0F172A] font-semibold">{c.name}</td>
+                  <tr key={c.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/60 transition-colors">
+                    <td className="py-2.5 px-3 text-white font-semibold">{c.name}</td>
                     <td className="py-2.5 px-2 text-center">
                       {c.bfGas > 0 ? (
-                        <span className="inline-block px-2 py-0.5 bg-[#FEE2E2] text-[#DC2626] rounded font-bold">
+                        <span className="inline-block px-2 py-0.5 bg-zinc-900 text-white border border-zinc-700 rounded font-bold">
                           {(c.bfGas / 1000).toFixed(0)}k
                         </span>
                       ) : (
-                        <span className="text-[#CBD5E1]">—</span>
+                        <span className="text-zinc-600">—</span>
                       )}
                     </td>
                     <td className="py-2.5 px-2 text-center">
                       {c.coGas > 0 ? (
-                        <span className="inline-block px-2 py-0.5 bg-[#EDE9FE] text-[#7C3AED] rounded font-bold">
+                        <span className="inline-block px-2 py-0.5 bg-zinc-900 text-zinc-200 border border-zinc-700 rounded font-bold">
                           {(c.coGas / 1000).toFixed(1)}k
                         </span>
                       ) : (
-                        <span className="text-[#CBD5E1]">—</span>
+                        <span className="text-zinc-600">—</span>
                       )}
                     </td>
                     <td className="py-2.5 px-2 text-center">
                       {c.ldGas > 0 ? (
-                        <span className="inline-block px-2 py-0.5 bg-[#DBEAFE] text-[#2563EB] rounded font-bold">
+                        <span className="inline-block px-2 py-0.5 bg-zinc-900 text-zinc-300 border border-zinc-700 rounded font-bold">
                           {(c.ldGas / 1000).toFixed(0)}k
                         </span>
                       ) : (
-                        <span className="text-[#CBD5E1]">—</span>
+                        <span className="text-zinc-600">—</span>
                       )}
                     </td>
                     <td className="py-2.5 px-2 text-center">
                       {c.natGas > 0 ? (
-                        <span className="inline-block px-2 py-0.5 bg-[#FEF3C7] text-[#D97706] rounded font-bold">
+                        <span className="inline-block px-2 py-0.5 bg-zinc-900 text-zinc-400 border border-zinc-700 rounded font-bold">
                           {(c.natGas / 1000).toFixed(0)}k
                         </span>
                       ) : (
-                        <span className="text-[#CBD5E1]">—</span>
+                        <span className="text-zinc-600">—</span>
                       )}
                     </td>
-                    <td className="py-2.5 px-2 text-center font-bold text-[#0F172A]">
+                    <td className="py-2.5 px-2 text-center font-bold text-white">
                       {(c.total / 1000).toFixed(0)}k
                     </td>
                     <td className="py-2.5 px-2 text-center">
                       {c.fuelCount === 1 ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#FEE2E2] text-[#DC2626] rounded text-[10px] font-bold">
-                          <AlertTriangle className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-zinc-900 text-white border border-zinc-600 rounded text-[10px] font-bold">
+                          <AlertTriangle className="w-3 h-3 text-white" />
                           Single-Source
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#D1FAE5] text-[#059669] rounded text-[10px] font-bold">
-                          <ShieldCheck className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-zinc-900 text-zinc-300 border border-zinc-700 rounded text-[10px] font-bold">
+                          <ShieldCheck className="w-3 h-3 text-white" />
                           Multi-Fuel
                         </span>
                       )}
@@ -225,75 +225,75 @@ export const DependencyAnalysis: React.FC = () => {
           </div>
 
           {/* Risk Summary */}
-          <div className="mt-4 flex items-center gap-4 text-xs font-mono p-3 bg-[#F8F9FA] rounded border border-[#E2E8F0]">
+          <div className="mt-4 flex items-center gap-4 text-xs font-mono p-3 bg-black rounded border border-zinc-800">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-[#DC2626]" />
-              <span className="text-[#DC2626] font-bold">
+              <AlertTriangle className="w-4 h-4 text-white" />
+              <span className="text-white font-bold">
                 {consumerDeps.filter(c => c.fuelCount === 1).length} Single-Source Risk
               </span>
             </div>
-            <div className="w-px h-4 bg-[#CBD5E1]" />
+            <div className="w-px h-4 bg-zinc-800" />
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#059669]" />
-              <span className="text-[#059669] font-bold">
+              <Shield className="w-4 h-4 text-zinc-300" />
+              <span className="text-zinc-300 font-bold">
                 {consumerDeps.filter(c => c.fuelCount > 1).length} Multi-Fuel Resilient
               </span>
             </div>
           </div>
-        </div>
+        </ParticleCard>
       )}
 
       {/* Gas → Consumer Reverse Mapping */}
       {activeTab === 'reverse' && (
         <div className="space-y-3">
           {gasDeps.map(gas => (
-            <div key={gas.gasType} className="bg-white border border-[#CBD5E1] rounded-lg shadow-sm overflow-hidden">
+            <ParticleCard key={gas.gasType} clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl shadow-lg overflow-hidden">
               <button
                 onClick={() => setExpandedGas(expandedGas === gas.gasType ? null : gas.gasType)}
-                className="w-full flex items-center justify-between p-4 hover:bg-[#F8F9FA] transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-4 hover:bg-zinc-900/60 transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-8 rounded-full" style={{ backgroundColor: gas.color }} />
+                  <div className="w-3 h-8 rounded-full bg-white" />
                   <div className="text-left">
-                    <h4 className="font-display font-bold text-sm text-[#0F172A]">{gas.gasType}</h4>
-                    <p className="text-[10px] font-mono text-[#64748B]">
+                    <h4 className="font-mono font-bold text-sm text-white">{gas.gasType}</h4>
+                    <p className="text-[10px] font-mono text-zinc-400">
                       Total Generation: {(gas.totalGeneration / 1000).toFixed(1)}k Nm³/h · {gas.consumers.length} consumer{gas.consumers.length !== 1 ? 's' : ''}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold" style={{ color: gas.color }}>
+                  <span className="text-xs font-mono font-bold text-white">
                     {gas.consumers.filter(c => c.flow > 0).length} active
                   </span>
                   {expandedGas === gas.gasType ? (
-                    <ChevronUp className="w-4 h-4 text-[#64748B]" />
+                    <ChevronUp className="w-4 h-4 text-zinc-400" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-[#64748B]" />
+                    <ChevronDown className="w-4 h-4 text-zinc-400" />
                   )}
                 </div>
               </button>
 
               {expandedGas === gas.gasType && (
-                <div className="px-4 pb-4 border-t border-[#E2E8F0]">
+                <div className="px-4 pb-4 border-t border-zinc-800">
                   <div className="mt-3 space-y-2">
                     {gas.consumers.map((c, i) => (
-                      <div key={i} className="flex items-center gap-3 p-2.5 bg-[#F8F9FA] rounded border border-[#E2E8F0]">
+                      <div key={i} className="flex items-center gap-3 p-2.5 bg-black rounded border border-zinc-800">
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs font-mono font-semibold text-[#0F172A] truncate">{c.name}</span>
-                            <span className="text-xs font-mono font-bold" style={{ color: gas.color }}>
+                            <span className="text-xs font-mono font-semibold text-white truncate">{c.name}</span>
+                            <span className="text-xs font-mono font-bold text-white">
                               {c.flow > 0 ? `${(c.flow / 1000).toFixed(1)}k Nm³/h` : '—'}
                             </span>
                           </div>
                           {c.flow > 0 && (
                             <div className="flex items-center gap-2">
-                              <div className="flex-1 bg-[#E2E8F0] h-1.5 rounded-full overflow-hidden">
+                              <div className="flex-1 bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-800">
                                 <div
-                                  className="h-full rounded-full transition-all duration-500"
-                                  style={{ width: `${c.share}%`, backgroundColor: gas.color }}
+                                  className="h-full rounded-full transition-all duration-500 bg-white"
+                                  style={{ width: `${c.share}%` }}
                                 />
                               </div>
-                              <span className="text-[10px] font-mono text-[#64748B] w-10 text-right">{c.share.toFixed(1)}%</span>
+                              <span className="text-[10px] font-mono text-zinc-400 w-10 text-right">{c.share.toFixed(1)}%</span>
                             </div>
                           )}
                         </div>
@@ -302,39 +302,39 @@ export const DependencyAnalysis: React.FC = () => {
                   </div>
                 </div>
               )}
-            </div>
+            </ParticleCard>
           ))}
         </div>
       )}
 
       {/* Dependency Heatmap */}
       {activeTab === 'heatmap' && (
-        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-[#0F172A] flex items-center gap-2 mb-2">
-            <Layers className="w-4 h-4 text-[#FF6B00]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+          <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2 mb-2">
+            <Layers className="w-4 h-4 text-white" />
             Dependency Intensity Heatmap
           </h3>
-          <p className="text-xs font-mono text-[#64748B] mb-4">
-            Darker colors indicate higher gas dependency. Empty cells mean no dependency on that gas type.
+          <p className="text-xs font-mono text-zinc-400 mb-4">
+            Darker/lighter intensity indicates higher gas dependency. Empty cells mean no dependency on that gas type.
           </p>
 
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono">
               <thead>
                 <tr>
-                  <th className="text-left py-3 px-3 text-[#64748B] font-bold bg-[#F8F9FA] rounded-tl-lg">Consumer</th>
+                  <th className="text-left py-3 px-3 text-zinc-400 font-bold bg-black border-b border-zinc-800">Consumer</th>
                   {gasTypes.map(g => (
-                    <th key={g} className="text-center py-3 px-4 text-[#64748B] font-bold bg-[#F8F9FA]">{g}</th>
+                    <th key={g} className="text-center py-3 px-4 text-zinc-400 font-bold bg-black border-b border-zinc-800">{g}</th>
                   ))}
-                  <th className="text-center py-3 px-3 text-[#64748B] font-bold bg-[#F8F9FA] rounded-tr-lg">Fuels</th>
+                  <th className="text-center py-3 px-3 text-zinc-400 font-bold bg-black border-b border-zinc-800">Fuels</th>
                 </tr>
               </thead>
               <tbody>
                 {consumerDeps.map((c, i) => {
                   const values = [c.bfGas, c.coGas, c.ldGas, c.natGas];
                   return (
-                    <tr key={c.id} className={i % 2 === 0 ? '' : 'bg-[#FAFBFC]'}>
-                      <td className="py-2.5 px-3 text-[#0F172A] font-semibold border-r border-[#E2E8F0]">{c.name}</td>
+                    <tr key={c.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/60">
+                      <td className="py-2.5 px-3 text-white font-semibold border-r border-zinc-800">{c.name}</td>
                       {values.map((v, j) => (
                         <td key={j} className="p-1.5 text-center">
                           <div className={`py-2 px-3 rounded font-bold text-[11px] ${getHeatColor(v, maxFlow)} transition-all`}>
@@ -343,8 +343,8 @@ export const DependencyAnalysis: React.FC = () => {
                         </td>
                       ))}
                       <td className="py-2.5 px-3 text-center">
-                        <span className={`inline-block px-2 py-1 rounded font-bold ${
-                          c.fuelCount >= 2 ? 'bg-[#D1FAE5] text-[#059669]' : 'bg-[#FEE2E2] text-[#DC2626]'
+                        <span className={`inline-block px-2 py-1 rounded font-bold border ${
+                          c.fuelCount >= 2 ? 'bg-zinc-900 border-zinc-700 text-white' : 'bg-zinc-900 border-white text-white font-black'
                         }`}>
                           {c.fuelCount}
                         </span>
@@ -355,28 +355,10 @@ export const DependencyAnalysis: React.FC = () => {
               </tbody>
             </table>
           </div>
-
-          {/* Legend */}
-          <div className="mt-4 flex items-center gap-3 text-[10px] font-mono text-[#64748B]">
-            <span>Intensity:</span>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-3 rounded bg-[#F8F9FA] border border-[#E2E8F0]" /> None
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-3 rounded bg-[#DBEAFE]" /> Low
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-3 rounded bg-[#FEF3C7]" /> Medium
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-3 rounded bg-[#FF6B00]" /> High
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-4 h-3 rounded bg-[#DC2626]" /> Critical
-            </div>
-          </div>
-        </div>
+        </ParticleCard>
       )}
     </div>
   );
 };
+
+export default DependencyAnalysis;

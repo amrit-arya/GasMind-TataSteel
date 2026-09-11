@@ -9,7 +9,8 @@ export type ViewMode =
   | 'alerts'
   | 'reports'
   | 'timeline'
-  | 'audit';
+  | 'audit'
+  | 'about';
 
 export type AuditCategory = 'simulation' | 'report_export' | 'system_alert' | 'parameter_change';
 

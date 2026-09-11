@@ -14,6 +14,7 @@ import {
   Filter
 } from 'lucide-react';
 import { playCriticalAlert, playWarningAlert, playInfoAlert } from '../utils/soundNotifications';
+import { ParticleCard } from '../components/MagicBento';
 
 export const AlertsConsoleView: React.FC = () => {
   const { alerts, acknowledgeAlert, dismissAlert, soundEnabled, setSoundEnabled } = useGasData();
@@ -31,15 +32,15 @@ export const AlertsConsoleView: React.FC = () => {
   const unackedCount = alerts.filter(a => !a.acknowledged).length;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 text-white">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-[#CBD5E1]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-zinc-800">
         <div>
-          <h2 className="font-display text-2xl font-bold text-[#0F172A] tracking-tight flex items-center gap-2">
-            <ShieldAlert className="w-6 h-6 text-[#DC2626]" />
+          <h2 className="font-mono text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+            <ShieldAlert className="w-6 h-6 text-white" />
             Operational Alerts Console
           </h2>
-          <p className="text-xs text-[#475569] font-mono mt-1">
+          <p className="text-xs text-zinc-400 font-mono mt-1">
             Real-time alert dispatching with sound notifications, event logging, and response coordination.
           </p>
         </div>
@@ -48,10 +49,10 @@ export const AlertsConsoleView: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-mono font-bold border transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-mono font-bold border transition-all cursor-pointer ${
               soundEnabled
-                ? 'bg-[#D1FAE5] text-[#059669] border-[#059669]/30 hover:bg-[#A7F3D0]'
-                : 'bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]/30 hover:bg-[#FCA5A5]'
+                ? 'bg-white text-black border-white'
+                : 'bg-zinc-900 text-zinc-400 border-zinc-700 hover:text-white'
             }`}
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
@@ -61,12 +62,12 @@ export const AlertsConsoleView: React.FC = () => {
       </div>
 
       {/* Sound Notification Legend */}
-      <div className="bg-white border border-[#CBD5E1] rounded-lg p-4 shadow-sm">
+      <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 shadow-lg relative overflow-hidden">
         <div className="flex items-center gap-2 mb-3">
-          <BellRing className="w-4 h-4 text-[#FF6B00]" />
-          <h3 className="font-display text-sm font-bold text-[#0F172A]">Alert Sound Notifications</h3>
-          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-            soundEnabled ? 'bg-[#D1FAE5] text-[#059669]' : 'bg-[#FEE2E2] text-[#DC2626]'
+          <BellRing className="w-4 h-4 text-white" />
+          <h3 className="font-mono text-sm font-bold text-white">Alert Sound Notifications</h3>
+          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-zinc-900 border border-zinc-700 ${
+            soundEnabled ? 'text-white' : 'text-zinc-500'
           }`}>
             {soundEnabled ? 'ACTIVE' : 'MUTED'}
           </span>
@@ -74,57 +75,57 @@ export const AlertsConsoleView: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           {/* Critical */}
-          <div className="flex items-center justify-between p-2.5 bg-[#FEE2E2]/30 border border-[#DC2626]/20 rounded-lg">
+          <div className="flex items-center justify-between p-2.5 bg-black border border-zinc-800 rounded-lg">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-[#DC2626] rounded text-white">
+              <div className="p-1.5 bg-zinc-900 border border-zinc-700 rounded text-white">
                 <AlertTriangle className="w-3.5 h-3.5" />
               </div>
               <div>
-                <p className="text-xs font-mono font-bold text-[#DC2626]">Critical</p>
-                <p className="text-[9px] font-mono text-[#64748B]">Triple alarm beep</p>
+                <p className="text-xs font-mono font-bold text-white">Critical</p>
+                <p className="text-[9px] font-mono text-zinc-400">Triple alarm beep</p>
               </div>
             </div>
             <button
               onClick={() => playCriticalAlert()}
-              className="px-2 py-1 bg-[#DC2626] text-white rounded text-[10px] font-mono font-bold hover:bg-[#B91C1C] cursor-pointer transition-colors"
+              className="px-2.5 py-1 bg-white text-black rounded text-[10px] font-mono font-bold hover:bg-zinc-200 cursor-pointer transition-colors"
             >
               Test
             </button>
           </div>
 
           {/* Warning */}
-          <div className="flex items-center justify-between p-2.5 bg-[#FEF3C7]/30 border border-[#D97706]/20 rounded-lg">
+          <div className="flex items-center justify-between p-2.5 bg-black border border-zinc-800 rounded-lg">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-[#D97706] rounded text-white">
+              <div className="p-1.5 bg-zinc-900 border border-zinc-700 rounded text-white">
                 <Bell className="w-3.5 h-3.5" />
               </div>
               <div>
-                <p className="text-xs font-mono font-bold text-[#D97706]">Warning</p>
-                <p className="text-[9px] font-mono text-[#64748B]">Double tone alert</p>
+                <p className="text-xs font-mono font-bold text-zinc-300">Warning</p>
+                <p className="text-[9px] font-mono text-zinc-400">Double tone alert</p>
               </div>
             </div>
             <button
               onClick={() => playWarningAlert()}
-              className="px-2 py-1 bg-[#D97706] text-white rounded text-[10px] font-mono font-bold hover:bg-[#B45309] cursor-pointer transition-colors"
+              className="px-2.5 py-1 bg-zinc-800 text-white border border-zinc-700 rounded text-[10px] font-mono font-bold hover:border-white cursor-pointer transition-colors"
             >
               Test
             </button>
           </div>
 
           {/* Info */}
-          <div className="flex items-center justify-between p-2.5 bg-[#DBEAFE]/30 border border-[#2563EB]/20 rounded-lg">
+          <div className="flex items-center justify-between p-2.5 bg-black border border-zinc-800 rounded-lg">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-[#2563EB] rounded text-white">
+              <div className="p-1.5 bg-zinc-900 border border-zinc-700 rounded text-white">
                 <Info className="w-3.5 h-3.5" />
               </div>
               <div>
-                <p className="text-xs font-mono font-bold text-[#2563EB]">Info</p>
-                <p className="text-[9px] font-mono text-[#64748B]">Single soft chime</p>
+                <p className="text-xs font-mono font-bold text-zinc-400">Info</p>
+                <p className="text-[9px] font-mono text-zinc-400">Single soft chime</p>
               </div>
             </div>
             <button
               onClick={() => playInfoAlert()}
-              className="px-2 py-1 bg-[#2563EB] text-white rounded text-[10px] font-mono font-bold hover:bg-[#1D4ED8] cursor-pointer transition-colors"
+              className="px-2.5 py-1 bg-zinc-800 text-white border border-zinc-700 rounded text-[10px] font-mono font-bold hover:border-white cursor-pointer transition-colors"
             >
               Test
             </button>
@@ -132,40 +133,40 @@ export const AlertsConsoleView: React.FC = () => {
         </div>
 
         {/* Alert Rules Info */}
-        <div className="mt-3 p-2.5 bg-[#F8F9FA] rounded border border-[#E2E8F0]">
-          <p className="text-[10px] font-mono text-[#64748B] leading-relaxed">
-            <span className="font-bold text-[#0F172A]">Auto-Alert Rules:</span>{' '}
-            <span className="text-[#DC2626] font-bold">CRITICAL</span> — Gas deficit detected, holder critically low, equipment failure{' · '}
-            <span className="text-[#D97706] font-bold">WARNING</span> — Utilization approaching threshold, holder high, pressure deviation, surplus underutilized{' · '}
-            <span className="text-[#2563EB] font-bold">INFO</span> — Simulation completed, report exported, optimization applied, system nominal
+        <div className="mt-3 p-2.5 bg-black rounded border border-zinc-800">
+          <p className="text-[10px] font-mono text-zinc-400 leading-relaxed">
+            <span className="font-bold text-white">Auto-Alert Rules:</span>{' '}
+            <span className="text-white font-bold">CRITICAL</span> — Gas deficit detected, holder critically low, equipment failure{' · '}
+            <span className="text-zinc-300 font-bold">WARNING</span> — Utilization approaching threshold, holder high, pressure deviation, surplus underutilized{' · '}
+            <span className="text-zinc-400 font-bold">INFO</span> — Simulation completed, report exported, optimization applied, system nominal
           </p>
         </div>
-      </div>
+      </ParticleCard>
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Total Alerts', value: alerts.length, icon: <Bell className="w-4 h-4" />, color: '#FF6B00' },
-          { label: 'Critical', value: criticalCount, icon: <AlertTriangle className="w-4 h-4" />, color: '#DC2626' },
-          { label: 'Warnings', value: warningCount, icon: <ShieldAlert className="w-4 h-4" />, color: '#D97706' },
-          { label: 'Unacknowledged', value: unackedCount, icon: <Clock className="w-4 h-4" />, color: '#7C3AED' },
+          { label: 'Total Alerts', value: alerts.length, icon: <Bell className="w-4 h-4 text-white" /> },
+          { label: 'Critical', value: criticalCount, icon: <AlertTriangle className="w-4 h-4 text-white" /> },
+          { label: 'Warnings', value: warningCount, icon: <ShieldAlert className="w-4 h-4 text-zinc-300" /> },
+          { label: 'Unacknowledged', value: unackedCount, icon: <Clock className="w-4 h-4 text-zinc-400" /> },
         ].map(stat => (
-          <div key={stat.label} className="bg-white border border-[#CBD5E1] rounded-lg p-3.5 shadow-sm">
+          <ParticleCard key={stat.label} clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 shadow-lg">
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="p-1 rounded" style={{ backgroundColor: `${stat.color}15` }}>
-                <span style={{ color: stat.color }}>{stat.icon}</span>
+              <div className="p-1 rounded bg-zinc-900 border border-zinc-700">
+                {stat.icon}
               </div>
-              <span className="text-[10px] font-mono text-[#64748B] uppercase">{stat.label}</span>
+              <span className="text-[10px] font-mono text-zinc-400 uppercase">{stat.label}</span>
             </div>
-            <p className="text-xl font-display font-extrabold text-[#0F172A]">{stat.value}</p>
-          </div>
+            <p className="text-xl font-mono font-extrabold text-white">{stat.value}</p>
+          </ParticleCard>
         ))}
       </div>
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2">
-        <Filter className="w-4 h-4 text-[#64748B]" />
-        <div className="flex gap-1.5 bg-white p-1 border border-[#CBD5E1] rounded-lg text-xs font-mono shadow-sm">
+        <Filter className="w-4 h-4 text-zinc-400" />
+        <div className="flex gap-1.5 bg-zinc-950 p-1 border border-zinc-800 rounded-lg text-xs font-mono shadow-sm">
           {[
             { key: 'all', label: 'All' },
             { key: 'unacknowledged', label: `Unacked (${unackedCount})` },
@@ -178,8 +179,8 @@ export const AlertsConsoleView: React.FC = () => {
               onClick={() => setFilterSeverity(tab.key)}
               className={`px-3 py-1.5 rounded-md transition-colors cursor-pointer font-bold ${
                 filterSeverity === tab.key
-                  ? 'bg-flame-gradient text-white glow-flame'
-                  : 'text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8F9FA]'
+                  ? 'bg-white text-black font-bold'
+                  : 'text-zinc-400 hover:text-white'
               }`}
             >
               {tab.label}
@@ -191,34 +192,24 @@ export const AlertsConsoleView: React.FC = () => {
       {/* Alert Cards */}
       <div className="space-y-3">
         {filteredAlerts.length === 0 ? (
-          <div className="p-8 text-center bg-white border border-[#CBD5E1] rounded-lg">
-            <CheckCircle2 className="w-8 h-8 text-[#059669] mx-auto mb-2" />
-            <p className="text-sm font-mono text-[#64748B]">
+          <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="p-8 text-center bg-zinc-950 border border-zinc-800 rounded-xl">
+            <CheckCircle2 className="w-8 h-8 text-white mx-auto mb-2" />
+            <p className="text-sm font-mono text-zinc-300">
               No active alerts matching the selected filter.
             </p>
-            <p className="text-xs font-mono text-[#94A3B8] mt-1">Network telemetry is nominal.</p>
-          </div>
+            <p className="text-xs font-mono text-zinc-500 mt-1">Network telemetry is nominal.</p>
+          </ParticleCard>
         ) : (
           filteredAlerts.map((alt) => (
-            <div
+            <ParticleCard
               key={alt.id}
-              className={`bg-white border rounded-lg p-4 relative transition-all shadow-sm hover:shadow-md ${
-                alt.severity === 'critical' ? 'border-[#DC2626]/50' :
-                alt.severity === 'warning' ? 'border-[#D97706]/50' : 'border-[#CBD5E1]'
-              } ${!alt.acknowledged && alt.severity === 'critical' ? 'ring-1 ring-[#DC2626]/20' : ''}`}
+              clickEffect={true}
+              glowColor="255, 255, 255"
+              className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 relative transition-all shadow-lg hover:border-white"
             >
-              <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l ${
-                alt.severity === 'critical' ? 'bg-[#DC2626]' :
-                alt.severity === 'warning' ? 'bg-[#D97706]' : 'bg-[#2563EB]'
-              }`} />
-
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div className="flex items-center gap-3">
-                  <span className={`p-2 rounded ${
-                    alt.severity === 'critical' ? 'bg-[#FEE2E2] text-[#DC2626]' :
-                    alt.severity === 'warning' ? 'bg-[#FEF3C7] text-[#D97706]' :
-                    'bg-[#DBEAFE] text-[#2563EB]'
-                  }`}>
+                  <span className="p-2 rounded bg-zinc-900 border border-zinc-700 text-white">
                     {alt.severity === 'critical' ? <AlertTriangle className="w-5 h-5" /> :
                      alt.severity === 'warning' ? <ShieldAlert className="w-5 h-5" /> :
                      <Info className="w-5 h-5" />}
@@ -226,22 +217,22 @@ export const AlertsConsoleView: React.FC = () => {
 
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-display font-bold text-[#0F172A] text-sm">{alt.title}</h4>
-                      <span className="text-[10px] font-mono text-[#64748B]">[{alt.timestamp}]</span>
-                      <span className="text-[10px] font-mono font-bold text-[#FF6B00] bg-[#FFF3E0] px-1.5 py-0.5 rounded">
+                      <h4 className="font-mono font-bold text-white text-sm">{alt.title}</h4>
+                      <span className="text-[10px] font-mono text-zinc-400">[{alt.timestamp}]</span>
+                      <span className="text-[10px] font-mono font-bold text-white bg-zinc-900 border border-zinc-700 px-1.5 py-0.5 rounded">
                         {alt.gasType}
                       </span>
                       {!alt.acknowledged && (
-                        <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-[#DC2626] bg-[#FEE2E2] px-1.5 py-0.5 rounded animate-pulse">
+                        <span className="flex items-center gap-1 text-[10px] font-mono font-bold text-black bg-white px-1.5 py-0.5 rounded animate-pulse">
                           <Volume2 className="w-2.5 h-2.5" />
                           LIVE
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#334155] font-mono mt-1">{alt.description}</p>
+                    <p className="text-xs text-zinc-400 font-mono mt-1">{alt.description}</p>
                     {alt.actionRequired && (
-                      <p className="text-[11px] text-[#D97706] font-mono mt-1 font-semibold">
-                        <span>Recommended Action: </span>
+                      <p className="text-[11px] text-zinc-300 font-mono mt-1 font-semibold">
+                        <span className="text-white">Recommended Action: </span>
                         {alt.actionRequired}
                       </p>
                     )}
@@ -252,30 +243,32 @@ export const AlertsConsoleView: React.FC = () => {
                   {!alt.acknowledged ? (
                     <button
                       onClick={() => acknowledgeAlert(alt.id)}
-                      className="px-3 py-1.5 bg-[#059669] text-white rounded text-xs font-mono font-bold hover:bg-[#047857] transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                      className="px-3 py-1.5 bg-white text-black rounded text-xs font-mono font-bold hover:bg-zinc-200 transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Acknowledge
                     </button>
                   ) : (
-                    <span className="px-3 py-1.5 bg-[#F8F9FA] text-[#64748B] border border-[#CBD5E1] rounded text-xs font-mono font-semibold flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#059669]" />
+                    <span className="px-3 py-1.5 bg-zinc-900 text-zinc-400 border border-zinc-700 rounded text-xs font-mono font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                       Acknowledged
                     </span>
                   )}
                   <button
                     onClick={() => dismissAlert(alt.id)}
-                    className="p-1.5 text-[#64748B] hover:text-[#DC2626] hover:bg-[#FEE2E2] rounded transition-colors cursor-pointer"
+                    className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900 rounded transition-colors cursor-pointer"
                     title="Dismiss alert"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
-            </div>
+            </ParticleCard>
           ))
         )}
       </div>
     </div>
   );
 };
+
+export default AlertsConsoleView;

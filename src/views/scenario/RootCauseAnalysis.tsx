@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   Info
 } from 'lucide-react';
+import { ParticleCard } from '../../components/MagicBento';
 
 interface ConsumerBreakdown {
   name: string;
@@ -116,16 +117,16 @@ export const RootCauseAnalysis: React.FC = () => {
       {
         label: 'Generation (Nm³/h)',
         data: [bf.generation, co.generation, ld.generation],
-        backgroundColor: 'rgba(5, 150, 105, 0.75)',
-        borderColor: '#059669',
+        backgroundColor: '#FFFFFF',
+        borderColor: '#E4E4E7',
         borderWidth: 1,
         borderRadius: 4,
       },
       {
         label: 'Consumption (Nm³/h)',
         data: [bf.consumption, co.consumption, ld.consumption],
-        backgroundColor: 'rgba(220, 38, 38, 0.75)',
-        borderColor: '#DC2626',
+        backgroundColor: '#52525B',
+        borderColor: '#3F3F46',
         borderWidth: 1,
         borderRadius: 4,
       }
@@ -138,21 +139,26 @@ export const RootCauseAnalysis: React.FC = () => {
     plugins: {
       legend: {
         position: 'top' as const,
-        labels: { font: { family: 'JetBrains Mono, monospace', size: 11 }, color: '#475569' }
+        labels: { font: { family: 'Inter, monospace', size: 11, weight: 600 }, color: '#FFFFFF' }
       },
       tooltip: {
+        backgroundColor: '#18181B',
+        borderColor: '#3F3F46',
+        borderWidth: 1,
+        titleColor: '#FFFFFF',
+        bodyColor: '#FAFAFA',
         callbacks: {
           label: (ctx: any) => `${ctx.dataset.label}: ${(ctx.raw / 1000).toFixed(1)}k Nm³/h`
         }
       }
     },
     scales: {
-      x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono, monospace', size: 11 }, color: '#64748B' } },
+      x: { grid: { display: false }, ticks: { font: { family: 'Inter, monospace', size: 11 }, color: '#A1A1AA' } },
       y: {
-        grid: { color: '#E2E8F0' },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' },
         ticks: {
-          font: { family: 'JetBrains Mono, monospace', size: 10 },
-          color: '#64748B',
+          font: { family: 'Inter, monospace', size: 10 },
+          color: '#A1A1AA',
           callback: (v: any) => `${(v / 1000).toFixed(0)}k`
         }
       }
@@ -165,10 +171,10 @@ export const RootCauseAnalysis: React.FC = () => {
     datasets: [{
       data: bfWithShares.slice(0, 6).map(c => c.consumption),
       backgroundColor: [
-        '#DC2626', '#FF6B00', '#D97706', '#059669', '#2563EB', '#7C3AED'
+        '#FFFFFF', '#E4E4E7', '#D4D4D8', '#A1A1AA', '#71717A', '#52525B'
       ],
       borderWidth: 2,
-      borderColor: '#ffffff',
+      borderColor: '#000000',
     }]
   };
 
@@ -179,9 +185,14 @@ export const RootCauseAnalysis: React.FC = () => {
     plugins: {
       legend: {
         position: 'right' as const,
-        labels: { font: { family: 'JetBrains Mono, monospace', size: 10 }, color: '#475569', boxWidth: 12, padding: 8 }
+        labels: { font: { family: 'Inter, monospace', size: 10, weight: 600 }, color: '#FFFFFF', boxWidth: 12, padding: 8 }
       },
       tooltip: {
+        backgroundColor: '#18181B',
+        borderColor: '#3F3F46',
+        borderWidth: 1,
+        titleColor: '#FFFFFF',
+        bodyColor: '#FAFAFA',
         callbacks: {
           label: (ctx: any) => `${ctx.label}: ${(ctx.raw / 1000).toFixed(0)}k Nm³/h (${((ctx.raw / totalBfConsumption) * 100).toFixed(1)}%)`
         }
@@ -189,150 +200,134 @@ export const RootCauseAnalysis: React.FC = () => {
     }
   };
 
-  const sevColor = (s: string) =>
-    s === 'critical' ? { bg: 'bg-[#FEE2E2]', border: 'border-[#DC2626]/30', text: 'text-[#DC2626]', icon: 'bg-[#DC2626]' } :
-    s === 'warning' ? { bg: 'bg-[#FEF3C7]', border: 'border-[#D97706]/30', text: 'text-[#D97706]', icon: 'bg-[#D97706]' } :
-    { bg: 'bg-[#DBEAFE]', border: 'border-[#2563EB]/30', text: 'text-[#2563EB]', icon: 'bg-[#2563EB]' };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-white">
       {/* Deficit Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: 'BF Gas', gas: bf, color: bf.balance < 0 ? '#DC2626' : '#059669' },
-          { label: 'CO Gas', gas: co, color: co.balance < 0 ? '#DC2626' : '#059669' },
-          { label: 'LD Gas', gas: ld, color: ld.balance < 0 ? '#DC2626' : '#059669' },
+          { label: 'BF Gas', gas: bf, color: '#FFFFFF' },
+          { label: 'CO Gas', gas: co, color: '#FFFFFF' },
+          { label: 'LD Gas', gas: ld, color: '#FFFFFF' },
         ].map(item => (
-          <div key={item.label} className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm relative overflow-hidden">
-            <div className={`absolute left-0 top-0 bottom-0 w-1.5`} style={{ backgroundColor: item.color }} />
+          <ParticleCard key={item.label} clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
             <div className="flex justify-between items-start mb-3">
               <div>
-                <p className="text-xs font-mono text-[#64748B] uppercase tracking-wider">{item.label} Balance</p>
-                <p className="text-2xl font-display font-extrabold mt-1" style={{ color: item.color }}>
+                <p className="text-xs font-mono text-zinc-400 uppercase tracking-wider">{item.label} Balance</p>
+                <p className="text-2xl font-mono font-extrabold mt-1 text-white">
                   {item.gas.balance > 0 ? '+' : ''}{(item.gas.balance / 1000).toFixed(1)}k
-                  <span className="text-sm font-mono font-normal text-[#64748B] ml-1">Nm³/h</span>
+                  <span className="text-sm font-mono font-normal text-zinc-400 ml-1">Nm³/h</span>
                 </p>
               </div>
-              <div className={`p-2 rounded-lg`} style={{ backgroundColor: `${item.color}15` }}>
+              <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white">
                 {item.gas.balance < 0 ? (
-                  <ArrowDownRight className="w-5 h-5" style={{ color: item.color }} />
+                  <ArrowDownRight className="w-5 h-5 text-white" />
                 ) : (
-                  <ArrowUpRight className="w-5 h-5" style={{ color: item.color }} />
+                  <ArrowUpRight className="w-5 h-5 text-white" />
                 )}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-              <div className="bg-[#F8F9FA] p-2 rounded border border-[#E2E8F0]">
-                <span className="text-[#64748B] block text-[10px]">Generation</span>
-                <span className="font-bold text-[#059669]">{(item.gas.generation / 1000).toFixed(1)}k</span>
+              <div className="bg-black p-2 rounded border border-zinc-800">
+                <span className="text-zinc-400 block text-[10px]">Generation</span>
+                <span className="font-bold text-white">{(item.gas.generation / 1000).toFixed(1)}k</span>
               </div>
-              <div className="bg-[#F8F9FA] p-2 rounded border border-[#E2E8F0]">
-                <span className="text-[#64748B] block text-[10px]">Consumption</span>
-                <span className="font-bold text-[#DC2626]">{(item.gas.consumption / 1000).toFixed(1)}k</span>
+              <div className="bg-black p-2 rounded border border-zinc-800">
+                <span className="text-zinc-400 block text-[10px]">Consumption</span>
+                <span className="font-bold text-zinc-300">{(item.gas.consumption / 1000).toFixed(1)}k</span>
               </div>
             </div>
             <div className="mt-3">
-              <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
-                item.gas.status === 'Deficit' ? 'bg-[#FEE2E2] text-[#DC2626]' :
-                item.gas.status === 'Surplus' ? 'bg-[#D1FAE5] text-[#059669]' :
-                'bg-[#FEF3C7] text-[#D97706]'
-              }`}>
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-zinc-900 border border-zinc-700 text-white">
                 {item.gas.status}
               </span>
             </div>
-          </div>
+          </ParticleCard>
         ))}
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Generation vs Consumption Bar Chart */}
-        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-[#0F172A] flex items-center gap-2 mb-4">
-            <TrendingDown className="w-4 h-4 text-[#FF6B00]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+          <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2 mb-4">
+            <TrendingDown className="w-4 h-4 text-white" />
             Deficit Breakdown — Generation vs Consumption
           </h3>
           <div style={{ height: 280 }}>
             <Bar data={comparisonChartData} options={comparisonChartOptions} />
           </div>
-        </div>
+        </ParticleCard>
 
         {/* BF Gas Consumer Share Doughnut */}
-        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-[#0F172A] flex items-center gap-2 mb-4">
-            <Flame className="w-4 h-4 text-[#DC2626]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+          <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2 mb-4">
+            <Flame className="w-4 h-4 text-white" />
             BF Gas Consumer Breakdown (Top 6)
           </h3>
           <div style={{ height: 280 }}>
             <Doughnut data={bfDoughnutData} options={doughnutOptions} />
           </div>
-        </div>
+        </ParticleCard>
       </div>
 
       {/* Root Cause Factor Cards */}
-      <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
-        <h3 className="font-display text-sm font-bold text-[#0F172A] flex items-center gap-2 mb-4">
-          <AlertTriangle className="w-4 h-4 text-[#FF6B00]" />
+      <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+        <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2 mb-4">
+          <AlertTriangle className="w-4 h-4 text-white" />
           Root Cause Factors Contributing to Deficit
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {rootCauseFactors.map(factor => {
-            const colors = sevColor(factor.severity);
-            return (
-              <div key={factor.id} className={`p-4 rounded-lg border ${colors.bg} ${colors.border} transition-all hover:shadow-md`}>
-                <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-lg ${colors.icon} text-white shrink-0`}>
-                    {factor.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className={`font-display font-bold text-sm ${colors.text}`}>{factor.title}</h4>
-                    <p className="text-xs font-mono text-[#475569] mt-1 leading-relaxed">{factor.description}</p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${colors.text} bg-white/60 border ${colors.border}`}>
-                        {factor.severity}
-                      </span>
-                      <span className="text-[10px] font-mono text-[#64748B]">Impact: {factor.impact}</span>
-                    </div>
+          {rootCauseFactors.map(factor => (
+            <div key={factor.id} className="p-4 rounded-xl border border-zinc-800 bg-black/80 transition-all hover:border-zinc-600">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white shrink-0">
+                  {factor.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-mono font-bold text-sm text-white">{factor.title}</h4>
+                  <p className="text-xs font-mono text-zinc-400 mt-1 leading-relaxed">{factor.description}</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase text-white bg-zinc-900 border border-zinc-700">
+                      {factor.severity}
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-400">Impact: {factor.impact}</span>
                   </div>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
-      </div>
+      </ParticleCard>
 
       {/* Major Contributors Table */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* BF Gas Contributors */}
-        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-[#0F172A] flex items-center gap-2 mb-3">
-            <Info className="w-4 h-4 text-[#2563EB]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+          <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2 mb-3">
+            <Info className="w-4 h-4 text-white" />
             BF Gas — Major Consumer Contributors
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono">
               <thead>
-                <tr className="border-b border-[#E2E8F0]">
-                  <th className="text-left py-2 px-2 text-[#64748B] font-bold">Consumer</th>
-                  <th className="text-right py-2 px-2 text-[#64748B] font-bold">Flow (Nm³/h)</th>
-                  <th className="text-right py-2 px-2 text-[#64748B] font-bold">Share %</th>
-                  <th className="py-2 px-2 text-[#64748B] font-bold w-24">Load</th>
+                <tr className="border-b border-zinc-800">
+                  <th className="text-left py-2 px-2 text-zinc-400 font-bold">Consumer</th>
+                  <th className="text-right py-2 px-2 text-zinc-400 font-bold">Flow (Nm³/h)</th>
+                  <th className="text-right py-2 px-2 text-zinc-400 font-bold">Share %</th>
+                  <th className="py-2 px-2 text-zinc-400 font-bold w-24">Load</th>
                 </tr>
               </thead>
               <tbody>
                 {bfWithShares.map((c, i) => (
-                  <tr key={i} className="border-b border-[#F1F5F9] hover:bg-[#F8F9FA] transition-colors">
-                    <td className="py-2 px-2 text-[#0F172A] font-semibold">{c.name}</td>
-                    <td className="py-2 px-2 text-right text-[#0F172A]">{(c.consumption / 1000).toFixed(0)}k</td>
-                    <td className="py-2 px-2 text-right font-bold text-[#FF6B00]">{c.share.toFixed(1)}%</td>
+                  <tr key={i} className="border-b border-zinc-800/60 hover:bg-zinc-900/60 transition-colors">
+                    <td className="py-2 px-2 text-white font-semibold">{c.name}</td>
+                    <td className="py-2 px-2 text-right text-zinc-300">{(c.consumption / 1000).toFixed(0)}k</td>
+                    <td className="py-2 px-2 text-right font-bold text-white">{c.share.toFixed(1)}%</td>
                     <td className="py-2 px-2">
-                      <div className="w-full bg-[#F1F3F5] h-2 rounded-full overflow-hidden">
+                      <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800">
                         <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${c.share}%`,
-                            backgroundColor: c.share > 20 ? '#DC2626' : c.share > 10 ? '#FF6B00' : '#059669'
-                          }}
+                          className="h-full rounded-full transition-all duration-500 bg-white"
+                          style={{ width: `${c.share}%` }}
                         />
                       </div>
                     </td>
@@ -341,38 +336,35 @@ export const RootCauseAnalysis: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </ParticleCard>
 
         {/* CO Gas Contributors */}
-        <div className="bg-white border border-[#CBD5E1] rounded-lg p-5 shadow-sm">
-          <h3 className="font-display text-sm font-bold text-[#0F172A] flex items-center gap-2 mb-3">
-            <Info className="w-4 h-4 text-[#7C3AED]" />
+        <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+          <h3 className="font-mono text-sm font-bold text-white flex items-center gap-2 mb-3">
+            <Info className="w-4 h-4 text-white" />
             CO Gas — Major Consumer Contributors
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono">
               <thead>
-                <tr className="border-b border-[#E2E8F0]">
-                  <th className="text-left py-2 px-2 text-[#64748B] font-bold">Consumer</th>
-                  <th className="text-right py-2 px-2 text-[#64748B] font-bold">Flow (Nm³/h)</th>
-                  <th className="text-right py-2 px-2 text-[#64748B] font-bold">Share %</th>
-                  <th className="py-2 px-2 text-[#64748B] font-bold w-24">Load</th>
+                <tr className="border-b border-zinc-800">
+                  <th className="text-left py-2 px-2 text-zinc-400 font-bold">Consumer</th>
+                  <th className="text-right py-2 px-2 text-zinc-400 font-bold">Flow (Nm³/h)</th>
+                  <th className="text-right py-2 px-2 text-zinc-400 font-bold">Share %</th>
+                  <th className="py-2 px-2 text-zinc-400 font-bold w-24">Load</th>
                 </tr>
               </thead>
               <tbody>
                 {coWithShares.map((c, i) => (
-                  <tr key={i} className="border-b border-[#F1F5F9] hover:bg-[#F8F9FA] transition-colors">
-                    <td className="py-2 px-2 text-[#0F172A] font-semibold">{c.name}</td>
-                    <td className="py-2 px-2 text-right text-[#0F172A]">{(c.consumption / 1000).toFixed(1)}k</td>
-                    <td className="py-2 px-2 text-right font-bold text-[#7C3AED]">{c.share.toFixed(1)}%</td>
+                  <tr key={i} className="border-b border-zinc-800/60 hover:bg-zinc-900/60 transition-colors">
+                    <td className="py-2 px-2 text-white font-semibold">{c.name}</td>
+                    <td className="py-2 px-2 text-right text-zinc-300">{(c.consumption / 1000).toFixed(1)}k</td>
+                    <td className="py-2 px-2 text-right font-bold text-white">{c.share.toFixed(1)}%</td>
                     <td className="py-2 px-2">
-                      <div className="w-full bg-[#F1F3F5] h-2 rounded-full overflow-hidden">
+                      <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-800">
                         <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${Math.min(c.share * 3, 100)}%`,
-                            backgroundColor: c.share > 20 ? '#7C3AED' : c.share > 10 ? '#FF6B00' : '#059669'
-                          }}
+                          className="h-full rounded-full transition-all duration-500 bg-zinc-300"
+                          style={{ width: `${Math.min(c.share * 3, 100)}%` }}
                         />
                       </div>
                     </td>
@@ -381,8 +373,10 @@ export const RootCauseAnalysis: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </ParticleCard>
       </div>
     </div>
   );
 };
+
+export default RootCauseAnalysis;

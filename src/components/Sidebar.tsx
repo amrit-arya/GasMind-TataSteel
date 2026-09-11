@@ -13,7 +13,7 @@ import {
   FileText,
   Clock,
   ClipboardCheck,
-  FlameKindling,
+  Info,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -46,7 +46,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'alerts', label: 'Operational Alerts', icon: AlertTriangle, badge: unacknowledgedCritical },
     { id: 'reports', label: 'Reports & Exports', icon: FileText },
     { id: 'timeline', label: 'Event Timeline', icon: Clock },
-    { id: 'audit', label: 'Audit Trail', icon: ClipboardCheck }
+    { id: 'audit', label: 'Audit Trail', icon: ClipboardCheck },
+    { id: 'about', label: 'About GASMIND', icon: Info }
   ];
 
   return (
@@ -96,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse glow-flame" />
               <span className="text-xs font-mono text-zinc-200 font-bold">FIRE CONTROL ACTIVE</span>
             </div>
-            <span className="text-[10px] font-mono text-zinc-400">v2.4</span>
+            <span className="text-[10px] font-mono text-zinc-400">v1.0.0</span>
           </div>
         ) : (
           <div className="flex justify-center mb-4">
@@ -139,21 +140,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
         </nav>
-
-        {/* Operator Footer */}
-        <div className="px-3 pt-3 border-t border-zinc-800 mt-auto">
-          <div className={`p-2 rounded bg-zinc-900 border border-zinc-800 flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
-            <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white font-mono font-bold text-[10px] shrink-0">
-              EV
-            </div>
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-white truncate">Elena Vance</p>
-                <p className="text-[10px] font-mono text-zinc-400 truncate">Fire Command Engineer</p>
-              </div>
-            )}
-          </div>
-        </div>
       </aside>
     </>
   );
