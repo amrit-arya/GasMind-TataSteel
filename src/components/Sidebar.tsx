@@ -75,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <h1 className="font-display text-lg font-extrabold tracking-wide text-white">
                   GASMIND
                 </h1>
-                <p className="text-[11px] text-zinc-400 font-mono">Industrial Fire Command</p>
+                <p className="text-[11px] text-zinc-400 font-mono">Intelligent Gas Management</p>
               </div>
             )}
           </div>
@@ -95,13 +95,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="mx-3 mb-5 p-2.5 bg-zinc-900 border border-zinc-800 rounded flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse glow-flame" />
-              <span className="text-xs font-mono text-zinc-200 font-bold">FIRE CONTROL ACTIVE</span>
+              <span className="text-xs font-mono text-zinc-200 font-bold">GAS MONITORING ACTIVE</span>
             </div>
             <span className="text-[10px] font-mono text-zinc-400">v1.0.0</span>
           </div>
         ) : (
           <div className="flex justify-center mb-4">
-            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse glow-flame" title="Fire Control Active" />
+            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse glow-flame" title="Gas Monitoring Active" />
           </div>
         )}
 

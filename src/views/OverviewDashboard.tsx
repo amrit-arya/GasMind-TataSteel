@@ -2,6 +2,7 @@ import React from 'react';
 import { useGasData } from '../context/GasDataContext';
 import { ParticleCard } from '../components/MagicBento';
 import { 
+  LayoutDashboard,
   TrendingUp, 
   TrendingDown, 
   CheckCircle2, 
@@ -122,7 +123,7 @@ export const OverviewDashboard: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 pb-4 border-b border-zinc-800">
         <div>
           <h2 className="font-mono text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-            <img src="/gasmind_logo.jpg" alt="GasMind Logo" className="w-7 h-7 rounded-full object-cover border border-zinc-700 shadow" />
+            <LayoutDashboard className="w-6 h-6 text-white" />
             Overview Dashboard
           </h2>
           <p className="text-xs text-zinc-400 font-mono mt-1">Real-time network telemetry and fire-command KPIs.</p>
