@@ -213,9 +213,9 @@ export const ParticleCard: React.FC<{
 
       if (enableTilt) {
         gsap.to(element, {
-          rotateX: 5,
-          rotateY: 5,
-          duration: 0.3,
+          rotateX: 1.5,
+          rotateY: 1.5,
+          duration: 0.4,
           ease: 'power2.out',
           transformPerspective: 1000
         });
@@ -230,7 +230,7 @@ export const ParticleCard: React.FC<{
         gsap.to(element, {
           rotateX: 0,
           rotateY: 0,
-          duration: 0.3,
+          duration: 0.5,
           ease: 'power2.out'
         });
       }
@@ -239,7 +239,7 @@ export const ParticleCard: React.FC<{
         gsap.to(element, {
           x: 0,
           y: 0,
-          duration: 0.3,
+          duration: 0.5,
           ease: 'power2.out'
         });
       }
@@ -255,26 +255,26 @@ export const ParticleCard: React.FC<{
       const centerY = rect.height / 2;
 
       if (enableTilt) {
-        const rotateX = ((y - centerY) / centerY) * -10;
-        const rotateY = ((x - centerX) / centerX) * 10;
+        const rotateX = ((y - centerY) / centerY) * -2.5;
+        const rotateY = ((x - centerX) / centerX) * 2.5;
 
         gsap.to(element, {
           rotateX,
           rotateY,
-          duration: 0.1,
+          duration: 0.4,
           ease: 'power2.out',
           transformPerspective: 1000
         });
       }
 
       if (enableMagnetism) {
-        const magnetX = (x - centerX) * 0.05;
-        const magnetY = (y - centerY) * 0.05;
+        const magnetX = (x - centerX) * 0.015;
+        const magnetY = (y - centerY) * 0.015;
 
         magnetismAnimationRef.current = gsap.to(element, {
           x: magnetX,
           y: magnetY,
-          duration: 0.3,
+          duration: 0.5,
           ease: 'power2.out'
         });
       }
@@ -740,26 +740,26 @@ export const MagicBento: React.FC<BentoProps> = ({
                     const centerY = rect.height / 2;
 
                     if (enableTilt) {
-                      const rotateX = ((y - centerY) / centerY) * -10;
-                      const rotateY = ((x - centerX) / centerX) * 10;
+                      const rotateX = ((y - centerY) / centerY) * -2.5;
+                      const rotateY = ((x - centerX) / centerX) * 2.5;
 
                       gsap.to(el, {
                         rotateX,
                         rotateY,
-                        duration: 0.1,
+                        duration: 0.4,
                         ease: 'power2.out',
                         transformPerspective: 1000
                       });
                     }
 
                     if (enableMagnetism) {
-                      const magnetX = (x - centerX) * 0.05;
-                      const magnetY = (y - centerY) * 0.05;
+                      const magnetX = (x - centerX) * 0.015;
+                      const magnetY = (y - centerY) * 0.015;
 
                       gsap.to(el, {
                         x: magnetX,
                         y: magnetY,
-                        duration: 0.3,
+                        duration: 0.5,
                         ease: 'power2.out'
                       });
                     }

@@ -13,7 +13,6 @@ import {
   FileText,
   Clock,
   ClipboardCheck,
-  Info,
   ChevronLeft,
   ChevronRight,
   Sparkles,
@@ -27,6 +26,18 @@ interface SidebarProps {
   setIsCollapsed: (collapsed: boolean) => void;
 }
 
+interface NavItem {
+  id: ViewMode;
+  label: string;
+  icon: React.FC<{ className?: string }>;
+  badge?: number;
+}
+
+interface NavSection {
+  category: string;
+  items: NavItem[];
+}
+
 export const Sidebar: React.FC<SidebarProps> = ({ 
   mobileOpen, 
   setMobileOpen,
@@ -37,18 +48,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const unacknowledgedCritical = alerts.filter(a => a.severity === 'critical' && !a.acknowledged).length;
 
-  const mainNavItems: { id: ViewMode; label: string; icon: React.FC<{ className?: string }>; badge?: number }[] = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'generation', label: 'Gas Generation', icon: Factory },
-    { id: 'consumption', label: 'Gas Consumption', icon: Flame },
-    { id: 'balance', label: 'Gas Balance', icon: Scale },
-    { id: 'network', label: 'Gas Sankey Flow', icon: Network },
-    { id: 'simulation', label: 'Simulation Workspace', icon: Sliders },
-    { id: 'scenario', label: 'Scenario Analysis', icon: TrendingUp },
-    { id: 'alerts', label: 'Operational Alerts', icon: AlertTriangle, badge: unacknowledgedCritical },
-    { id: 'reports', label: 'Reports & Exports', icon: FileText },
-    { id: 'timeline', label: 'Event Timeline', icon: Clock },
-    { id: 'audit', label: 'Audit Trail', icon: ClipboardCheck }
+  const navSections: NavSection[] = [
+    {
+      category: 'Real-Time Telemetry',
+      items: [
+        { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+        { id: 'generation', label: 'Gas Generation', icon: Factory },
+        { id: 'consumption', label: 'Gas Consumption', icon: Flame },
+        { id: 'balance', label: 'Gas Balance', icon: Scale },
+        { id: 'network', label: 'Gas Sankey Flow', icon: Network }
+      ]
+    },
+    {
+      category: 'Intelligence & Optimization',
+      items: [
+        { id: 'simulation', label: 'Simulation Workspace', icon: Sliders },
+        { id: 'scenario', label: 'Scenario Analysis', icon: TrendingUp }
+      ]
+    },
+    {
+      category: 'Diagnostics & Events',
+      items: [
+        { id: 'alerts', label: 'Operational Alerts', icon: AlertTriangle, badge: unacknowledgedCritical },
+        { id: 'timeline', label: 'Event Timeline', icon: Clock }
+      ]
+    },
+    {
+      category: 'Governance & Compliance',
+      items: [
+        { id: 'reports', label: 'Reports & Exports', icon: FileText },
+        { id: 'audit', label: 'Audit Trail', icon: ClipboardCheck }
+      ]
+    }
   ];
 
   const isAboutActive = currentView === 'about';
@@ -75,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <img src="/gasmind_logo.jpg" alt="GasMind Official Logo" className="w-9 h-9 rounded-full object-cover border border-zinc-700 shadow-md shrink-0" />
             {!isCollapsed && (
               <div className="overflow-hidden whitespace-nowrap">
-                <h1 className="font-display text-lg font-extrabold tracking-wide text-white">
+                <h1 className="font-heading text-lg font-extrabold tracking-wide text-white">
                   GASMIND
                 </h1>
                 <p className="text-[11px] text-zinc-400 font-mono">Intelligent Gas Management</p>
@@ -108,40 +139,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* Navigation List */}
-        <nav className="flex-1 overflow-y-auto px-2 space-y-1 custom-scrollbar">
-          {mainNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentView === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setCurrentView(item.id);
-                  setMobileOpen(false);
-                }}
-                title={isCollapsed ? item.label : undefined}
-                className={`
-                  w-full flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-3'} py-2.5 rounded-lg text-xs font-bold transition-all duration-150 group cursor-pointer
-                  ${isActive 
-                    ? 'bg-zinc-800 text-white border border-zinc-700 shadow-md font-extrabold' 
-                    : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}
-                `}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`} />
-                  {!isCollapsed && <span className="truncate">{item.label}</span>}
+        {/* Navigation List grouped by Category */}
+        <nav className="flex-1 overflow-y-auto px-2 space-y-4 custom-scrollbar">
+          {navSections.map((section, sIdx) => (
+            <div key={section.category || sIdx} className="space-y-1">
+              {!isCollapsed && (
+                <div className="px-3 pt-1 pb-1 text-[10px] font-mono font-bold tracking-wider text-zinc-500 uppercase flex items-center justify-between">
+                  <span>{section.category}</span>
                 </div>
-                {!isCollapsed && item.badge ? (
-                  <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-white text-black rounded-full animate-pulse">
-                    {item.badge}
-                  </span>
-                ) : isCollapsed && item.badge ? (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full" />
-                ) : null}
-              </button>
-            );
-          })}
+              )}
+
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setCurrentView(item.id);
+                      setMobileOpen(false);
+                    }}
+                    title={isCollapsed ? item.label : undefined}
+                    className={`
+                      w-full flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-3'} py-2 rounded-lg text-xs font-bold transition-all duration-150 group cursor-pointer
+                      ${isActive 
+                        ? 'bg-zinc-800 text-white border border-zinc-700 shadow-md font-extrabold' 
+                        : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'}
+                    `}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`} />
+                      {!isCollapsed && <span className="truncate">{item.label}</span>}
+                    </div>
+                    {!isCollapsed && item.badge ? (
+                      <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-white text-black rounded-full animate-pulse">
+                        {item.badge}
+                      </span>
+                    ) : isCollapsed && item.badge ? (
+                      <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full" />
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* Featured "About GASMIND" Section */}
@@ -168,7 +209,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-xs font-mono font-extrabold tracking-wide text-white block">
+                    <span className="text-xs font-heading font-extrabold tracking-wide text-white block">
                       About GASMIND
                     </span>
                     <span className="text-[10px] text-zinc-400 font-mono block">Tata Steel Project</span>
