@@ -95,7 +95,7 @@ export const GasConsumptionView: React.FC = () => {
         position: 'right' as const, 
         labels: { 
           color: '#FFFFFF', 
-          font: { family: 'Inter, monospace', size: 12, weight: 600 },
+          font: { family: 'Agrandir, sans-serif', size: 12, weight: 600 },
           boxWidth: 14,
           padding: 12
         } 
@@ -106,8 +106,8 @@ export const GasConsumptionView: React.FC = () => {
         borderWidth: 1, 
         titleColor: '#FFFFFF', 
         bodyColor: '#FAFAFA',
-        titleFont: { family: 'Inter', size: 12, weight: 700 },
-        bodyFont: { family: 'Inter', size: 11 }
+        titleFont: { family: 'Agrandir, sans-serif', size: 12, weight: 700 },
+        bodyFont: { family: 'Roboto Mono, monospace', size: 11 }
       }
     }
   };

@@ -54,12 +54,12 @@ export const GasGenerationView: React.FC = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { labels: { color: '#FFFFFF', font: { family: 'Inter, monospace', size: 11, weight: 600 } } },
-      tooltip: { backgroundColor: '#18181B', borderColor: '#3F3F46', borderWidth: 1, titleColor: '#FFFFFF', bodyColor: '#FAFAFA' }
+      legend: { labels: { color: '#FFFFFF', font: { family: 'Agrandir, sans-serif', size: 11, weight: 600 } } },
+      tooltip: { backgroundColor: '#18181B', borderColor: '#3F3F46', borderWidth: 1, titleColor: '#FFFFFF', bodyColor: '#FAFAFA', titleFont: { family: 'Agrandir, sans-serif' }, bodyFont: { family: 'Roboto Mono, monospace' } }
     },
     scales: {
-      x: { ticks: { color: '#A1A1AA', font: { family: 'Inter, monospace', size: 11 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-      y: { ticks: { color: '#A1A1AA', font: { family: 'Inter, monospace', size: 10 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+      x: { ticks: { color: '#A1A1AA', font: { family: 'Roboto Mono, monospace', size: 10 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+      y: { ticks: { color: '#A1A1AA', font: { family: 'Roboto Mono, monospace', size: 10 } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
     }
   };
 

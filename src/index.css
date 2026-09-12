@@ -1,3 +1,6 @@
+@import url('https://fonts.cdnfonts.com/css/agrandir');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,8 +9,21 @@
   html, body {
     background-color: #000000 !important;
     color: #FAFAFA;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Roboto Mono', monospace;
     filter: grayscale(100%) !important;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading, .font-display, .font-agrandir {
+    font-family: 'Agrandir', sans-serif !important;
+  }
+
+  p, span, div, button, input, select, textarea, table, td, th {
+    font-family: 'Roboto Mono', monospace;
+  }
+
+  /* Keep headings overriding paragraph font rule */
+  h1 *, h2 *, h3 *, h4 *, h5 *, h6 * {
+    font-family: inherit;
   }
 }
 

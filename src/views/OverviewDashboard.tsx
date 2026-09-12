@@ -84,10 +84,11 @@ export const OverviewDashboard: React.FC = () => {
     plugins: {
       legend: {
         position: 'top' as const,
+        align: 'end' as const,
         labels: {
           color: '#FFFFFF',
-          font: { family: 'Inter, monospace', size: 11, weight: 600 },
-          boxWidth: 14,
+          font: { family: 'Agrandir, sans-serif', size: 11, weight: 600 },
+          boxWidth: 12,
           padding: 12
         }
       },
@@ -97,19 +98,19 @@ export const OverviewDashboard: React.FC = () => {
         borderWidth: 1,
         titleColor: '#FFFFFF',
         bodyColor: '#FAFAFA',
-        titleFont: { family: 'Inter', size: 12, weight: 700 },
-        bodyFont: { family: 'Inter, monospace', size: 11 }
+        titleFont: { family: 'Agrandir, sans-serif', size: 12, weight: 700 },
+        bodyFont: { family: 'Roboto Mono, monospace', size: 11 }
       }
     },
     scales: {
       x: {
-        ticks: { color: '#A1A1AA', font: { family: 'Inter, monospace', size: 10 } },
+        ticks: { color: '#A1A1AA', font: { family: 'Roboto Mono, monospace', size: 10 } },
         grid: { color: 'rgba(255, 255, 255, 0.1)' }
       },
       y: {
         ticks: { 
           color: '#A1A1AA', 
-          font: { family: 'Inter, monospace', size: 10 },
+          font: { family: 'Roboto Mono, monospace', size: 10 },
           callback: (value: any) => `${(value / 1000).toFixed(0)}k`
         },
         grid: { color: 'rgba(255, 255, 255, 0.1)' }

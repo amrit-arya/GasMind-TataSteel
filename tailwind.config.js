@@ -50,9 +50,12 @@ export default {
         'action-orange': '#FF6B00'
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
-        display: ['Hanken Grotesk', 'sans-serif']
+        sans: ['"Roboto Mono"', 'monospace'],
+        mono: ['"Roboto Mono"', 'monospace'],
+        body: ['"Roboto Mono"', 'monospace'],
+        display: ['"Agrandir"', 'sans-serif'],
+        heading: ['"Agrandir"', 'sans-serif'],
+        agrandir: ['"Agrandir"', 'sans-serif']
       },
       borderRadius: {
         'industrial': '6px'

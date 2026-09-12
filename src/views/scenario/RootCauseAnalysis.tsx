@@ -139,7 +139,7 @@ export const RootCauseAnalysis: React.FC = () => {
     plugins: {
       legend: {
         position: 'top' as const,
-        labels: { font: { family: 'Inter, monospace', size: 11, weight: 600 }, color: '#FFFFFF' }
+        labels: { font: { family: 'Agrandir, sans-serif', size: 11, weight: 600 }, color: '#FFFFFF' }
       },
       tooltip: {
         backgroundColor: '#18181B',
@@ -147,17 +147,19 @@ export const RootCauseAnalysis: React.FC = () => {
         borderWidth: 1,
         titleColor: '#FFFFFF',
         bodyColor: '#FAFAFA',
+        titleFont: { family: 'Agrandir, sans-serif', size: 12 },
+        bodyFont: { family: 'Roboto Mono, monospace', size: 11 },
         callbacks: {
           label: (ctx: any) => `${ctx.dataset.label}: ${(ctx.raw / 1000).toFixed(1)}k Nm³/h`
         }
       }
     },
     scales: {
-      x: { grid: { display: false }, ticks: { font: { family: 'Inter, monospace', size: 11 }, color: '#A1A1AA' } },
+      x: { grid: { display: false }, ticks: { font: { family: 'Roboto Mono, monospace', size: 11 }, color: '#A1A1AA' } },
       y: {
         grid: { color: 'rgba(255, 255, 255, 0.1)' },
         ticks: {
-          font: { family: 'Inter, monospace', size: 10 },
+          font: { family: 'Roboto Mono, monospace', size: 10 },
           color: '#A1A1AA',
           callback: (v: any) => `${(v / 1000).toFixed(0)}k`
         }
@@ -168,14 +170,14 @@ export const RootCauseAnalysis: React.FC = () => {
   // Doughnut for BF gas consumer breakdown
   const bfDoughnutData = {
     labels: bfWithShares.slice(0, 6).map(c => c.name),
-    datasets: [{
-      data: bfWithShares.slice(0, 6).map(c => c.consumption),
-      backgroundColor: [
-        '#FFFFFF', '#E4E4E7', '#D4D4D8', '#A1A1AA', '#71717A', '#52525B'
-      ],
-      borderWidth: 2,
-      borderColor: '#000000',
-    }]
+    datasets: [
+      {
+        data: [...bfWithShares.slice(0, 5).map(c => c.consumption), bfWithShares.slice(5).reduce((a, b) => a + b.consumption, 0)],
+        backgroundColor: ['#FFFFFF', '#D4D4D8', '#A1A1AA', '#71717A', '#52525B', '#27272A'],
+        borderColor: '#000000',
+        borderWidth: 2
+      }
+    ]
   };
 
   const doughnutOptions = {
@@ -185,7 +187,7 @@ export const RootCauseAnalysis: React.FC = () => {
     plugins: {
       legend: {
         position: 'right' as const,
-        labels: { font: { family: 'Inter, monospace', size: 10, weight: 600 }, color: '#FFFFFF', boxWidth: 12, padding: 8 }
+        labels: { font: { family: 'Agrandir, sans-serif', size: 10, weight: 600 }, color: '#FFFFFF', boxWidth: 12, padding: 8 }
       },
       tooltip: {
         backgroundColor: '#18181B',
@@ -193,6 +195,8 @@ export const RootCauseAnalysis: React.FC = () => {
         borderWidth: 1,
         titleColor: '#FFFFFF',
         bodyColor: '#FAFAFA',
+        titleFont: { family: 'Agrandir, sans-serif', size: 12 },
+        bodyFont: { family: 'Roboto Mono, monospace', size: 11 },
         callbacks: {
           label: (ctx: any) => `${ctx.label}: ${(ctx.raw / 1000).toFixed(0)}k Nm³/h (${((ctx.raw / totalBfConsumption) * 100).toFixed(1)}%)`
         }
