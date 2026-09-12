@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Flame, Filter } from 'lucide-react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { ParticleCard } from '../components/MagicBento';
+import { ParticleCard } from '../../components';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 

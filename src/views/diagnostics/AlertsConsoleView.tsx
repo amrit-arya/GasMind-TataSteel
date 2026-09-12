@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useGasData } from '../context/GasDataContext';
+import { useGasData } from '../../context';
 import {
   ShieldAlert,
   AlertTriangle,
@@ -13,8 +13,8 @@ import {
   Clock,
   Filter
 } from 'lucide-react';
-import { playCriticalAlert, playWarningAlert, playInfoAlert } from '../utils/soundNotifications';
-import { ParticleCard } from '../components/MagicBento';
+import { playCriticalAlert, playWarningAlert, playInfoAlert } from '../../utils';
+import { ParticleCard } from '../../components';
 
 export const AlertsConsoleView: React.FC = () => {
   const { alerts, acknowledgeAlert, dismissAlert, soundEnabled, setSoundEnabled } = useGasData();
@@ -87,7 +87,7 @@ export const AlertsConsoleView: React.FC = () => {
             </div>
             <button
               onClick={() => playCriticalAlert()}
-              className="px-2.5 py-1 bg-white text-black rounded text-[10px] font-mono font-bold hover:bg-zinc-200 cursor-pointer transition-colors"
+              className="px-3 py-1 bg-white text-black rounded text-[10px] font-mono font-bold hover:bg-zinc-200 shadow cursor-pointer transition-all active:scale-95"
             >
               Test
             </button>
@@ -100,13 +100,13 @@ export const AlertsConsoleView: React.FC = () => {
                 <Bell className="w-3.5 h-3.5" />
               </div>
               <div>
-                <p className="text-xs font-mono font-bold text-zinc-300">Warning</p>
+                <p className="text-xs font-mono font-bold text-white">Warning</p>
                 <p className="text-[9px] font-mono text-zinc-400">Double tone alert</p>
               </div>
             </div>
             <button
               onClick={() => playWarningAlert()}
-              className="px-2.5 py-1 bg-zinc-800 text-white border border-zinc-700 rounded text-[10px] font-mono font-bold hover:border-white cursor-pointer transition-colors"
+              className="px-3 py-1 bg-white text-black rounded text-[10px] font-mono font-bold hover:bg-zinc-200 shadow cursor-pointer transition-all active:scale-95"
             >
               Test
             </button>
@@ -119,13 +119,13 @@ export const AlertsConsoleView: React.FC = () => {
                 <Info className="w-3.5 h-3.5" />
               </div>
               <div>
-                <p className="text-xs font-mono font-bold text-zinc-400">Info</p>
+                <p className="text-xs font-mono font-bold text-white">Info</p>
                 <p className="text-[9px] font-mono text-zinc-400">Single soft chime</p>
               </div>
             </div>
             <button
               onClick={() => playInfoAlert()}
-              className="px-2.5 py-1 bg-zinc-800 text-white border border-zinc-700 rounded text-[10px] font-mono font-bold hover:border-white cursor-pointer transition-colors"
+              className="px-3 py-1 bg-white text-black rounded text-[10px] font-mono font-bold hover:bg-zinc-200 shadow cursor-pointer transition-all active:scale-95"
             >
               Test
             </button>

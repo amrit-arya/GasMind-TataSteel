@@ -29,7 +29,7 @@
 
 /* Monochrome Gradients */
 .bg-flame-gradient {
-  background: linear-gradient(135deg, #FFFFFF 0%, #A1A1AA 50%, #27272A 100%);
+  background: linear-gradient(135deg, #27272A 0%, #18181B 50%, #09090B 100%);
 }
 
 .bg-flame-gradient-subtle {

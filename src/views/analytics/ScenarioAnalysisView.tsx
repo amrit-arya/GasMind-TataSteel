@@ -10,7 +10,7 @@ import { RootCauseAnalysis } from './scenario/RootCauseAnalysis';
 import { DependencyAnalysis } from './scenario/DependencyAnalysis';
 import { CriticalityAnalysis } from './scenario/CriticalityAnalysis';
 import { ScenarioComparison } from './scenario/ScenarioComparison';
-import { ParticleCard } from '../components/MagicBento';
+import { ParticleCard } from '../../components';
 
 type ScenarioTab = 'root-cause' | 'dependency' | 'criticality' | 'comparison';
 

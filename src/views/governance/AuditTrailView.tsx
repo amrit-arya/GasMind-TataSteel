@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useGasData } from '../context/GasDataContext';
-import { AuditCategory, AuditItem } from '../types';
+import { useGasData } from '../../context';
+import { AuditCategory, AuditItem } from '../../types';
 import { 
   ClipboardCheck, 
   Search, 
@@ -15,7 +15,7 @@ import {
   FileSpreadsheet,
   Clock
 } from 'lucide-react';
-import { ParticleCard } from '../components/MagicBento';
+import { ParticleCard } from '../../components';
 
 export const AuditTrailView: React.FC = () => {
   const { auditLogs, exportAuditLogsToCSV, setCurrentView } = useGasData();

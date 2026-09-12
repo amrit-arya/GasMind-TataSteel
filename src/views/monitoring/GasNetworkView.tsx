@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useGasData } from '../context/GasDataContext';
+import { useGasData } from '../../context';
 import { Network, Filter, Zap, Info, Layers } from 'lucide-react';
-import { ParticleCard } from '../components/MagicBento';
+import { ParticleCard } from '../../components';
 
 interface SankeyNode {
   id: string;

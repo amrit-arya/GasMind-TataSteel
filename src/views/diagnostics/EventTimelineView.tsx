@@ -16,7 +16,7 @@ import {
   ChevronUp,
   Search
 } from 'lucide-react';
-import { ParticleCard } from '../components/MagicBento';
+import { ParticleCard } from '../../components';
 
 type EventCategory = 'all' | 'alert' | 'outage' | 'generation' | 'consumption' | 'maintenance' | 'optimization';
 type TimeFilter = 'daily' | 'weekly' | 'monthly';

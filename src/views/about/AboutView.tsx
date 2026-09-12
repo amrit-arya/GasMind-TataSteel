@@ -21,8 +21,8 @@ import {
   Activity,
   GitBranch
 } from 'lucide-react';
-import { ParticleCard } from '../components/MagicBento';
-import { useGasData } from '../context/GasDataContext';
+import { ParticleCard } from '../../components';
+import { useGasData } from '../../context';
 
 export const AboutView: React.FC = () => {
   const { setCurrentView } = useGasData();

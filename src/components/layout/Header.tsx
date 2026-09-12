@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useGasData } from '../context/GasDataContext';
-import { ViewMode } from '../types';
+import { useGasData } from '../../context';
+import { ViewMode } from '../../types';
 import {
   Search,
   Bell,
@@ -29,9 +29,10 @@ import {
 } from 'lucide-react';
 
 interface HeaderProps {
-  setMobileOpen: (open: boolean) => void;
+  onMenuClick?: () => void;
+  setMobileOpen?: (open: boolean) => void;
   isCollapsed: boolean;
-  setIsCollapsed: (collapsed: boolean) => void;
+  setIsCollapsed?: (collapsed: boolean) => void;
 }
 
 interface SearchResult {
@@ -72,6 +73,7 @@ const navPages: { id: ViewMode; label: string; keywords: string[] }[] = [
 ];
 
 export const Header: React.FC<HeaderProps> = ({
+  onMenuClick,
   setMobileOpen,
   isCollapsed,
   setIsCollapsed
@@ -282,7 +284,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Left: Mobile Toggle + Search Trigger */}
         <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 flex-1 mr-2">
           <button
-            onClick={() => setMobileOpen(true)}
+            onClick={() => onMenuClick ? onMenuClick() : setMobileOpen && setMobileOpen(true)}
             className="md:hidden text-zinc-300 p-2 hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer shrink-0"
             aria-label="Open Mobile Menu"
           >
@@ -292,7 +294,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2">
             <img src="/gasmind_logo.jpg" alt="GasMind Logo" className="w-8 h-8 rounded-full object-cover border border-zinc-700 shadow shrink-0" />
             <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={() => setIsCollapsed && setIsCollapsed(!isCollapsed)}
               className="hidden md:flex p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer shrink-0"
               title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             >
@@ -486,9 +488,9 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Global Notification Toast */}
       {exportNotification && (
-        <div className="fixed bottom-6 right-6 z-50 bg-flame-gradient text-white px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 border border-white/20 animate-bounce glow-flame font-mono text-xs font-bold">
-          <CheckCircle2 className="w-5 h-5 text-white" />
-          <span>{exportNotification}</span>
+        <div className="fixed bottom-6 right-6 z-50 bg-zinc-900/95 backdrop-blur-md text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-zinc-700 font-mono text-xs font-bold ring-1 ring-white/10">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span className="text-white font-mono">{exportNotification}</span>
         </div>
       )}
     </>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { useGasData } from '../context/GasDataContext';
+import { useGasData } from '../../context';
 import { Scale, Database, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { ParticleCard } from '../components/MagicBento';
+import { ParticleCard } from '../../components';
 
 export const GasBalanceView: React.FC = () => {
   const { gasMetrics } = useGasData();

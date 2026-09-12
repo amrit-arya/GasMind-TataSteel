@@ -10,7 +10,7 @@ import {
   ChevronUp,
   BarChart3
 } from 'lucide-react';
-import { ParticleCard } from '../../components/MagicBento';
+import { ParticleCard } from '../../../components';
 
 interface Generator {
   id: string;

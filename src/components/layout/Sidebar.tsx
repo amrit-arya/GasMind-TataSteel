@@ -1,6 +1,6 @@
 import React from 'react';
-import { useGasData } from '../context/GasDataContext';
-import { ViewMode } from '../types';
+import { useGasData } from '../../context';
+import { ViewMode } from '../../types';
 import { 
   LayoutDashboard, 
   Factory, 

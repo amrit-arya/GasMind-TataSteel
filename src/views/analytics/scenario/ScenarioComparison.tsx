@@ -10,7 +10,7 @@ import {
   Clock,
   ChevronRight
 } from 'lucide-react';
-import { ParticleCard } from '../../components/MagicBento';
+import { ParticleCard } from '../../../components';
 
 interface GeneratorConfig {
   id: string;

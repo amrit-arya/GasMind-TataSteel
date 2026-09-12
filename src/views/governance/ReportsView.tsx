@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useGasData } from '../context/GasDataContext';
+import { useGasData } from '../../context';
 import { 
   FileText, 
   Download, 
@@ -11,8 +11,8 @@ import {
   FileBarChart,
   FilePieChart
 } from 'lucide-react';
-import { generateGasMindPDFReport } from '../utils/pdfReportGenerator';
-import { ParticleCard } from '../components/MagicBento';
+import { generateGasMindPDFReport } from '../../utils';
+import { ParticleCard } from '../../components';
 
 interface GeneratedReport {
   id: string;

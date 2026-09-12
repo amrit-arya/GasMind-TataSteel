@@ -9,7 +9,7 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
-import { ParticleCard } from '../../components/MagicBento';
+import { ParticleCard } from '../../../components';
 
 interface ConsumerDependency {
   id: string;
