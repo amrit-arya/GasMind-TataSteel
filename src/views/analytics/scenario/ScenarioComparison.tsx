@@ -17,6 +17,7 @@ interface GeneratorConfig {
   name: string;
   gasType: 'BF Gas' | 'CO Gas' | 'LD Gas';
   baseCapacity: number;
+  internalCons: number;
 }
 
 interface ScenarioConfig {
@@ -38,7 +39,8 @@ interface ScenarioResult {
   totalDeficit: number;
   consumersAffected: number;
   costPenalty: number;
-  holderBufferMinutes: number;
+  bfBufferMinutes: number | null;
+  coBufferMinutes: number | null;
 }
 
 interface ConsumerImpactDiff {
@@ -52,16 +54,16 @@ interface ConsumerImpactDiff {
 }
 
 const allGenerators: GeneratorConfig[] = [
-  { id: 'bf-i', name: 'Blast Furnace I', gasType: 'BF Gas', baseCapacity: 465000 },
-  { id: 'bf-h', name: 'Blast Furnace H', gasType: 'BF Gas', baseCapacity: 450000 },
-  { id: 'bf-g', name: 'Blast Furnace G', gasType: 'BF Gas', baseCapacity: 322000 },
-  { id: 'bf-f', name: 'Blast Furnace F', gasType: 'BF Gas', baseCapacity: 240000 },
-  { id: 'bf-c', name: 'Blast Furnace C', gasType: 'BF Gas', baseCapacity: 162000 },
-  { id: 'bf-e', name: 'Blast Furnace E', gasType: 'BF Gas', baseCapacity: 82200 },
-  { id: 'co-new', name: 'New BPP (Batt 10, 11)', gasType: 'CO Gas', baseCapacity: 80000 },
-  { id: 'co-old', name: 'Old BPP (Batt 8, 9)', gasType: 'CO Gas', baseCapacity: 62000 },
-  { id: 'ld-13', name: 'LD-1 & LD-3 Converter', gasType: 'LD Gas', baseCapacity: 85000 },
-  { id: 'ld-2', name: 'LD-2 Converter', gasType: 'LD Gas', baseCapacity: 65000 },
+  { id: 'bf-i', name: 'Blast Furnace I', gasType: 'BF Gas', baseCapacity: 465000, internalCons: 194000 },
+  { id: 'bf-h', name: 'Blast Furnace H', gasType: 'BF Gas', baseCapacity: 450000, internalCons: 115000 },
+  { id: 'bf-g', name: 'Blast Furnace G', gasType: 'BF Gas', baseCapacity: 322000, internalCons: 90000 },
+  { id: 'bf-f', name: 'Blast Furnace F', gasType: 'BF Gas', baseCapacity: 240000, internalCons: 80000 },
+  { id: 'bf-c', name: 'Blast Furnace C', gasType: 'BF Gas', baseCapacity: 162000, internalCons: 32000 },
+  { id: 'bf-e', name: 'Blast Furnace E', gasType: 'BF Gas', baseCapacity: 82200, internalCons: 25000 },
+  { id: 'co-new', name: 'New BPP (Batt 10, 11)', gasType: 'CO Gas', baseCapacity: 80000, internalCons: 0 },
+  { id: 'co-old', name: 'Old BPP (Batt 8, 9)', gasType: 'CO Gas', baseCapacity: 62000, internalCons: 0 },
+  { id: 'ld-13', name: 'LD-1 & LD-3 Converter', gasType: 'LD Gas', baseCapacity: 85000, internalCons: 0 },
+  { id: 'ld-2', name: 'LD-2 Converter', gasType: 'LD Gas', baseCapacity: 65000, internalCons: 0 },
 ];
 
 const BF_CONSUMPTION = 1736000;
@@ -83,34 +85,56 @@ function computeScenario(config: ScenarioConfig): ScenarioResult {
   const reductionFactor = 1 - (config.globalReduction / 100);
 
   let bfGen = 0, coGen = 0, ldGen = 0;
+  let bfInternalConsDrop = 0, coInternalConsDrop = 0, ldInternalConsDrop = 0;
+
   allGenerators.forEach(g => {
     const isShutdown = config.shutdownGenerators.includes(g.id);
-    const output = isShutdown ? 0 : g.baseCapacity * reductionFactor;
-    if (g.gasType === 'BF Gas') bfGen += output;
-    else if (g.gasType === 'CO Gas') coGen += output;
-    else ldGen += output;
+    if (isShutdown) {
+      if (g.gasType === 'BF Gas') bfInternalConsDrop += g.internalCons;
+      else if (g.gasType === 'CO Gas') coInternalConsDrop += g.internalCons;
+      else ldInternalConsDrop += g.internalCons;
+    } else {
+      const output = g.baseCapacity * reductionFactor;
+      if (g.gasType === 'BF Gas') bfGen += output;
+      else if (g.gasType === 'CO Gas') coGen += output;
+      else ldGen += output;
+    }
   });
 
-  const bfBalance = bfGen - BF_CONSUMPTION;
-  const coBalance = coGen - CO_CONSUMPTION;
-  const ldBalance = ldGen - LD_CONSUMPTION;
+  const effectiveBfCons = Math.max(0, BF_CONSUMPTION - bfInternalConsDrop);
+  const effectiveCoCons = Math.max(0, CO_CONSUMPTION - coInternalConsDrop);
+  const effectiveLdCons = LD_CONSUMPTION;
 
-  const totalDeficit = Math.abs(Math.min(0, bfBalance)) + Math.abs(Math.min(0, coBalance));
+  const bfBalance = bfGen - effectiveBfCons;
+  const coBalance = coGen - effectiveCoCons;
+  const ldBalance = ldGen - effectiveLdCons;
 
-  const bfRatio = Math.min(1, bfGen / BF_CONSUMPTION);
-  const coRatio = Math.min(1, coGen / CO_CONSUMPTION);
-  const consumersAffected = (bfRatio < 0.95 ? 6 : 0) + (coRatio < 0.95 ? 3 : 0);
+  const bfDeficit = Math.abs(Math.min(0, bfBalance));
+  const coDeficit = Math.abs(Math.min(0, coBalance));
+  const totalDeficit = bfDeficit + coDeficit;
+
+  const bfRatio = Math.min(1, bfGen / effectiveBfCons);
+  const coRatio = Math.min(1, coGen / effectiveCoCons);
+
+  // Calculate actual affected consumer count based on supply ratio drops
+  let consumersAffected = 0;
+  consumers.forEach(c => {
+    const status = getConsumerStatus(bfRatio, coRatio, c);
+    if (status.status !== 'Nominal') consumersAffected++;
+  });
 
   const costPenalty = totalDeficit * 0.008;
-  const holderStock = 100000 * 0.68 + 80000 * 0.84;
-  const holderBufferMinutes = totalDeficit > 0 ? Math.round((holderStock / totalDeficit) * 60) : 999;
+
+  // Independent buffer calculation (BF stock: 68,000 m³, CO stock: 67,200 m³)
+  const bfBufferMinutes = bfDeficit > 0 ? Math.round((68000 / bfDeficit) * 60) : null;
+  const coBufferMinutes = coDeficit > 0 ? Math.round((67200 / coDeficit) * 60) : null;
 
   return {
     bfGeneration: Math.round(bfGen),
-    bfConsumption: BF_CONSUMPTION,
+    bfConsumption: Math.round(effectiveBfCons),
     bfBalance: Math.round(bfBalance),
     coGeneration: Math.round(coGen),
-    coConsumption: CO_CONSUMPTION,
+    coConsumption: Math.round(effectiveCoCons),
     coBalance: Math.round(coBalance),
     ldGeneration: Math.round(ldGen),
     ldConsumption: LD_CONSUMPTION,
@@ -118,7 +142,8 @@ function computeScenario(config: ScenarioConfig): ScenarioResult {
     totalDeficit: Math.round(totalDeficit),
     consumersAffected,
     costPenalty: Math.round(costPenalty),
-    holderBufferMinutes,
+    bfBufferMinutes,
+    coBufferMinutes
   };
 }
 
@@ -174,10 +199,10 @@ export const ScenarioComparison: React.FC = () => {
   const resultB = useMemo(() => computeScenario(scenarioB), [scenarioB]);
 
   const consumerDiffs: ConsumerImpactDiff[] = useMemo(() => {
-    const bfRatioA = Math.min(1, resultA.bfGeneration / BF_CONSUMPTION);
-    const coRatioA = Math.min(1, resultA.coGeneration / CO_CONSUMPTION);
-    const bfRatioB = Math.min(1, resultB.bfGeneration / BF_CONSUMPTION);
-    const coRatioB = Math.min(1, resultB.coGeneration / CO_CONSUMPTION);
+    const bfRatioA = Math.min(1, resultA.bfGeneration / Math.max(1, resultA.bfConsumption));
+    const coRatioA = Math.min(1, resultA.coGeneration / Math.max(1, resultA.coConsumption));
+    const bfRatioB = Math.min(1, resultB.bfGeneration / Math.max(1, resultB.bfConsumption));
+    const coRatioB = Math.min(1, resultB.coGeneration / Math.max(1, resultB.coConsumption));
 
     return consumers.map(c => {
       const a = getConsumerStatus(bfRatioA, coRatioA, c);
@@ -451,9 +476,9 @@ export const ScenarioComparison: React.FC = () => {
               </div>
               <div className="p-2 bg-black rounded border border-zinc-800">
                 <Clock className="w-3.5 h-3.5 mx-auto text-zinc-400 mb-1" />
-                <span className="text-[10px] font-mono text-zinc-400 block">Buffer</span>
-                <span className="text-sm font-mono font-bold text-white">
-                  {s.result.holderBufferMinutes < 999 ? `${s.result.holderBufferMinutes}m` : '∞'}
+                <span className="text-[10px] font-mono text-zinc-400 block">Buffers (BF / CO)</span>
+                <span className="text-[11px] font-mono font-bold text-white block truncate">
+                  BF: {s.result.bfBufferMinutes !== null ? `${s.result.bfBufferMinutes}m` : '∞'} | CO: {s.result.coBufferMinutes !== null ? `${s.result.coBufferMinutes}m` : '∞'}
                 </span>
               </div>
             </div>

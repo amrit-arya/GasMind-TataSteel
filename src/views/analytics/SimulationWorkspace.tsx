@@ -13,7 +13,8 @@ import {
   RefreshCw,
   UserCheck,
   FileSpreadsheet,
-  AlertCircle
+  AlertCircle,
+  Power
 } from 'lucide-react';
 import { ParticleCard } from '../../components';
 
@@ -22,6 +23,7 @@ interface GeneratorOption {
   name: string;
   gasType: 'BF Gas' | 'CO Gas' | 'LD Gas';
   lossRate: number;
+  internalCons: number;
 }
 
 interface ConsumerOption {
@@ -32,16 +34,16 @@ interface ConsumerOption {
 }
 
 const generators: GeneratorOption[] = [
-  { id: 'bf-i', name: 'Blast Furnace I (-465,000 Nm³/h)', gasType: 'BF Gas', lossRate: 465000 },
-  { id: 'bf-h', name: 'Blast Furnace H (-450,000 Nm³/h)', gasType: 'BF Gas', lossRate: 450000 },
-  { id: 'bf-g', name: 'Blast Furnace G (-322,000 Nm³/h)', gasType: 'BF Gas', lossRate: 322000 },
-  { id: 'bf-f', name: 'Blast Furnace F (-240,000 Nm³/h)', gasType: 'BF Gas', lossRate: 240000 },
-  { id: 'bf-c', name: 'Blast Furnace C (-162,000 Nm³/h)', gasType: 'BF Gas', lossRate: 162000 },
-  { id: 'bf-e', name: 'Blast Furnace E (-82,200 Nm³/h)', gasType: 'BF Gas', lossRate: 82200 },
-  { id: 'co-old', name: 'Old BPP Batt 8,9 (-62,000 Nm³/h)', gasType: 'CO Gas', lossRate: 62000 },
-  { id: 'co-new', name: 'New BPP Batt 10,11 (-80,000 Nm³/h)', gasType: 'CO Gas', lossRate: 80000 },
-  { id: 'ld-1-3', name: 'LD-1 & LD-3 Converter (-85,000 Nm³/h)', gasType: 'LD Gas', lossRate: 85000 },
-  { id: 'ld-2', name: 'LD-2 Converter (-65,000 Nm³/h)', gasType: 'LD Gas', lossRate: 65000 }
+  { id: 'bf-i', name: 'Blast Furnace I (-465k Nm³/h)', gasType: 'BF Gas', lossRate: 465000, internalCons: 194000 },
+  { id: 'bf-h', name: 'Blast Furnace H (-450k Nm³/h)', gasType: 'BF Gas', lossRate: 450000, internalCons: 115000 },
+  { id: 'bf-g', name: 'Blast Furnace G (-322k Nm³/h)', gasType: 'BF Gas', lossRate: 322000, internalCons: 90000 },
+  { id: 'bf-f', name: 'Blast Furnace F (-240k Nm³/h)', gasType: 'BF Gas', lossRate: 240000, internalCons: 80000 },
+  { id: 'bf-c', name: 'Blast Furnace C (-162k Nm³/h)', gasType: 'BF Gas', lossRate: 162000, internalCons: 32000 },
+  { id: 'bf-e', name: 'Blast Furnace E (-82.2k Nm³/h)', gasType: 'BF Gas', lossRate: 82200, internalCons: 25000 },
+  { id: 'co-old', name: 'Old BPP Batt 8,9 (-62k Nm³/h)', gasType: 'CO Gas', lossRate: 62000, internalCons: 0 },
+  { id: 'co-new', name: 'New BPP Batt 10,11 (-80k Nm³/h)', gasType: 'CO Gas', lossRate: 80000, internalCons: 0 },
+  { id: 'ld-1-3', name: 'LD-1 & LD-3 Converter (-85k Nm³/h)', gasType: 'LD Gas', lossRate: 85000, internalCons: 0 },
+  { id: 'ld-2', name: 'LD-2 Converter (-65k Nm³/h)', gasType: 'LD Gas', lossRate: 65000, internalCons: 0 }
 ];
 
 const consumers: ConsumerOption[] = [
@@ -63,13 +65,12 @@ export const SimulationWorkspace: React.FC = () => {
   const [operatorDept, setOperatorDept] = useState<string>('Energy Management Division (EMP-4819)');
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Event state
-  const [selectedGenerator, setSelectedGenerator] = useState<string>('none');
-  const [selectedConsumer, setSelectedConsumer] = useState<string>('none');
+  // Event state: Multi-select arrays for simultaneous outages
+  const [selectedGenerators, setSelectedGenerators] = useState<string[]>([]);
+  const [selectedConsumers, setSelectedConsumers] = useState<string[]>([]);
   const [generationScale, setGenerationScale] = useState<number>(100);
   const [consumptionScale, setConsumptionScale] = useState<number>(100);
 
-  const [isComputing, setIsComputing] = useState(false);
   const [simulationRun, setSimulationRun] = useState(false);
   const [lastAuditId, setLastAuditId] = useState<string | null>(null);
 
@@ -80,38 +81,59 @@ export const SimulationWorkspace: React.FC = () => {
   const coBaseCons = 134600;
   const ldBaseGen = 150000;
 
-  // Calculate simulated values
-  const genLoss = selectedGenerator !== 'none' 
-    ? generators.find(g => g.id === selectedGenerator)?.lossRate || 0 
-    : 0;
-  
-  const genGasType = selectedGenerator !== 'none'
-    ? generators.find(g => g.id === selectedGenerator)?.gasType
-    : null;
+  // Calculate outage & internal consumption drops
+  let bfLoss = 0, bfInternalConsDrop = 0;
+  let coLoss = 0, coInternalConsDrop = 0;
+  let ldLoss = 0, ldInternalConsDrop = 0;
 
-  const consDrop = selectedConsumer !== 'none'
-    ? consumers.find(c => c.id === selectedConsumer)?.reductionRate || 0
-    : 0;
+  selectedGenerators.forEach(genId => {
+    const g = generators.find(item => item.id === genId);
+    if (!g) return;
+    if (g.gasType === 'BF Gas') {
+      bfLoss += g.lossRate;
+      bfInternalConsDrop += g.internalCons;
+    } else if (g.gasType === 'CO Gas') {
+      coLoss += g.lossRate;
+      coInternalConsDrop += g.internalCons;
+    } else if (g.gasType === 'LD Gas') {
+      ldLoss += g.lossRate;
+      ldInternalConsDrop += g.internalCons;
+    }
+  });
 
-  const consGasType = selectedConsumer !== 'none'
-    ? consumers.find(c => c.id === selectedConsumer)?.gasType
-    : null;
+  let bfConsDrop = 0, coConsDrop = 0, ldConsDrop = 0;
+  selectedConsumers.forEach(consId => {
+    const c = consumers.find(item => item.id === consId);
+    if (!c) return;
+    if (c.gasType === 'BF Gas') bfConsDrop += c.reductionRate;
+    else if (c.gasType === 'CO Gas') coConsDrop += c.reductionRate;
+    else if (c.gasType === 'LD Gas') ldConsDrop += c.reductionRate;
+  });
 
-  // Net streams after events
-  let simBfGen = (bfBaseGen * (generationScale / 100)) - (genGasType === 'BF Gas' ? genLoss : 0);
-  let simBfCons = (bfBaseCons * (consumptionScale / 100)) - (consGasType === 'BF Gas' ? consDrop : 0);
+  // Reordered math: (base - outage) * scale
+  let simBfGen = Math.max(0, (bfBaseGen - bfLoss) * (generationScale / 100));
+  let simBfCons = Math.max(0, (bfBaseCons - bfInternalConsDrop - bfConsDrop) * (consumptionScale / 100));
   let simBfBal = simBfGen - simBfCons;
 
-  let simCoGen = (coBaseGen * (generationScale / 100)) - (genGasType === 'CO Gas' ? genLoss : 0);
-  let simCoCons = (coBaseCons * (consumptionScale / 100)) - (consGasType === 'CO Gas' ? consDrop : 0);
+  let simCoGen = Math.max(0, (coBaseGen - coLoss) * (generationScale / 100));
+  let simCoCons = Math.max(0, (coBaseCons - coInternalConsDrop - coConsDrop) * (consumptionScale / 100));
   let simCoBal = simCoGen - simCoCons;
 
-  let simLdGen = (ldBaseGen * (generationScale / 100)) - (genGasType === 'LD Gas' ? genLoss : 0);
+  let simLdGen = Math.max(0, (ldBaseGen - ldLoss) * (generationScale / 100));
 
-  // Depletion windows
-  const bfDepletionHours = simBfBal < 0 ? Math.abs(68000 / simBfBal) : 999;
-  const coDepletionHours = simCoBal < 0 ? Math.abs(67200 / simCoBal) : 999;
+  // Depletion windows (using null instead of 999 sentinel)
+  const bfDepletionHours: number | null = simBfBal < 0 ? Math.abs(68000 / simBfBal) : null;
+  const coDepletionHours: number | null = simCoBal < 0 ? Math.abs(67200 / simCoBal) : null;
 
+  const toggleGenerator = (id: string) => {
+    setSelectedGenerators(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const toggleConsumer = (id: string) => {
+    setSelectedConsumers(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  // Instant execution without fake 600ms setTimeout delay
   const handleRunSimulation = () => {
     if (!operatorName.trim() || !operatorDesignation.trim()) {
       setValidationError('Operator Name and Designation are mandatory to execute simulation and log audit record.');
@@ -119,45 +141,40 @@ export const SimulationWorkspace: React.FC = () => {
     }
 
     setValidationError(null);
-    setIsComputing(true);
-    
-    setTimeout(() => {
-      setIsComputing(false);
-      setSimulationRun(true);
+    setSimulationRun(true);
 
-      const genObj = generators.find(g => g.id === selectedGenerator);
-      const consObj = consumers.find(c => c.id === selectedConsumer);
+    const genNames = selectedGenerators.map(id => generators.find(g => g.id === id)?.name).filter(Boolean).join(', ');
+    const consNames = selectedConsumers.map(id => consumers.find(c => c.id === id)?.name).filter(Boolean).join(', ');
 
-      const resultDesc = `Simulated Net BF Balance: ${simBfBal > 0 ? '+' : ''}${simBfBal.toLocaleString()} Nm³/h | Net CO Balance: ${simCoBal > 0 ? '+' : ''}${simCoBal.toLocaleString()} Nm³/h. ` +
-        (simBfBal < 0 ? `BF Gasholder depletion window: ${bfDepletionHours.toFixed(2)} hours.` : `BF Gasholder buffer safe.`);
+    const resultDesc = `Simulated Net BF Balance: ${simBfBal > 0 ? '+' : ''}${simBfBal.toLocaleString()} Nm³/h | Net CO Balance: ${simCoBal > 0 ? '+' : ''}${simCoBal.toLocaleString()} Nm³/h. ` +
+      (simBfBal < 0 && bfDepletionHours !== null ? `BF Gasholder depletion window: ${bfDepletionHours.toFixed(2)} hours.` : `BF Gasholder buffer safe.`);
 
-      const createdLog = addAuditLog({
-        category: 'simulation',
-        userName: operatorName,
-        userDesignation: operatorDesignation,
-        userDepartment: operatorDept,
-        actionTitle: `Simulation Executed: Gen: ${selectedGenerator !== 'none' ? genObj?.name : 'Nominal'}, Cons: ${selectedConsumer !== 'none' ? consObj?.name : 'Nominal'}`,
-        details: {
-          targetEquipment: selectedGenerator !== 'none' ? genObj?.name : selectedConsumer !== 'none' ? consObj?.name : 'All Plant Nodes',
-          parametersUsed: {
-            outageGenerator: selectedGenerator,
-            outageConsumer: selectedConsumer,
-            generationScale: `${generationScale}%`,
-            consumptionScale: `${consumptionScale}%`
-          },
-          resultsProduced: resultDesc,
-          netDeficitSurplus: `${simBfBal > 0 ? '+' : ''}${simBfBal.toLocaleString()} Nm³/h (BF Gas)`,
-          mitigationStatus: simBfBal < 0 ? 'Action Required: Priority Redistribution Generated' : 'Normal Operation Maintained'
-        }
-      });
+    const createdLog = addAuditLog({
+      category: 'simulation',
+      userName: operatorName,
+      userDesignation: operatorDesignation,
+      userDepartment: operatorDept,
+      actionTitle: `Simulation Executed: Gen Outages: [${genNames || 'None'}], Cons Shutdowns: [${consNames || 'None'}]`,
+      details: {
+        targetEquipment: genNames || consNames || 'All Plant Nodes',
+        parametersUsed: {
+          outageGenerators: selectedGenerators,
+          outageConsumers: selectedConsumers,
+          generationScale: `${generationScale}%`,
+          consumptionScale: `${consumptionScale}%`
+        },
+        resultsProduced: resultDesc,
+        netDeficitSurplus: `${simBfBal > 0 ? '+' : ''}${simBfBal.toLocaleString()} Nm³/h (BF Gas)`,
+        mitigationStatus: simBfBal < 0 ? 'Action Required: Priority Redistribution Generated' : 'Normal Operation Maintained'
+      }
+    });
 
-      setLastAuditId(createdLog.id);
-    }, 600);
+    setLastAuditId(createdLog.id);
   };
 
   const handleReset = () => {
-    setSelectedGenerator('none');
-    setSelectedConsumer('none');
+    setSelectedGenerators([]);
+    setSelectedConsumers([]);
     setGenerationScale(100);
     setConsumptionScale(100);
     setSimulationRun(false);
@@ -173,7 +190,7 @@ export const SimulationWorkspace: React.FC = () => {
             Simulation & Smart Gas Redistribution Sandbox
           </h2>
           <p className="text-xs text-zinc-400 font-mono mt-1">
-            Simulate generator failures, consumer outages, load changes, and inspect priority-based gas redistribution logic.
+            Simulate simultaneous generator trips, consumer outages, load scaling, and inspect prescription gas redistribution logic.
           </p>
         </div>
       </div>
@@ -182,7 +199,7 @@ export const SimulationWorkspace: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Controls Column (5 cols) */}
         <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="lg:col-span-5 bg-zinc-950 border border-zinc-800 rounded-xl p-5 space-y-5 shadow-lg relative overflow-hidden">
-          {/* Operator Credentials (Mandatory for Audit Trail) */}
+          {/* Operator Credentials */}
           <div className="p-3 bg-black border border-zinc-800 rounded-lg space-y-3">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
               <span className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
@@ -243,46 +260,70 @@ export const SimulationWorkspace: React.FC = () => {
               <Zap className="w-4 h-4 text-white" />
               Event Contingency Triggers
             </h3>
-            <span className="text-[10px] font-mono text-zinc-400 uppercase font-bold">Interactive Sandbox</span>
+            <span className="text-[10px] font-mono text-zinc-400 uppercase font-bold">Multi-Select Enabled</span>
           </div>
 
-          {/* 1. Generator Failure */}
+          {/* 1. Multi-Select Generator Failure */}
           <div className="space-y-1.5">
-            <label className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
-              <Factory className="w-3.5 h-3.5 text-white" />
-              Generator Outage / Trip Event
+            <label className="text-xs font-mono font-bold text-white flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Factory className="w-3.5 h-3.5 text-white" />
+                Generator Outages / Trips
+              </span>
+              <span className="text-[10px] text-zinc-400">({selectedGenerators.length} active)</span>
             </label>
-            <select
-              value={selectedGenerator}
-              onChange={(e) => setSelectedGenerator(e.target.value)}
-              className="w-full p-2.5 bg-black border border-zinc-800 rounded text-xs font-mono text-white focus:border-white focus:outline-none cursor-pointer"
-            >
-              <option value="none">-- No Generator Outage (Nominal Baseline) --</option>
-              {generators.map(g => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
-            </select>
+            <div className="flex flex-wrap gap-1.5 p-2 bg-black border border-zinc-800 rounded max-h-36 overflow-y-auto">
+              {generators.map(g => {
+                const isSelected = selectedGenerators.includes(g.id);
+                return (
+                  <button
+                    key={g.id}
+                    onClick={() => toggleGenerator(g.id)}
+                    className={`px-2 py-1 rounded text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                      isSelected
+                        ? 'bg-white text-black font-extrabold shadow-sm'
+                        : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white'
+                    }`}
+                  >
+                    <Power className="w-2.5 h-2.5" />
+                    {g.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* 2. Consumer Stop */}
+          {/* 2. Multi-Select Consumer Shutdown */}
           <div className="space-y-1.5">
-            <label className="text-xs font-mono font-bold text-white flex items-center gap-1.5">
-              <Flame className="w-3.5 h-3.5 text-zinc-300" />
-              Consumer Shutdown / Stop Event
+            <label className="text-xs font-mono font-bold text-white flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5 text-zinc-300" />
+                Consumer Shutdowns / Stops
+              </span>
+              <span className="text-[10px] text-zinc-400">({selectedConsumers.length} active)</span>
             </label>
-            <select
-              value={selectedConsumer}
-              onChange={(e) => setSelectedConsumer(e.target.value)}
-              className="w-full p-2.5 bg-black border border-zinc-800 rounded text-xs font-mono text-white focus:border-white focus:outline-none cursor-pointer"
-            >
-              <option value="none">-- No Consumer Shutdown (Nominal Baseline) --</option>
-              {consumers.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            <div className="flex flex-wrap gap-1.5 p-2 bg-black border border-zinc-800 rounded max-h-36 overflow-y-auto">
+              {consumers.map(c => {
+                const isSelected = selectedConsumers.includes(c.id);
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => toggleConsumer(c.id)}
+                    className={`px-2 py-1 rounded text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                      isSelected
+                        ? 'bg-zinc-200 text-black font-extrabold shadow-sm'
+                        : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white'
+                    }`}
+                  >
+                    <Flame className="w-2.5 h-2.5" />
+                    {c.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* 3. Plant Generation Scale */}
+          {/* 3. Plant Generation Scale Slider (Widened: 0% to 120%) */}
           <div className="p-3 bg-black border border-zinc-800 rounded space-y-2">
             <div className="flex justify-between text-xs font-mono">
               <span className="text-white font-bold">Plant Generation Rate Scale</span>
@@ -290,15 +331,15 @@ export const SimulationWorkspace: React.FC = () => {
             </div>
             <input 
               type="range" 
-              min="50" 
-              max="100" 
+              min="0" 
+              max="120" 
               value={generationScale}
               onChange={(e) => setGenerationScale(Number(e.target.value))}
               className="w-full accent-white cursor-pointer"
             />
           </div>
 
-          {/* 4. Plant Consumption Scale */}
+          {/* 4. Plant Consumption Scale Slider (Widened: 50% to 200%) */}
           <div className="p-3 bg-black border border-zinc-800 rounded space-y-2">
             <div className="flex justify-between text-xs font-mono">
               <span className="text-white font-bold">Plant Consumption Demand Scale</span>
@@ -306,8 +347,8 @@ export const SimulationWorkspace: React.FC = () => {
             </div>
             <input 
               type="range" 
-              min="100" 
-              max="150" 
+              min="50" 
+              max="200" 
               value={consumptionScale}
               onChange={(e) => setConsumptionScale(Number(e.target.value))}
               className="w-full accent-zinc-300 cursor-pointer"
@@ -318,11 +359,10 @@ export const SimulationWorkspace: React.FC = () => {
           <div className="flex gap-3 pt-2">
             <button 
               onClick={handleRunSimulation}
-              disabled={isComputing}
               className="flex-1 py-2.5 bg-white text-black rounded font-mono text-xs font-bold hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
             >
               <Play className="w-4 h-4" />
-              {isComputing ? 'Computing Redistribution Engine...' : 'Run Simulation & Redistribution'}
+              Run Simulation & Redistribution
             </button>
             <button 
               onClick={handleReset}
@@ -334,7 +374,7 @@ export const SimulationWorkspace: React.FC = () => {
           </div>
         </ParticleCard>
 
-        {/* Live Cascade & Buffer Impact Matrix (7 cols) */}
+        {/* Live Cascade & Buffer Impact Matrix (7 cols) - Gated on simulationRun */}
         <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="lg:col-span-7 bg-zinc-950 border border-zinc-800 rounded-xl p-5 space-y-4 shadow-lg flex flex-col justify-between relative overflow-hidden">
           {simulationRun && lastAuditId && (
             <div className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg flex items-center justify-between">
@@ -361,59 +401,70 @@ export const SimulationWorkspace: React.FC = () => {
               Simulated Stream Balances & Buffer Windows
             </h3>
             <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-zinc-900 border border-zinc-700 text-white">
-              {simulationRun ? 'Simulation Active' : 'Live Preview'}
+              {simulationRun ? 'Simulation Active' : 'Configure & Run Simulation'}
             </span>
           </div>
 
-          {/* 3 Stream Impact Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono">
-            {/* BF Gas Impact */}
-            <div className="p-3.5 bg-black border border-zinc-800 rounded-lg relative overflow-hidden">
-              <span className="text-[10px] text-zinc-400 uppercase font-bold">BF Gas Stream</span>
-              <p className="text-lg font-bold mt-1 text-white">
-                {simBfBal > 0 ? `+${(simBfBal / 1000).toFixed(1)}k` : `${(simBfBal / 1000).toFixed(1)}k`} Nm³/h
-              </p>
-              <p className="text-[10px] text-zinc-400 mt-1">
-                {simBfBal < 0 
-                  ? `Holder Buffer: ${bfDepletionHours.toFixed(1)} hrs left` 
-                  : 'Buffer Stock Accumulating'}
+          {simulationRun ? (
+            <>
+              {/* 3 Stream Impact Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono">
+                {/* BF Gas Impact */}
+                <div className="p-3.5 bg-black border border-zinc-800 rounded-lg relative overflow-hidden">
+                  <span className="text-[10px] text-zinc-400 uppercase font-bold">BF Gas Stream</span>
+                  <p className="text-lg font-bold mt-1 text-white">
+                    {simBfBal > 0 ? `+${(simBfBal / 1000).toFixed(1)}k` : `${(simBfBal / 1000).toFixed(1)}k`} Nm³/h
+                  </p>
+                  <p className="text-[10px] text-zinc-400 mt-1">
+                    {simBfBal < 0 && bfDepletionHours !== null
+                      ? `Holder Buffer: ${bfDepletionHours.toFixed(1)} hrs left` 
+                      : 'Buffer Stock Accumulating'}
+                  </p>
+                </div>
+
+                {/* CO Gas Impact */}
+                <div className="p-3.5 bg-black border border-zinc-800 rounded-lg relative overflow-hidden">
+                  <span className="text-[10px] text-zinc-400 uppercase font-bold">CO Gas Stream</span>
+                  <p className="text-lg font-bold mt-1 text-white">
+                    {simCoBal > 0 ? `+${(simCoBal / 1000).toFixed(1)}k` : `${(simCoBal / 1000).toFixed(1)}k`} Nm³/h
+                  </p>
+                  <p className="text-[10px] text-zinc-400 mt-1">
+                    {simCoBal < 0 && coDepletionHours !== null
+                      ? `Holder Buffer: ${coDepletionHours.toFixed(1)} hrs left` 
+                      : 'Surplus to 80k Holder'}
+                  </p>
+                </div>
+
+                {/* LD Gas Impact */}
+                <div className="p-3.5 bg-black border border-zinc-800 rounded-lg relative overflow-hidden">
+                  <span className="text-[10px] text-zinc-400 uppercase font-bold">LD Gas Recovery</span>
+                  <p className="text-lg font-bold text-white mt-1">
+                    +{(simLdGen / 1000).toFixed(1)}k Nm³/h
+                  </p>
+                  <p className="text-[10px] text-zinc-400 mt-1">Available Co-Firing Supply</p>
+                </div>
+              </div>
+
+              {/* Quick Summary Banner */}
+              <div className="p-3 bg-zinc-900 border border-zinc-700 rounded text-xs font-mono">
+                <p className="text-white font-bold flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-white" />
+                  <span>
+                    Simulated Net Byproduct Shift: {((simBfBal + simCoBal + simLdGen) / 1000).toFixed(1)}k Nm³/h net gas flow.
+                  </span>
+                </p>
+              </div>
+            </>
+          ) : (
+            <div className="p-12 text-center space-y-3 font-mono">
+              <Sliders className="w-10 h-10 text-zinc-600 mx-auto" />
+              <p className="text-sm font-bold text-white">No Simulation Running</p>
+              <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                Configure generator outage triggers, consumer shutdowns, or rate sliders on the left and click 
+                <span className="text-white font-bold"> "Run Simulation & Redistribution"</span> to calculate stream balances and audit logs.
               </p>
             </div>
-
-            {/* CO Gas Impact */}
-            <div className="p-3.5 bg-black border border-zinc-800 rounded-lg relative overflow-hidden">
-              <span className="text-[10px] text-zinc-400 uppercase font-bold">CO Gas Stream</span>
-              <p className="text-lg font-bold mt-1 text-white">
-                {simCoBal > 0 ? `+${(simCoBal / 1000).toFixed(1)}k` : `${(simCoBal / 1000).toFixed(1)}k`} Nm³/h
-              </p>
-              <p className="text-[10px] text-zinc-400 mt-1">
-                {simCoBal < 0 
-                  ? `Holder Buffer: ${coDepletionHours.toFixed(1)} hrs left` 
-                  : 'Surplus to 80k Holder'}
-              </p>
-            </div>
-
-            {/* LD Gas Impact */}
-            <div className="p-3.5 bg-black border border-zinc-800 rounded-lg relative overflow-hidden">
-              <span className="text-[10px] text-zinc-400 uppercase font-bold">LD Gas Recovery</span>
-              <p className="text-lg font-bold text-white mt-1">
-                +{(simLdGen / 1000).toFixed(1)}k Nm³/h
-              </p>
-              <p className="text-[10px] text-zinc-400 mt-1">Available Co-Firing Supply</p>
-            </div>
-          </div>
-
-          {/* Quick Summary Banner */}
-          <div className="p-3 bg-zinc-900 border border-zinc-700 rounded text-xs font-mono">
-            <p className="text-white font-bold flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 shrink-0 text-white" />
-              <span>
-                {selectedGenerator !== 'none' || selectedConsumer !== 'none' || generationScale !== 100 || consumptionScale !== 100
-                  ? `Simulated Net Byproduct Shift: ${((simBfBal + simCoBal + simLdGen) / 1000).toFixed(1)}k Nm³/h net gas flow.`
-                  : 'Operating at Nominal Baseline. Click "Run Simulation & Redistribution" to trigger prescription.'}
-              </span>
-            </p>
-          </div>
+          )}
         </ParticleCard>
       </div>
 
@@ -491,10 +542,10 @@ export const SimulationWorkspace: React.FC = () => {
               <div>
                 <p className="text-white font-bold">Contingency Event Detection</p>
                 <p className="text-zinc-400 text-[11px]">
-                  {selectedGenerator !== 'none' 
-                    ? `Generator Trip Detected: ${generators.find(g => g.id === selectedGenerator)?.name}.`
-                    : selectedConsumer !== 'none'
-                    ? `Consumer Shutdown Detected: ${consumers.find(c => c.id === selectedConsumer)?.name}.`
+                  {selectedGenerators.length > 0 
+                    ? `Generator Trip(s) Detected: ${selectedGenerators.map(id => generators.find(g => g.id === id)?.name).join(', ')}.`
+                    : selectedConsumers.length > 0
+                    ? `Consumer Shutdown(s) Detected: ${selectedConsumers.map(id => consumers.find(c => c.id === id)?.name).join(', ')}.`
                     : 'System operating at nominal baseline.'}
                 </p>
               </div>
@@ -506,7 +557,7 @@ export const SimulationWorkspace: React.FC = () => {
               <div>
                 <p className="text-white font-bold">Gasholder Buffer Deployment</p>
                 <p className="text-zinc-400 text-[11px]">
-                  {simBfBal < 0 
+                  {simBfBal < 0 && bfDepletionHours !== null
                     ? `Drawing ${Math.abs(simBfBal).toLocaleString()} Nm³/h from BF 100k Gasholder (Depletion window: ${bfDepletionHours.toFixed(1)} hrs).` 
                     : 'BF Gasholder stock stable.'}
                 </p>

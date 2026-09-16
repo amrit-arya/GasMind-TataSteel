@@ -18,6 +18,7 @@ interface Generator {
   type: string;
   gasType: 'BF Gas' | 'CO Gas' | 'LD Gas';
   capacity: number;
+  internalCons: number;
   totalGasTypeGeneration: number;
   contributionPercent: number;
   holderCapacity: number;
@@ -29,64 +30,61 @@ interface FailureImpact {
   deficitCreated: number;
   consumersAffected: number;
   cascadeRisk: 'Low' | 'Medium' | 'High' | 'Critical';
-  holderDepletionMinutes: number;
+  holderDepletionMinutes: number | null;
   costPenaltyPerHour: number;
   affectedConsumerNames: string[];
 }
 
 const generators: Generator[] = [
-  { id: 'bf-i', name: 'Blast Furnace I', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 465000, totalGasTypeGeneration: 1721200, contributionPercent: 27.0, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-h', name: 'Blast Furnace H', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 450000, totalGasTypeGeneration: 1721200, contributionPercent: 26.1, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-g', name: 'Blast Furnace G', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 322000, totalGasTypeGeneration: 1721200, contributionPercent: 18.7, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-f', name: 'Blast Furnace F', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 240000, totalGasTypeGeneration: 1721200, contributionPercent: 13.9, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-c', name: 'Blast Furnace C', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 162000, totalGasTypeGeneration: 1721200, contributionPercent: 9.4, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-e', name: 'Blast Furnace E', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 82200, totalGasTypeGeneration: 1721200, contributionPercent: 4.8, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'co-new', name: 'New BPP (Batt 10, 11)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 80000, totalGasTypeGeneration: 142000, contributionPercent: 56.3, holderCapacity: 80000, holderLevel: 84 },
-  { id: 'co-old', name: 'Old BPP (Batt 8, 9)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 62000, totalGasTypeGeneration: 142000, contributionPercent: 43.7, holderCapacity: 80000, holderLevel: 84 },
-  { id: 'ld-13', name: 'LD-1 & LD-3 Converter', type: 'Converter', gasType: 'LD Gas', capacity: 85000, totalGasTypeGeneration: 150000, contributionPercent: 56.7, holderCapacity: 50000, holderLevel: 45 },
-  { id: 'ld-2', name: 'LD-2 Converter', type: 'Converter', gasType: 'LD Gas', capacity: 65000, totalGasTypeGeneration: 150000, contributionPercent: 43.3, holderCapacity: 50000, holderLevel: 45 },
+  { id: 'bf-i', name: 'Blast Furnace I', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 465000, internalCons: 194000, totalGasTypeGeneration: 1721200, contributionPercent: 27.0, holderCapacity: 100000, holderLevel: 68 },
+  { id: 'bf-h', name: 'Blast Furnace H', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 450000, internalCons: 115000, totalGasTypeGeneration: 1721200, contributionPercent: 26.1, holderCapacity: 100000, holderLevel: 68 },
+  { id: 'bf-g', name: 'Blast Furnace G', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 322000, internalCons: 90000, totalGasTypeGeneration: 1721200, contributionPercent: 18.7, holderCapacity: 100000, holderLevel: 68 },
+  { id: 'bf-f', name: 'Blast Furnace F', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 240000, internalCons: 80000, totalGasTypeGeneration: 1721200, contributionPercent: 13.9, holderCapacity: 100000, holderLevel: 68 },
+  { id: 'bf-c', name: 'Blast Furnace C', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 162000, internalCons: 32000, totalGasTypeGeneration: 1721200, contributionPercent: 9.4, holderCapacity: 100000, holderLevel: 68 },
+  { id: 'bf-e', name: 'Blast Furnace E', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 82200, internalCons: 25000, totalGasTypeGeneration: 1721200, contributionPercent: 4.8, holderCapacity: 100000, holderLevel: 68 },
+  { id: 'co-new', name: 'New BPP (Batt 10, 11)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 80000, internalCons: 0, totalGasTypeGeneration: 142000, contributionPercent: 56.3, holderCapacity: 80000, holderLevel: 84 },
+  { id: 'co-old', name: 'Old BPP (Batt 8, 9)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 62000, internalCons: 0, totalGasTypeGeneration: 142000, contributionPercent: 43.7, holderCapacity: 80000, holderLevel: 84 },
+  { id: 'ld-13', name: 'LD-1 & LD-3 Converter', type: 'Converter', gasType: 'LD Gas', capacity: 85000, internalCons: 0, totalGasTypeGeneration: 150000, contributionPercent: 56.7, holderCapacity: 50000, holderLevel: 45 },
+  { id: 'ld-2', name: 'LD-2 Converter', type: 'Converter', gasType: 'LD Gas', capacity: 65000, internalCons: 0, totalGasTypeGeneration: 150000, contributionPercent: 43.3, holderCapacity: 50000, holderLevel: 45 },
 ];
 
 const bfConsumerNames = [
-  'BF Stoves (Internal)', 'Power House #6', 'Coke Plant Heating',
-  'Power House #3', 'Power House #4', 'Power House #5',
-  'HSM Reheating Furnace', 'Pelletizing Plant'
+  'Power House #6', 'Coke Plant Heating', 'Power House #3',
+  'Power House #4', 'Power House #5', 'HSM Reheating Furnace', 'Pelletizing Plant'
 ];
 
 const coConsumerNames = [
   'HSM Reheating Furnace', 'Power House #4', 'Pelletizing Plant',
-  'CRM Heat Treatment', 'Sinter Plant Ignition', 'Lime & Dolomite Kilns',
-  'Power House #6', 'Power House #3', 'Power House #5'
+  'CRM Heat Treatment', 'Sinter Plant Ignition', 'Lime & Dolomite Kilns'
 ];
-
-const ldConsumerNames = ['No direct consumers (holder buffer)'];
 
 function computeImpact(gen: Generator): FailureImpact {
   const bfConsumption = 1736000;
   const coConsumption = 134600;
 
-  let deficitCreated: number;
-  let consumersAffected: number;
-  let affectedConsumerNames: string[];
+  let deficitCreated = 0;
+  let affectedConsumerNames: string[] = [];
 
   if (gen.gasType === 'BF Gas') {
     const remainingGen = gen.totalGasTypeGeneration - gen.capacity;
-    deficitCreated = bfConsumption - remainingGen;
-    consumersAffected = gen.contributionPercent > 20 ? 8 : gen.contributionPercent > 10 ? 6 : 4;
-    affectedConsumerNames = bfConsumerNames.slice(0, consumersAffected);
+    const effectiveCons = Math.max(0, bfConsumption - gen.internalCons);
+    deficitCreated = Math.max(0, effectiveCons - remainingGen);
+    affectedConsumerNames = deficitCreated > 0 ? bfConsumerNames : ['All consumers fully supplied'];
   } else if (gen.gasType === 'CO Gas') {
     const remainingGen = gen.totalGasTypeGeneration - gen.capacity;
-    deficitCreated = coConsumption - remainingGen;
-    consumersAffected = gen.contributionPercent > 50 ? 9 : 5;
-    affectedConsumerNames = coConsumerNames.slice(0, consumersAffected);
+    const effectiveCons = Math.max(0, coConsumption - gen.internalCons);
+    deficitCreated = Math.max(0, effectiveCons - remainingGen);
+    affectedConsumerNames = deficitCreated > 0 ? coConsumerNames : ['All consumers fully supplied'];
   } else {
-    deficitCreated = gen.capacity;
-    consumersAffected = 0;
-    affectedConsumerNames = ldConsumerNames;
+    // LD Converter outage reduces LD surplus; it does NOT create a deficit
+    deficitCreated = 0;
+    affectedConsumerNames = ['No direct consumers (LD surplus reduced)'];
   }
 
+  const consumersAffected = deficitCreated > 0 ? affectedConsumerNames.length : 0;
+
   const holderStock = gen.holderCapacity * (gen.holderLevel / 100);
-  const holderDepletionMinutes = deficitCreated > 0 ? Math.round((holderStock / deficitCreated) * 60) : 999;
+  const holderDepletionMinutes = deficitCreated > 0 ? Math.round((holderStock / deficitCreated) * 60) : null;
 
   const cascadeRisk: 'Low' | 'Medium' | 'High' | 'Critical' =
     gen.contributionPercent > 25 ? 'Critical' :
@@ -97,7 +95,7 @@ function computeImpact(gen: Generator): FailureImpact {
 
   return {
     generator: gen,
-    deficitCreated: Math.max(0, deficitCreated),
+    deficitCreated,
     consumersAffected,
     cascadeRisk,
     holderDepletionMinutes,
@@ -114,7 +112,7 @@ export const CriticalityAnalysis: React.FC = () => {
     const results = generators.map(g => computeImpact(g));
     if (sortBy === 'contribution') return results.sort((a, b) => b.generator.contributionPercent - a.generator.contributionPercent);
     if (sortBy === 'deficit') return results.sort((a, b) => b.deficitCreated - a.deficitCreated);
-    return results.sort((a, b) => a.holderDepletionMinutes - b.holderDepletionMinutes);
+    return results.sort((a, b) => (a.holderDepletionMinutes ?? Infinity) - (b.holderDepletionMinutes ?? Infinity));
   }, [sortBy]);
 
   return (
@@ -237,7 +235,7 @@ export const CriticalityAnalysis: React.FC = () => {
                         <span className="text-[10px] font-mono text-zinc-400 uppercase">Holder Buffer</span>
                       </div>
                       <p className="text-lg font-mono font-extrabold text-white">
-                        {impact.holderDepletionMinutes < 999 ? `${impact.holderDepletionMinutes}` : '∞'}
+                        {impact.holderDepletionMinutes !== null ? `${impact.holderDepletionMinutes}` : '∞'}
                         <span className="text-[10px] font-mono font-normal text-zinc-400 ml-1">min</span>
                       </p>
                     </div>
@@ -329,7 +327,7 @@ export const CriticalityAnalysis: React.FC = () => {
                   <td className="py-2 px-2 text-center font-bold text-zinc-200">{impact.consumersAffected}</td>
                   <td className="py-2 px-2 text-center">
                     <span className="font-bold text-white">
-                      {impact.holderDepletionMinutes < 999 ? `${impact.holderDepletionMinutes}m` : '∞'}
+                      {impact.holderDepletionMinutes !== null ? `${impact.holderDepletionMinutes}m` : '∞'}
                     </span>
                   </td>
                   <td className="py-2 px-2 text-center">
