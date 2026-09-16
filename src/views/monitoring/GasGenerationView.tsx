@@ -6,21 +6,21 @@ import { ParticleCard } from '../../components';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+import { PLANT_GENERATORS } from '../../data/plantData';
+
 export const GasGenerationView: React.FC = () => {
   const [filterGas, setFilterGas] = useState<'ALL' | 'BF Gas' | 'CO Gas' | 'LD Gas'>('ALL');
 
-  const allGenerationUnits = [
-    { name: 'Blast Furnace I', gas: 'BF Gas', output: 465000, maxCapacity: 500000, efficiency: 96.5, status: 'Normal', pressure: '14.8 kPa', temp: '185°C' },
-    { name: 'Blast Furnace H', gas: 'BF Gas', output: 450000, maxCapacity: 480000, efficiency: 95.8, status: 'Normal', pressure: '14.5 kPa', temp: '180°C' },
-    { name: 'Blast Furnace G', gas: 'BF Gas', output: 322000, maxCapacity: 350000, efficiency: 94.2, status: 'Normal', pressure: '14.2 kPa', temp: '178°C' },
-    { name: 'Blast Furnace F', gas: 'BF Gas', output: 240000, maxCapacity: 260000, efficiency: 92.3, status: 'Warning', pressure: '13.9 kPa', temp: '172°C' },
-    { name: 'Blast Furnace C', gas: 'BF Gas', output: 162000, maxCapacity: 180000, efficiency: 90.0, status: 'Normal', pressure: '13.8 kPa', temp: '170°C' },
-    { name: 'Blast Furnace E', gas: 'BF Gas', output: 82200, maxCapacity: 90000, efficiency: 91.3, status: 'Normal', pressure: '13.5 kPa', temp: '165°C' },
-    { name: 'New BPP (Batt 10, 11)', gas: 'CO Gas', output: 80000, maxCapacity: 90000, efficiency: 96.0, status: 'Normal', pressure: '28.5 kPa', temp: '820°C' },
-    { name: 'Old BPP (Batt 8, 9)', gas: 'CO Gas', output: 62000, maxCapacity: 70000, efficiency: 94.5, status: 'Normal', pressure: '29.0 kPa', temp: '810°C' },
-    { name: 'LD-1 & LD-3 Converter', gas: 'LD Gas', output: 85000, maxCapacity: 95000, efficiency: 89.5, status: 'Normal', pressure: '18.2 kPa', temp: '1240°C' },
-    { name: 'LD-2 Converter', gas: 'LD Gas', output: 65000, maxCapacity: 75000, efficiency: 87.8, status: 'Normal', pressure: '17.8 kPa', temp: '1220°C' }
-  ];
+  const allGenerationUnits = PLANT_GENERATORS.map(g => ({
+    name: g.name,
+    gas: g.gasType,
+    output: g.grossCapacity,
+    maxCapacity: Math.round(g.grossCapacity * 1.08),
+    efficiency: g.gasType === 'BF Gas' ? 95.8 : g.gasType === 'CO Gas' ? 96.0 : 89.5,
+    status: 'Normal',
+    pressure: `${g.pressure} kPa`,
+    temp: g.gasType === 'BF Gas' ? '180°C' : g.gasType === 'CO Gas' ? '820°C' : '1240°C'
+  }));
 
   const filteredUnits = filterGas === 'ALL'
     ? allGenerationUnits

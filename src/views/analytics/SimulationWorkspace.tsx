@@ -17,6 +17,7 @@ import {
   Power
 } from 'lucide-react';
 import { ParticleCard } from '../../components';
+import { PLANT_GENERATORS, PLANT_CONSUMERS } from '../../data/plantData';
 
 interface GeneratorOption {
   id: string;
@@ -33,28 +34,20 @@ interface ConsumerOption {
   reductionRate: number;
 }
 
-const generators: GeneratorOption[] = [
-  { id: 'bf-i', name: 'Blast Furnace I (-465k Nm³/h)', gasType: 'BF Gas', lossRate: 465000, internalCons: 194000 },
-  { id: 'bf-h', name: 'Blast Furnace H (-450k Nm³/h)', gasType: 'BF Gas', lossRate: 450000, internalCons: 115000 },
-  { id: 'bf-g', name: 'Blast Furnace G (-322k Nm³/h)', gasType: 'BF Gas', lossRate: 322000, internalCons: 90000 },
-  { id: 'bf-f', name: 'Blast Furnace F (-240k Nm³/h)', gasType: 'BF Gas', lossRate: 240000, internalCons: 80000 },
-  { id: 'bf-c', name: 'Blast Furnace C (-162k Nm³/h)', gasType: 'BF Gas', lossRate: 162000, internalCons: 32000 },
-  { id: 'bf-e', name: 'Blast Furnace E (-82.2k Nm³/h)', gasType: 'BF Gas', lossRate: 82200, internalCons: 25000 },
-  { id: 'co-old', name: 'Old BPP Batt 8,9 (-62k Nm³/h)', gasType: 'CO Gas', lossRate: 62000, internalCons: 0 },
-  { id: 'co-new', name: 'New BPP Batt 10,11 (-80k Nm³/h)', gasType: 'CO Gas', lossRate: 80000, internalCons: 0 },
-  { id: 'ld-1-3', name: 'LD-1 & LD-3 Converter (-85k Nm³/h)', gasType: 'LD Gas', lossRate: 85000, internalCons: 0 },
-  { id: 'ld-2', name: 'LD-2 Converter (-65k Nm³/h)', gasType: 'LD Gas', lossRate: 65000, internalCons: 0 }
-];
+const generators: GeneratorOption[] = PLANT_GENERATORS.map(g => ({
+  id: g.id,
+  name: `${g.name} (-${g.grossCapacity >= 100000 ? `${(g.grossCapacity / 1000).toFixed(0)}k` : `${(g.grossCapacity / 1000).toFixed(1)}k`} Nm³/h)`,
+  gasType: g.gasType as 'BF Gas' | 'CO Gas' | 'LD Gas',
+  lossRate: g.grossCapacity,
+  internalCons: g.internalCons
+}));
 
-const consumers: ConsumerOption[] = [
-  { id: 'ph6', name: 'Power House #6 (-300,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 300000 },
-  { id: 'coke', name: 'Coke Plant Heating (-270,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 270000 },
-  { id: 'ph3', name: 'Power House #3 (-190,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 190000 },
-  { id: 'ph4', name: 'Power House #4 (-150,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 150000 },
-  { id: 'ph5', name: 'Power House #5 (-130,000 Nm³/h)', gasType: 'BF Gas', reductionRate: 130000 },
-  { id: 'hsm', name: 'HSM Mill (-105,000 Nm³/h)', gasType: 'CO Gas', reductionRate: 105000 },
-  { id: 'pellet', name: 'Pellet Plant (-78,000 Nm³/h)', gasType: 'CO Gas', reductionRate: 78000 }
-];
+const consumers: ConsumerOption[] = PLANT_CONSUMERS.filter(c => c.isDirectConsumption).map(c => ({
+  id: c.id,
+  name: `${c.name} (-${(c.flow / 1000).toFixed(0)}k Nm³/h)`,
+  gasType: c.primaryGas as 'BF Gas' | 'CO Gas' | 'LD Gas',
+  reductionRate: c.flow
+}));
 
 export const SimulationWorkspace: React.FC = () => {
   const { addAuditLog, setCurrentView } = useGasData();
@@ -441,7 +434,7 @@ export const SimulationWorkspace: React.FC = () => {
                   <p className="text-lg font-bold text-white mt-1">
                     +{(simLdGen / 1000).toFixed(1)}k Nm³/h
                   </p>
-                  <p className="text-[10px] text-zinc-400 mt-1">Available Co-Firing Supply</p>
+                  <p className="text-[10px] text-zinc-400 mt-1">50k Gasholder Storage Buffer</p>
                 </div>
               </div>
 
@@ -519,7 +512,7 @@ export const SimulationWorkspace: React.FC = () => {
               </div>
               <p className="text-white font-bold mt-1">Power Houses #3, #4, #5, #6 & Sinter Plant</p>
               <p className="text-zinc-400 text-[11px] mt-0.5">
-                Co-fire with available LD Gas surplus (+150k Nm³/h) or switch boilers to Imported Natural Gas buffer.
+                Switch boilers to Imported Natural Gas buffer or alternative fuel sources during fuel deficits.
               </p>
             </div>
           </div>

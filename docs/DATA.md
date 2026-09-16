@@ -62,7 +62,7 @@ This document contains the complete industrial byproduct gas baseline dataset fo
 | **Pelletizing Plant** | CO Gas | 60,000 Nm³/h | 18,000 Nm³/h | 78,000 Nm³/h | 27.0 kPa | Pelletizing Plant Complex |
 | **Mergemills (1 to 9)** | CO Gas | 0 Nm³/h | 11,000 Nm³/h | 11,000 Nm³/h | 28.0 kPa | Merchant Rolling Mills |
 | **CRM & TPL Lines** | CO Gas | 0 Nm³/h | 14,000 Nm³/h | 14,000 Nm³/h | 28.2 kPa | Cold Rolling Mill Division |
-| **Auxiliary CO Units** | CO Gas | 0 Nm³/h | 39,600 Nm³/h | 39,600 Nm³/h | 28.0 kPa | Auxiliary Utilities |
+| **Auxiliary CO Units** | CO Gas | 0 Nm³/h | 33,500 Nm³/h | 33,500 Nm³/h | 28.0 kPa | Auxiliary Utilities |
 | **LCP & TSCR Plants** | BF Gas | 25,000 Nm³/h | 0 Nm³/h | 25,000 Nm³/h | 13.5 kPa | Lime Plant & TSCR |
 | **TOTAL CONSUMPTION** | — | **1,736,000 Nm³/h**| **134,600 Nm³/h**| **1,870,600 Nm³/h**| — | **Plant-Wide Demand** |
 

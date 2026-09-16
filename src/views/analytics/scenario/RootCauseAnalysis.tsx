@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { ParticleCard } from '../../../components';
 
+import { PLANT_CONSUMERS } from '../../../data/plantData';
+
 interface ConsumerBreakdown {
   name: string;
   gasType: string;
@@ -21,30 +23,23 @@ interface ConsumerBreakdown {
   share: number;
 }
 
-const bfConsumers: ConsumerBreakdown[] = [
-  { name: 'BF Stoves (I, H, G, F, C, E)', gasType: 'BF Gas', consumption: 536000, share: 0 },
-  { name: 'Power House #6', gasType: 'BF Gas', consumption: 300000, share: 0 },
-  { name: 'Coke Plant Heating', gasType: 'BF Gas', consumption: 270000, share: 0 },
-  { name: 'Power House #3', gasType: 'BF Gas', consumption: 190000, share: 0 },
-  { name: 'Power House #4', gasType: 'BF Gas', consumption: 150000, share: 0 },
-  { name: 'Power House #5', gasType: 'BF Gas', consumption: 130000, share: 0 },
-  { name: 'HSM Reheating Furnace', gasType: 'BF Gas', consumption: 75000, share: 0 },
-  { name: 'Pelletizing Plant', gasType: 'BF Gas', consumption: 60000, share: 0 },
-  { name: 'Other / Misc BF Consumers', gasType: 'BF Gas', consumption: 25000, share: 0 },
-];
+const bfConsumers: ConsumerBreakdown[] = PLANT_CONSUMERS
+  .filter(c => c.primaryGas === 'BF Gas')
+  .map(c => ({
+    name: c.name,
+    gasType: 'BF Gas',
+    consumption: c.flow,
+    share: 0
+  }));
 
-const coConsumers: ConsumerBreakdown[] = [
-  { name: 'HSM Reheating Furnace', gasType: 'CO Gas', consumption: 30000, share: 0 },
-  { name: 'Power House #4', gasType: 'CO Gas', consumption: 22000, share: 0 },
-  { name: 'Pelletizing Plant', gasType: 'CO Gas', consumption: 18000, share: 0 },
-  { name: 'CRM Heat Treatment', gasType: 'CO Gas', consumption: 15000, share: 0 },
-  { name: 'Sinter Plant Ignition', gasType: 'CO Gas', consumption: 12000, share: 0 },
-  { name: 'Lime & Dolomite Kilns', gasType: 'CO Gas', consumption: 10000, share: 0 },
-  { name: 'Power House #6', gasType: 'CO Gas', consumption: 3000, share: 0 },
-  { name: 'Power House #3', gasType: 'CO Gas', consumption: 1100, share: 0 },
-  { name: 'Power House #5', gasType: 'CO Gas', consumption: 2000, share: 0 },
-  { name: 'Other / Misc CO Consumers', gasType: 'CO Gas', consumption: 21500, share: 0 },
-];
+const coConsumers: ConsumerBreakdown[] = PLANT_CONSUMERS
+  .filter(c => c.primaryGas === 'CO Gas')
+  .map(c => ({
+    name: c.name,
+    gasType: 'CO Gas',
+    consumption: c.flow,
+    share: 0
+  }));
 
 interface RootCauseFactor {
   id: string;
@@ -94,10 +89,10 @@ export const RootCauseAnalysis: React.FC = () => {
     },
     {
       id: 'rc-3',
-      title: 'LD Gas Under-Utilization',
-      description: '150,000 Nm³/h of LD Gas generated but 0 Nm³/h consumed directly. Entire volume buffers in holder or gets flared. Cross-firing potential untapped.',
-      severity: 'warning',
-      impact: '150,000 Nm³/h wasted potential',
+      title: 'LD Gas Storage Buffer Dynamics',
+      description: '150,000 Nm³/h of recovered LD Gas flows into the 50,000 m³ holder storage buffer stock.',
+      severity: 'info',
+      impact: '150,000 Nm³/h storage buffer',
       icon: <Factory className="w-5 h-5" />
     },
     {
@@ -237,7 +232,9 @@ export const RootCauseAnalysis: React.FC = () => {
               </div>
               <div className="bg-black p-2 rounded border border-zinc-800">
                 <span className="text-zinc-400 block text-[10px]">Consumption</span>
-                <span className="font-bold text-zinc-300">{(item.gas.consumption / 1000).toFixed(1)}k</span>
+                <span className="font-bold text-zinc-300">
+                  {typeof item.gas.consumption === 'number' ? `${(item.gas.consumption / 1000).toFixed(1)}k` : '—'}
+                </span>
               </div>
             </div>
             <div className="mt-3">

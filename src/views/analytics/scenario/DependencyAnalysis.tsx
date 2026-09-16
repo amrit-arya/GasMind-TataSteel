@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { ParticleCard } from '../../../components';
 
+import { PLANT_CONSUMERS } from '../../../data/plantData';
+
 interface ConsumerDependency {
   id: string;
   name: string;
@@ -30,58 +32,51 @@ interface GasDependency {
 }
 
 const consumerDeps: ConsumerDependency[] = [
-  { id: 'c-ph6', name: 'Power House #6', bfGas: 300000, coGas: 3000, ldGas: 0, natGas: 0, total: 303000, fuelCount: 2 },
-  { id: 'c-coke', name: 'Coke Plant Heating', bfGas: 270000, coGas: 0, ldGas: 0, natGas: 0, total: 270000, fuelCount: 1 },
-  { id: 'c-ph3', name: 'Power House #3', bfGas: 190000, coGas: 1100, ldGas: 0, natGas: 0, total: 191100, fuelCount: 2 },
-  { id: 'c-ph4', name: 'Power House #4', bfGas: 150000, coGas: 22000, ldGas: 0, natGas: 0, total: 172000, fuelCount: 2 },
-  { id: 'c-ph5', name: 'Power House #5', bfGas: 130000, coGas: 2000, ldGas: 0, natGas: 0, total: 132000, fuelCount: 2 },
-  { id: 'c-hsm', name: 'HSM Reheating Furnace', bfGas: 75000, coGas: 30000, ldGas: 0, natGas: 0, total: 105000, fuelCount: 2 },
-  { id: 'c-pellet', name: 'Pelletizing Plant', bfGas: 60000, coGas: 18000, ldGas: 0, natGas: 0, total: 78000, fuelCount: 2 },
-  { id: 'c-stove', name: 'BF Stoves (Internal)', bfGas: 536000, coGas: 0, ldGas: 0, natGas: 0, total: 536000, fuelCount: 1 },
-  { id: 'c-crm', name: 'CRM Heat Treatment', bfGas: 0, coGas: 15000, ldGas: 0, natGas: 0, total: 15000, fuelCount: 1 },
-  { id: 'c-sinter', name: 'Sinter Plant Ignition', bfGas: 0, coGas: 12000, ldGas: 0, natGas: 0, total: 12000, fuelCount: 1 },
-  { id: 'c-lime', name: 'Lime & Dolomite Kilns', bfGas: 0, coGas: 10000, ldGas: 0, natGas: 0, total: 10000, fuelCount: 1 },
-  { id: 'c-nat', name: 'Natural Gas Buffer Consumers', bfGas: 0, coGas: 0, ldGas: 0, natGas: 115000, total: 115000, fuelCount: 1 },
+  ...PLANT_CONSUMERS.filter(c => c.isDirectConsumption).map(c => ({
+    id: c.id,
+    name: c.name,
+    bfGas: c.primaryGas === 'BF Gas' ? c.flow : 0,
+    coGas: c.primaryGas === 'CO Gas' ? c.flow : 0,
+    ldGas: 0,
+    natGas: 0,
+    total: c.flow,
+    fuelCount: 1
+  })),
+  { id: 'c-nat', name: 'Natural Gas Buffer Consumers', bfGas: 0, coGas: 0, ldGas: 0, natGas: 115000, total: 115000, fuelCount: 1 }
 ];
+
+const bfConsumersList = PLANT_CONSUMERS.filter(c => c.primaryGas === 'BF Gas');
+const coConsumersList = PLANT_CONSUMERS.filter(c => c.primaryGas === 'CO Gas');
+const totalBf = bfConsumersList.reduce((acc, c) => acc + c.flow, 0);
+const totalCo = coConsumersList.reduce((acc, c) => acc + c.flow, 0);
 
 const gasDeps: GasDependency[] = [
   {
     gasType: 'BF Gas',
     color: '#FFFFFF',
     totalGeneration: 1721200,
-    consumers: [
-      { name: 'BF Stoves (Internal)', flow: 536000, share: 30.8 },
-      { name: 'Power House #6', flow: 300000, share: 17.3 },
-      { name: 'Coke Plant Heating', flow: 270000, share: 15.6 },
-      { name: 'Power House #3', flow: 190000, share: 10.9 },
-      { name: 'Power House #4', flow: 150000, share: 8.6 },
-      { name: 'Power House #5', flow: 130000, share: 7.5 },
-      { name: 'HSM Reheating Furnace', flow: 75000, share: 4.3 },
-      { name: 'Pelletizing Plant', flow: 60000, share: 3.5 },
-    ]
+    consumers: bfConsumersList.map(c => ({
+      name: c.name,
+      flow: c.flow,
+      share: Math.round((c.flow / totalBf) * 1000) / 10
+    }))
   },
   {
     gasType: 'CO Gas',
     color: '#E4E4E7',
     totalGeneration: 142000,
-    consumers: [
-      { name: 'HSM Reheating Furnace', flow: 30000, share: 22.3 },
-      { name: 'Power House #4', flow: 22000, share: 16.4 },
-      { name: 'Pelletizing Plant', flow: 18000, share: 13.4 },
-      { name: 'CRM Heat Treatment', flow: 15000, share: 11.2 },
-      { name: 'Sinter Plant Ignition', flow: 12000, share: 8.9 },
-      { name: 'Lime & Dolomite Kilns', flow: 10000, share: 7.5 },
-      { name: 'Power House #6', flow: 3000, share: 2.2 },
-      { name: 'Power House #5', flow: 2000, share: 1.5 },
-      { name: 'Power House #3', flow: 1100, share: 0.8 },
-    ]
+    consumers: coConsumersList.map(c => ({
+      name: c.name,
+      flow: c.flow,
+      share: Math.round((c.flow / totalCo) * 1000) / 10
+    }))
   },
   {
     gasType: 'LD Gas',
     color: '#D4D4D8',
     totalGeneration: 150000,
     consumers: [
-      { name: 'No direct consumers — holder buffer only', flow: 0, share: 0 },
+      { name: 'No direct consumers — holder buffer only', flow: 0, share: 0 }
     ]
   },
   {
@@ -89,7 +84,7 @@ const gasDeps: GasDependency[] = [
     color: '#A1A1AA',
     totalGeneration: 115000,
     consumers: [
-      { name: 'Natural Gas Buffer Consumers', flow: 115000, share: 100 },
+      { name: 'Imported Natural Gas Buffer', flow: 115000, share: 100 }
     ]
   }
 ];

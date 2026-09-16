@@ -75,7 +75,9 @@ export const GasBalanceView: React.FC = () => {
                     {g.name}
                   </td>
                   <td className="py-3.5 font-mono font-bold text-zinc-200">{(g.generation / 1000).toFixed(0)}k Nm³/h</td>
-                  <td className="py-3.5 font-mono font-bold text-zinc-200">{(g.consumption / 1000).toFixed(0)}k Nm³/h</td>
+                  <td className="py-3.5 font-mono font-bold text-zinc-200">
+                    {typeof g.consumption === 'number' ? `${(g.consumption / 1000).toFixed(0)}k Nm³/h` : '—'}
+                  </td>
                   <td className="py-3.5 font-mono font-bold">
                     <span className="flex items-center gap-1 text-white">
                       {g.balance < 0 ? <ArrowDownRight className="w-4 h-4 text-zinc-400" /> : <ArrowUpRight className="w-4 h-4 text-white" />}

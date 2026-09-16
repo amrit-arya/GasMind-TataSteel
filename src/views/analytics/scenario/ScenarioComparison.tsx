@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { ParticleCard } from '../../../components';
 
+import { PLANT_GENERATORS, PLANT_CONSUMERS } from '../../../data/plantData';
+
 interface GeneratorConfig {
   id: string;
   name: string;
@@ -34,7 +36,7 @@ interface ScenarioResult {
   coConsumption: number;
   coBalance: number;
   ldGeneration: number;
-  ldConsumption: number;
+  ldConsumption: number | 'unavailable';
   ldBalance: number;
   totalDeficit: number;
   consumersAffected: number;
@@ -53,33 +55,23 @@ interface ConsumerImpactDiff {
   scenarioBLoad: number;
 }
 
-const allGenerators: GeneratorConfig[] = [
-  { id: 'bf-i', name: 'Blast Furnace I', gasType: 'BF Gas', baseCapacity: 465000, internalCons: 194000 },
-  { id: 'bf-h', name: 'Blast Furnace H', gasType: 'BF Gas', baseCapacity: 450000, internalCons: 115000 },
-  { id: 'bf-g', name: 'Blast Furnace G', gasType: 'BF Gas', baseCapacity: 322000, internalCons: 90000 },
-  { id: 'bf-f', name: 'Blast Furnace F', gasType: 'BF Gas', baseCapacity: 240000, internalCons: 80000 },
-  { id: 'bf-c', name: 'Blast Furnace C', gasType: 'BF Gas', baseCapacity: 162000, internalCons: 32000 },
-  { id: 'bf-e', name: 'Blast Furnace E', gasType: 'BF Gas', baseCapacity: 82200, internalCons: 25000 },
-  { id: 'co-new', name: 'New BPP (Batt 10, 11)', gasType: 'CO Gas', baseCapacity: 80000, internalCons: 0 },
-  { id: 'co-old', name: 'Old BPP (Batt 8, 9)', gasType: 'CO Gas', baseCapacity: 62000, internalCons: 0 },
-  { id: 'ld-13', name: 'LD-1 & LD-3 Converter', gasType: 'LD Gas', baseCapacity: 85000, internalCons: 0 },
-  { id: 'ld-2', name: 'LD-2 Converter', gasType: 'LD Gas', baseCapacity: 65000, internalCons: 0 },
-];
+const allGenerators: GeneratorConfig[] = PLANT_GENERATORS.map(g => ({
+  id: g.id,
+  name: g.name,
+  gasType: g.gasType as 'BF Gas' | 'CO Gas' | 'LD Gas',
+  baseCapacity: g.grossCapacity,
+  internalCons: g.internalCons
+}));
 
 const BF_CONSUMPTION = 1736000;
 const CO_CONSUMPTION = 134600;
-const LD_CONSUMPTION = 0;
+const LD_CONSUMPTION: number | 'unavailable' = 'unavailable';
 
-const consumers = [
-  { name: 'Power House #6', gasType: 'BF Gas', requiredFlow: 303000 },
-  { name: 'Coke Plant Heating', gasType: 'BF Gas', requiredFlow: 270000 },
-  { name: 'Power House #3', gasType: 'BF Gas', requiredFlow: 191100 },
-  { name: 'Power House #4', gasType: 'BF/CO Gas', requiredFlow: 172000 },
-  { name: 'Power House #5', gasType: 'BF Gas', requiredFlow: 132000 },
-  { name: 'HSM Reheating Furnace', gasType: 'BF/CO Gas', requiredFlow: 105000 },
-  { name: 'Pelletizing Plant', gasType: 'BF/CO Gas', requiredFlow: 78000 },
-  { name: 'BF Stoves (Internal)', gasType: 'BF Gas', requiredFlow: 536000 },
-];
+const consumers = PLANT_CONSUMERS.filter(c => c.isDirectConsumption).map(c => ({
+  name: c.name,
+  gasType: c.primaryGas,
+  requiredFlow: c.flow
+}));
 
 function computeScenario(config: ScenarioConfig): ScenarioResult {
   const reductionFactor = 1 - (config.globalReduction / 100);
@@ -103,7 +95,7 @@ function computeScenario(config: ScenarioConfig): ScenarioResult {
 
   const effectiveBfCons = Math.max(0, BF_CONSUMPTION - bfInternalConsDrop);
   const effectiveCoCons = Math.max(0, CO_CONSUMPTION - coInternalConsDrop);
-  const effectiveLdCons = LD_CONSUMPTION;
+  const effectiveLdCons = typeof LD_CONSUMPTION === 'number' ? LD_CONSUMPTION : 0;
 
   const bfBalance = bfGen - effectiveBfCons;
   const coBalance = coGen - effectiveCoCons;
@@ -151,8 +143,6 @@ function getConsumerStatus(bfRatio: number, coRatio: number, consumer: typeof co
   let ratio: number;
   if (consumer.gasType === 'BF Gas') {
     ratio = bfRatio;
-  } else if (consumer.gasType === 'BF/CO Gas') {
-    ratio = (bfRatio * 0.7 + coRatio * 0.3);
   } else {
     ratio = coRatio;
   }

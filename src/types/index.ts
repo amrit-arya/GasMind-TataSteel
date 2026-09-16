@@ -40,7 +40,7 @@ export interface GasTypeMetrics {
   name: string;
   fullName: string;
   generation: number; // Nm³/h
-  consumption: number; // Nm³/h
+  consumption: number | 'unavailable'; // Nm³/h or 'unavailable' for storage buffer streams
   balance: number; // Nm³/h
   status: 'Surplus' | 'Deficit' | 'Balanced' | 'Offline';
   pressure: number; // kPa

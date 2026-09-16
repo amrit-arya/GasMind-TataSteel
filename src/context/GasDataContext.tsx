@@ -61,7 +61,7 @@ const initialMetrics: GasTypeMetrics[] = [
     name: 'LD Gas',
     fullName: 'Linz-Donawitz Converter Gas',
     generation: 150000,
-    consumption: 0,
+    consumption: 'unavailable',
     balance: 150000,
     status: 'Surplus',
     pressure: 18.0,
@@ -72,10 +72,10 @@ const initialMetrics: GasTypeMetrics[] = [
   {
     id: 'nat-gas',
     name: 'Natural Gas',
-    fullName: 'Imported Natural Gas (Buffer)',
-    generation: 115000,
+    fullName: 'Imported Natural Gas (Buffer Supply)',
+    generation: 0,
     consumption: 115000,
-    balance: 0,
+    balance: -115000,
     status: 'Balanced',
     pressure: 45.0,
     calorificValue: 8500,
@@ -236,7 +236,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
           title: `BF Gas Deficit Alarm (${(bf.balance / 1000).toFixed(1)}k Nm³/h)`,
           location: 'Blast Furnace Gas Main Trunk',
           gasType: 'BF Gas',
-          description: `BF Gas generation (${(bf.generation / 1000).toFixed(0)}k) below demand (${(bf.consumption / 1000).toFixed(0)}k). Deficit: ${(bf.balance / 1000).toFixed(1)}k Nm³/h. Gasholder draw-down active.`,
+          description: `BF Gas generation (${(bf.generation / 1000).toFixed(0)}k) below demand (${((bf.consumption as number) / 1000).toFixed(0)}k). Deficit: ${(bf.balance / 1000).toFixed(1)}k Nm³/h. Gasholder draw-down active.`,
           acknowledged: false,
           actionRequired: 'Draw from BF Gasholder buffer or reroute CO Gas surplus to dual-fuel consumers.'
         });
@@ -282,24 +282,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     }
 
-    // WARNING: LD Gas utilization at 0%
-    if (ld.consumption === 0 && ld.generation > 100000) {
-      const alertId = `auto-ld-underutil`;
-      if (!triggeredAlertIds.current.has(alertId)) {
-        newAlerts.push({
-          id: alertId,
-          timestamp: nowTimestamp(),
-          severity: 'warning',
-          title: `LD Gas Under-Utilization (${(ld.generation / 1000).toFixed(0)}k Nm³/h wasted)`,
-          location: 'Steel Melting Shop',
-          gasType: 'LD Gas',
-          description: `LD Gas generation at ${(ld.generation / 1000).toFixed(0)}k Nm³/h but 0 Nm³/h direct consumption. Cross-firing potential untapped.`,
-          acknowledged: false,
-          actionRequired: 'Review LD Gas recovery pipeline for co-firing opportunities.'
-        });
-        triggeredAlertIds.current.add(alertId);
-      }
-    }
+
 
     // WARNING: High pressure deviation
     if (bf.pressure > 16.0 || bf.pressure < 12.0) {
@@ -356,22 +339,39 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [gasMetrics, isLive]);
 
-  // Live telemetry pulse animation & random minor variations
+  // Live telemetry pulse animation & mean-reverting clamped variations
   useEffect(() => {
     if (!isLive) return;
     const interval = setInterval(() => {
       setGasMetrics(prev => prev.map(m => {
-        const deltaGen = (Math.random() - 0.48) * 1500;
-        const deltaCons = (Math.random() - 0.48) * 1400;
-        const newGen = Math.round(m.generation + deltaGen);
-        const newCons = Math.round(m.consumption + deltaCons);
-        const newBal = newGen - newCons;
+        const targetGen = m.id === 'bf-gas' ? 1721200 : m.id === 'co-gas' ? 142000 : m.id === 'ld-gas' ? 150000 : 0;
+        const targetCons = m.id === 'bf-gas' ? 1736000 : m.id === 'co-gas' ? 134600 : m.id === 'nat-gas' ? 115000 : 'unavailable';
+
+        const genNoise = (Math.random() - 0.5) * 600;
+        const genStep = (targetGen - m.generation) * 0.1 + genNoise;
+        const newGen = Math.round(Math.max(0, m.generation + genStep));
+
+        let newCons: number | 'unavailable';
+        let newBal: number;
+
+        if (m.consumption === 'unavailable' || targetCons === 'unavailable') {
+          newCons = 'unavailable';
+          newBal = newGen;
+        } else {
+          const consNoise = (Math.random() - 0.5) * 500;
+          const consStep = (targetCons - m.consumption) * 0.1 + consNoise;
+          newCons = Math.round(Math.max(0, m.consumption + consStep));
+          newBal = newGen - newCons;
+        }
+
+        const status = newBal > 2000 ? 'Surplus' : newBal < -2000 ? 'Deficit' : 'Balanced';
+
         return {
           ...m,
           generation: newGen,
           consumption: newCons,
           balance: newBal,
-          status: newBal > 2000 ? 'Surplus' : newBal < -2000 ? 'Deficit' : 'Balanced'
+          status
         };
       }));
     }, 3000);

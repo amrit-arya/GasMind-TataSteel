@@ -57,7 +57,9 @@ export const GasConsumptionView: React.FC = () => {
     ? allConsumers 
     : allConsumers.filter(c => c.primaryGas === filterStream);
 
-  const totalConsumption = filteredConsumers.reduce((acc, c) => acc + c.flow, 0);
+  const totalConsumption = filteredConsumers
+    .filter(c => c.status !== 'Holder Storage Only')
+    .reduce((acc, c) => acc + c.flow, 0);
 
   // Top consumers for chart visualization
   const chartItems = filteredConsumers.slice(0, 7);

@@ -3,6 +3,8 @@ import { useGasData } from '../../context';
 import { Network, Filter, Zap, Info, Layers } from 'lucide-react';
 import { ParticleCard } from '../../components';
 
+import { PLANT_GENERATORS, PLANT_CONSUMERS } from '../../data/plantData';
+
 interface SankeyNode {
   id: string;
   name: string;
@@ -29,74 +31,49 @@ export const GasNetworkView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'sankey' | 'topology'>('sankey');
 
   const nodes: SankeyNode[] = [
-    // Column 1: Sources (Left)
-    { id: 'bf-i', name: 'Blast Furnace I', category: 'source', gasType: 'BF Gas', value: 465000, color: '#FFFFFF' },
-    { id: 'bf-h', name: 'Blast Furnace H', category: 'source', gasType: 'BF Gas', value: 450000, color: '#FFFFFF' },
-    { id: 'bf-g', name: 'Blast Furnace G', category: 'source', gasType: 'BF Gas', value: 322000, color: '#FFFFFF' },
-    { id: 'bf-f', name: 'Blast Furnace F', category: 'source', gasType: 'BF Gas', value: 240000, color: '#FFFFFF' },
-    { id: 'bf-c', name: 'Blast Furnace C', category: 'source', gasType: 'BF Gas', value: 162000, color: '#FFFFFF' },
-    { id: 'bf-e', name: 'Blast Furnace E', category: 'source', gasType: 'BF Gas', value: 82200, color: '#FFFFFF' },
-    { id: 'co-new', name: 'New BPP (Batt 10,11)', category: 'source', gasType: 'CO Gas', value: 80000, color: '#E4E4E7' },
-    { id: 'co-old', name: 'Old BPP (Batt 8,9)', category: 'source', gasType: 'CO Gas', value: 62000, color: '#E4E4E7' },
-    { id: 'ld-1-3', name: 'LD-1 & LD-3 Converter', category: 'source', gasType: 'LD Gas', value: 85000, color: '#D4D4D8' },
-    { id: 'ld-2', name: 'LD-2 Converter', category: 'source', gasType: 'LD Gas', value: 65000, color: '#D4D4D8' },
-
-    // Column 2: Headers & Storage (Middle)
+    // Sources
+    ...PLANT_GENERATORS.map(g => ({
+      id: g.id,
+      name: g.name,
+      category: 'source' as const,
+      gasType: g.gasType as 'BF Gas' | 'CO Gas' | 'LD Gas',
+      value: g.grossCapacity,
+      color: g.gasType === 'BF Gas' ? '#FFFFFF' : g.gasType === 'CO Gas' ? '#E4E4E7' : '#D4D4D8'
+    })),
+    // Headers & Storage
     { id: 'hdr-bf', name: 'BF Gas Trunk & 100k Holder', category: 'header', gasType: 'BF Gas', value: 1721200, color: '#FFFFFF' },
     { id: 'hdr-co', name: 'CO Gas Header & 80k Holder', category: 'header', gasType: 'CO Gas', value: 142000, color: '#E4E4E7' },
     { id: 'hdr-ld', name: 'LD Gas Recovery & 50k Holder', category: 'header', gasType: 'LD Gas', value: 150000, color: '#D4D4D8' },
-
-    // Column 3: Consumers (Right)
-    { id: 'cons-bf-int', name: 'BF Internal Heating', category: 'consumer', gasType: 'BF Gas', value: 536000, color: '#A1A1AA' },
-    { id: 'cons-ph6', name: 'Power House #6', category: 'consumer', gasType: 'BF Gas', value: 300000, color: '#A1A1AA' },
-    { id: 'cons-coke', name: 'Coke Plant Underfiring', category: 'consumer', gasType: 'BF Gas', value: 270000, color: '#A1A1AA' },
-    { id: 'cons-ph3', name: 'Power House #3', category: 'consumer', gasType: 'BF Gas', value: 190000, color: '#A1A1AA' },
-    { id: 'cons-ph4-bf', name: 'Power House #4 (BF)', category: 'consumer', gasType: 'BF Gas', value: 150000, color: '#A1A1AA' },
-    { id: 'cons-ph5', name: 'Power House #5', category: 'consumer', gasType: 'BF Gas', value: 130000, color: '#A1A1AA' },
-    { id: 'cons-hsm-bf', name: 'HSM Mill (BF)', category: 'consumer', gasType: 'BF Gas', value: 75000, color: '#A1A1AA' },
-    { id: 'cons-pp-bf', name: 'Pellet Plant (BF)', category: 'consumer', gasType: 'BF Gas', value: 60000, color: '#A1A1AA' },
-    { id: 'cons-misc-bf', name: 'LCP & TSCR Plants', category: 'consumer', gasType: 'BF Gas', value: 25000, color: '#A1A1AA' },
-
-    { id: 'cons-hsm-co', name: 'HSM Mill (CO)', category: 'consumer', gasType: 'CO Gas', value: 30000, color: '#71717A' },
-    { id: 'cons-ph4-co', name: 'Power House #4 (CO)', category: 'consumer', gasType: 'CO Gas', value: 22000, color: '#71717A' },
-    { id: 'cons-pp-co', name: 'Pellet Plant (CO)', category: 'consumer', gasType: 'CO Gas', value: 18000, color: '#71717A' },
-    { id: 'cons-mills-co', name: 'Mergemills 1-9', category: 'consumer', gasType: 'CO Gas', value: 11000, color: '#71717A' },
-    { id: 'cons-crm-co', name: 'CRM & TPL Lines', category: 'consumer', gasType: 'CO Gas', value: 14000, color: '#71717A' },
-    { id: 'cons-other-co', name: 'Auxiliary CO Units', category: 'consumer', gasType: 'CO Gas', value: 39600, color: '#71717A' },
-
-    { id: 'cons-ld-store', name: 'LD Buffer Storage', category: 'consumer', gasType: 'LD Gas', value: 150000, color: '#52525B' }
+    // Consumers
+    ...PLANT_CONSUMERS.map(c => ({
+      id: c.id,
+      name: c.name,
+      category: 'consumer' as const,
+      gasType: c.primaryGas as 'BF Gas' | 'CO Gas' | 'LD Gas',
+      value: c.flow,
+      color: c.primaryGas === 'BF Gas' ? '#A1A1AA' : c.primaryGas === 'CO Gas' ? '#71717A' : '#52525B'
+    }))
   ];
 
   const links: SankeyLink[] = [
-    { id: 'l-bf-i', sourceId: 'bf-i', targetId: 'hdr-bf', gasType: 'BF Gas', value: 465000, color: '#FFFFFF' },
-    { id: 'l-bf-h', sourceId: 'bf-h', targetId: 'hdr-bf', gasType: 'BF Gas', value: 450000, color: '#FFFFFF' },
-    { id: 'l-bf-g', sourceId: 'bf-g', targetId: 'hdr-bf', gasType: 'BF Gas', value: 322000, color: '#FFFFFF' },
-    { id: 'l-bf-f', sourceId: 'bf-f', targetId: 'hdr-bf', gasType: 'BF Gas', value: 240000, color: '#FFFFFF' },
-    { id: 'l-bf-c', sourceId: 'bf-c', targetId: 'hdr-bf', gasType: 'BF Gas', value: 162000, color: '#FFFFFF' },
-    { id: 'l-bf-e', sourceId: 'bf-e', targetId: 'hdr-bf', gasType: 'BF Gas', value: 82200, color: '#FFFFFF' },
-    { id: 'l-co-new', sourceId: 'co-new', targetId: 'hdr-co', gasType: 'CO Gas', value: 80000, color: '#E4E4E7' },
-    { id: 'l-co-old', sourceId: 'co-old', targetId: 'hdr-co', gasType: 'CO Gas', value: 62000, color: '#E4E4E7' },
-    { id: 'l-ld-1-3', sourceId: 'ld-1-3', targetId: 'hdr-ld', gasType: 'LD Gas', value: 85000, color: '#D4D4D8' },
-    { id: 'l-ld-2', sourceId: 'ld-2', targetId: 'hdr-ld', gasType: 'LD Gas', value: 65000, color: '#D4D4D8' },
-
-    { id: 'l-bf-int', sourceId: 'hdr-bf', targetId: 'cons-bf-int', gasType: 'BF Gas', value: 536000, color: '#FFFFFF' },
-    { id: 'l-ph6', sourceId: 'hdr-bf', targetId: 'cons-ph6', gasType: 'BF Gas', value: 300000, color: '#FFFFFF' },
-    { id: 'l-coke', sourceId: 'hdr-bf', targetId: 'cons-coke', gasType: 'BF Gas', value: 270000, color: '#FFFFFF' },
-    { id: 'l-ph3', sourceId: 'hdr-bf', targetId: 'cons-ph3', gasType: 'BF Gas', value: 190000, color: '#FFFFFF' },
-    { id: 'l-ph4-bf', sourceId: 'hdr-bf', targetId: 'cons-ph4-bf', gasType: 'BF Gas', value: 150000, color: '#FFFFFF' },
-    { id: 'l-ph5', sourceId: 'hdr-bf', targetId: 'cons-ph5', gasType: 'BF Gas', value: 130000, color: '#FFFFFF' },
-    { id: 'l-hsm-bf', sourceId: 'hdr-bf', targetId: 'cons-hsm-bf', gasType: 'BF Gas', value: 75000, color: '#FFFFFF' },
-    { id: 'l-pp-bf', sourceId: 'hdr-bf', targetId: 'cons-pp-bf', gasType: 'BF Gas', value: 60000, color: '#FFFFFF' },
-    { id: 'l-misc-bf', sourceId: 'hdr-bf', targetId: 'cons-misc-bf', gasType: 'BF Gas', value: 25000, color: '#FFFFFF' },
-
-    { id: 'l-hsm-co', sourceId: 'hdr-co', targetId: 'cons-hsm-co', gasType: 'CO Gas', value: 30000, color: '#E4E4E7' },
-    { id: 'l-ph4-co', sourceId: 'hdr-co', targetId: 'cons-ph4-co', gasType: 'CO Gas', value: 22000, color: '#E4E4E7' },
-    { id: 'l-pp-co', sourceId: 'hdr-co', targetId: 'cons-pp-co', gasType: 'CO Gas', value: 18000, color: '#E4E4E7' },
-    { id: 'l-mills-co', sourceId: 'hdr-co', targetId: 'cons-mills-co', gasType: 'CO Gas', value: 11000, color: '#E4E4E7' },
-    { id: 'l-crm-co', sourceId: 'hdr-co', targetId: 'cons-crm-co', gasType: 'CO Gas', value: 14000, color: '#E4E4E7' },
-    { id: 'l-other-co', sourceId: 'hdr-co', targetId: 'cons-other-co', gasType: 'CO Gas', value: 39600, color: '#E4E4E7' },
-
-    { id: 'l-ld-store', sourceId: 'hdr-ld', targetId: 'cons-ld-store', gasType: 'LD Gas', value: 150000, color: '#D4D4D8' }
+    // Source -> Header links
+    ...PLANT_GENERATORS.map(g => ({
+      id: `l-${g.id}`,
+      sourceId: g.id,
+      targetId: g.gasType === 'BF Gas' ? 'hdr-bf' : g.gasType === 'CO Gas' ? 'hdr-co' : 'hdr-ld',
+      gasType: g.gasType as 'BF Gas' | 'CO Gas' | 'LD Gas',
+      value: g.grossCapacity,
+      color: g.gasType === 'BF Gas' ? '#FFFFFF' : g.gasType === 'CO Gas' ? '#E4E4E7' : '#D4D4D8'
+    })),
+    // Header -> Consumer links
+    ...PLANT_CONSUMERS.map(c => ({
+      id: `l-${c.id}`,
+      sourceId: c.primaryGas === 'BF Gas' ? 'hdr-bf' : c.primaryGas === 'CO Gas' ? 'hdr-co' : 'hdr-ld',
+      targetId: c.id,
+      gasType: c.primaryGas as 'BF Gas' | 'CO Gas' | 'LD Gas',
+      value: c.flow,
+      color: c.primaryGas === 'BF Gas' ? '#FFFFFF' : c.primaryGas === 'CO Gas' ? '#E4E4E7' : '#D4D4D8'
+    }))
   ];
 
   const filteredNodes = filterGas === 'all' 

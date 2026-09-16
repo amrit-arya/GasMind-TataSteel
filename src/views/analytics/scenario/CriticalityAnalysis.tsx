@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import { ParticleCard } from '../../../components';
 
+import { PLANT_GENERATORS } from '../../../data/plantData';
+import { HOLDER_ASSUMPTIONS } from '../../../config/assumptions';
+
 interface Generator {
   id: string;
   name: string;
@@ -35,18 +38,23 @@ interface FailureImpact {
   affectedConsumerNames: string[];
 }
 
-const generators: Generator[] = [
-  { id: 'bf-i', name: 'Blast Furnace I', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 465000, internalCons: 194000, totalGasTypeGeneration: 1721200, contributionPercent: 27.0, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-h', name: 'Blast Furnace H', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 450000, internalCons: 115000, totalGasTypeGeneration: 1721200, contributionPercent: 26.1, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-g', name: 'Blast Furnace G', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 322000, internalCons: 90000, totalGasTypeGeneration: 1721200, contributionPercent: 18.7, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-f', name: 'Blast Furnace F', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 240000, internalCons: 80000, totalGasTypeGeneration: 1721200, contributionPercent: 13.9, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-c', name: 'Blast Furnace C', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 162000, internalCons: 32000, totalGasTypeGeneration: 1721200, contributionPercent: 9.4, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'bf-e', name: 'Blast Furnace E', type: 'Blast Furnace', gasType: 'BF Gas', capacity: 82200, internalCons: 25000, totalGasTypeGeneration: 1721200, contributionPercent: 4.8, holderCapacity: 100000, holderLevel: 68 },
-  { id: 'co-new', name: 'New BPP (Batt 10, 11)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 80000, internalCons: 0, totalGasTypeGeneration: 142000, contributionPercent: 56.3, holderCapacity: 80000, holderLevel: 84 },
-  { id: 'co-old', name: 'Old BPP (Batt 8, 9)', type: 'Coke Battery', gasType: 'CO Gas', capacity: 62000, internalCons: 0, totalGasTypeGeneration: 142000, contributionPercent: 43.7, holderCapacity: 80000, holderLevel: 84 },
-  { id: 'ld-13', name: 'LD-1 & LD-3 Converter', type: 'Converter', gasType: 'LD Gas', capacity: 85000, internalCons: 0, totalGasTypeGeneration: 150000, contributionPercent: 56.7, holderCapacity: 50000, holderLevel: 45 },
-  { id: 'ld-2', name: 'LD-2 Converter', type: 'Converter', gasType: 'LD Gas', capacity: 65000, internalCons: 0, totalGasTypeGeneration: 150000, contributionPercent: 43.3, holderCapacity: 50000, holderLevel: 45 },
-];
+const generators: Generator[] = PLANT_GENERATORS.map(g => {
+  const totalGen = g.gasType === 'BF Gas' ? 1721200 : g.gasType === 'CO Gas' ? 142000 : 150000;
+  const holderCap = g.gasType === 'BF Gas' ? HOLDER_ASSUMPTIONS.BF_HOLDER_CAPACITY : g.gasType === 'CO Gas' ? HOLDER_ASSUMPTIONS.CO_HOLDER_CAPACITY : HOLDER_ASSUMPTIONS.LD_HOLDER_CAPACITY;
+  const holderLvl = g.gasType === 'BF Gas' ? HOLDER_ASSUMPTIONS.BF_HOLDER_INITIAL_LEVEL : g.gasType === 'CO Gas' ? HOLDER_ASSUMPTIONS.CO_HOLDER_INITIAL_LEVEL : HOLDER_ASSUMPTIONS.LD_HOLDER_INITIAL_LEVEL;
+  return {
+    id: g.id,
+    name: g.name,
+    type: g.type,
+    gasType: g.gasType as 'BF Gas' | 'CO Gas' | 'LD Gas',
+    capacity: g.grossCapacity,
+    internalCons: g.internalCons,
+    totalGasTypeGeneration: totalGen,
+    contributionPercent: Math.round((g.grossCapacity / totalGen) * 1000) / 10,
+    holderCapacity: holderCap,
+    holderLevel: holderLvl
+  };
+});
 
 const bfConsumerNames = [
   'Power House #6', 'Coke Plant Heating', 'Power House #3',

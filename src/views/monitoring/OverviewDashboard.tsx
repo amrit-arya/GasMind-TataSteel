@@ -39,7 +39,7 @@ export const OverviewDashboard: React.FC = () => {
   const { gasMetrics, insights, applyInsight, setCurrentView } = useGasData();
 
   const totalGen = gasMetrics.reduce((acc, m) => acc + m.generation, 0);
-  const totalCons = gasMetrics.reduce((acc, m) => acc + m.consumption, 0);
+  const totalCons = gasMetrics.reduce((acc, m) => acc + (typeof m.consumption === 'number' ? m.consumption : 0), 0);
   const netBal = totalGen - totalCons;
   const globalUtil = 98.2;
 
@@ -315,7 +315,7 @@ export const OverviewDashboard: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center border-b border-zinc-800 pb-1.5 text-zinc-300">
                   <span>Consumption:</span>
-                  <span className="text-white font-bold">{(gas.consumption / 1000).toFixed(0)}k Nm³/h</span>
+                  <span className="text-white font-bold">{typeof gas.consumption === 'number' ? `${(gas.consumption / 1000).toFixed(0)}k Nm³/h` : '—'}</span>
                 </div>
                 <div className="flex justify-between items-center pt-0.5">
                   <span className="text-zinc-400">Net Balance:</span>
