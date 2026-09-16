@@ -87,8 +87,6 @@ Net Balance      : ${log.details.netDeficitSurplus || 'N/A'}
 Mitigation       : ${log.details.mitigationStatus || 'N/A'}
 
 --------------------------------------------------------------------------------
-Verification Hash: SHA256-${Math.random().toString(36).substring(2, 15).toUpperCase()}
-Status          : VERIFIED & LOGGED IN DEPARTMENTAL AUDIT TRAIL
 ================================================================================
     `;
 

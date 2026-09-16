@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { ViewMode, GasTypeMetrics, NetworkNode, NetworkPipeline, AlertItem, SimulationParams, AIInsight, AuditItem } from '../types';
 import { playAlertSound, playSuccessSound, setMuted as setSoundMuted, getMuted } from '../utils/soundNotifications';
+import { generateGasMindPDFReport } from '../utils';
 
 interface GasDataContextType {
   currentView: ViewMode;
@@ -24,7 +25,7 @@ interface GasDataContextType {
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
   auditLogs: AuditItem[];
-  addAuditLog: (entry: Omit<AuditItem, 'id' | 'timestamp'>) => void;
+  addAuditLog: (entry: Omit<AuditItem, 'id' | 'timestamp'>) => AuditItem;
   exportAuditLogsToCSV: () => void;
 }
 
@@ -455,15 +456,16 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   ]);
 
-  const addAuditLog = useCallback((entry: Omit<AuditItem, 'id' | 'timestamp'>) => {
+  const addAuditLog = useCallback((entry: Omit<AuditItem, 'id' | 'timestamp'>): AuditItem => {
     const now = new Date();
     const formattedDate = `${now.toISOString().split('T')[0]} ${now.toTimeString().split(' ')[0]} UTC`;
     const newLog: AuditItem = {
       ...entry,
-      id: `AUD-${entry.category === 'simulation' ? 'SIM' : entry.category === 'report_export' ? 'EXP' : 'SYS'}-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: `AUD-${entry.category === 'simulation' ? 'SIM' : entry.category === 'report_export' ? 'EXP' : 'SYS'}-${crypto.randomUUID()}`,
       timestamp: formattedDate
     };
     setAuditLogs(prev => [newLog, ...prev]);
+    return newLog;
   }, []);
 
   const exportAuditLogsToCSV = useCallback(() => {
@@ -510,6 +512,20 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const triggerExport = () => {
+    try {
+      generateGasMindPDFReport({
+        metrics: gasMetrics,
+        nodes,
+        auditLogs,
+        reportTitle: 'Quick Command Center Summary',
+        dateRange: new Date().toISOString().split('T')[0],
+        operatorName: 'Rajesh Kumar (Shift In-Charge / EMP-4819)'
+      });
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+
     // Record export audit log automatically
     addAuditLog({
       category: 'report_export',
@@ -524,7 +540,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
     });
 
-    setExportNotification('Exporting GASMIND Command Center Telemetry Report (PDF/CSV)...');
+    setExportNotification('Exporting GASMIND Command Center Telemetry Report (PDF)...');
     playInfoAlert();
     setTimeout(() => {
       setExportNotification('Report successfully exported & logged in Audit Trail.');

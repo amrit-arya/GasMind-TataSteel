@@ -118,6 +118,8 @@ export const ReportsView: React.FC = () => {
           });
         } catch (e) {
           console.error(e);
+          setIsGenerating(false);
+          return;
         }
         setIsGenerating(false);
 

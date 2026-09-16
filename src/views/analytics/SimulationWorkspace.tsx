@@ -131,7 +131,7 @@ export const SimulationWorkspace: React.FC = () => {
       const resultDesc = `Simulated Net BF Balance: ${simBfBal > 0 ? '+' : ''}${simBfBal.toLocaleString()} Nm³/h | Net CO Balance: ${simCoBal > 0 ? '+' : ''}${simCoBal.toLocaleString()} Nm³/h. ` +
         (simBfBal < 0 ? `BF Gasholder depletion window: ${bfDepletionHours.toFixed(2)} hours.` : `BF Gasholder buffer safe.`);
 
-      addAuditLog({
+      const createdLog = addAuditLog({
         category: 'simulation',
         userName: operatorName,
         userDesignation: operatorDesignation,
@@ -151,7 +151,7 @@ export const SimulationWorkspace: React.FC = () => {
         }
       });
 
-      setLastAuditId(`AUD-SIM-${Math.floor(1000 + Math.random() * 9000)}`);
+      setLastAuditId(createdLog.id);
     }, 600);
   };
 
