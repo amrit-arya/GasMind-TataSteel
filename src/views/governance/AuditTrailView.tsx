@@ -60,7 +60,7 @@ export const AuditTrailView: React.FC = () => {
 ================================================================================
 
 Audit Reference ID: ${log.id}
-Date & Time (UTC): ${log.timestamp}
+Date & Time (IST): ${log.timestamp}
 Category: ${log.category.toUpperCase()}
 
 OPERATOR DETAILS:

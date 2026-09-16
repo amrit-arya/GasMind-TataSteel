@@ -123,7 +123,7 @@ const initialPipelines: NetworkPipeline[] = [
 const initialAlerts: AlertItem[] = [
   {
     id: 'alt-101',
-    timestamp: '01:14:22 UTC',
+    timestamp: '01:14:22 IST',
     severity: 'critical',
     title: 'BF Gas Network Deficit Alarm (-14,800 Nm³/h)',
     location: 'Blast Furnace Gas Main Trunk',
@@ -134,7 +134,7 @@ const initialAlerts: AlertItem[] = [
   },
   {
     id: 'alt-102',
-    timestamp: '00:52:10 UTC',
+    timestamp: '00:52:10 IST',
     severity: 'warning',
     title: 'LD Gas Generation Surplus (+150,000 Nm³/h)',
     location: 'Steel Melting Shop (LD-1, LD-2, LD-3)',
@@ -145,7 +145,7 @@ const initialAlerts: AlertItem[] = [
   },
   {
     id: 'alt-103',
-    timestamp: '00:30:00 UTC',
+    timestamp: '00:30:00 IST',
     severity: 'info',
     title: 'CO Gas Holder High Buffer Warning',
     location: 'Gasholder Compound 80k',
@@ -180,10 +180,10 @@ const initialInsights: AIInsight[] = [
 
 const GasDataContext = createContext<GasDataContextType | undefined>(undefined);
 
-// Helper: generate timestamp string
+// Helper: generate timestamp string in IST
 function nowTimestamp(): string {
   const d = new Date();
-  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' UTC';
+  return d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' IST';
 }
 
 export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -382,7 +382,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [auditLogs, setAuditLogs] = useState<AuditItem[]>([
     {
       id: 'AUD-SIM-9042',
-      timestamp: '2026-09-08 22:45:12 UTC',
+      timestamp: '2026-09-08 22:45:12 IST',
       category: 'simulation',
       userName: 'Rajesh Kumar',
       userDesignation: 'Shift In-Charge / Sr. Energy Engineer',
@@ -398,7 +398,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     },
     {
       id: 'AUD-EXP-9038',
-      timestamp: '2026-09-08 21:12:00 UTC',
+      timestamp: '2026-09-08 21:12:00 IST',
       category: 'report_export',
       userName: 'Amitabh Roy',
       userDesignation: 'Chief Energy Manager',
@@ -412,7 +412,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     },
     {
       id: 'AUD-SIM-9025',
-      timestamp: '2026-09-08 19:30:45 UTC',
+      timestamp: '2026-09-08 19:30:45 IST',
       category: 'simulation',
       userName: 'Priya Sharma',
       userDesignation: 'Principal Process Analyst',
@@ -428,7 +428,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     },
     {
       id: 'AUD-EXP-9011',
-      timestamp: '2026-09-08 17:05:20 UTC',
+      timestamp: '2026-09-08 17:05:20 IST',
       category: 'report_export',
       userName: 'Rajesh Kumar',
       userDesignation: 'Shift In-Charge / Sr. Energy Engineer',
@@ -442,7 +442,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     },
     {
       id: 'AUD-SYS-8990',
-      timestamp: '2026-09-08 15:40:00 UTC',
+      timestamp: '2026-09-08 15:40:00 IST',
       category: 'parameter_change',
       userName: 'Suresh Patel',
       userDesignation: 'Control Room Controller',
@@ -458,7 +458,16 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const addAuditLog = useCallback((entry: Omit<AuditItem, 'id' | 'timestamp'>): AuditItem => {
     const now = new Date();
-    const formattedDate = `${now.toISOString().split('T')[0]} ${now.toTimeString().split(' ')[0]} UTC`;
+    const formattedDate = now.toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(',', '') + ' IST';
     const newLog: AuditItem = {
       ...entry,
       id: `AUD-${entry.category === 'simulation' ? 'SIM' : entry.category === 'report_export' ? 'EXP' : 'SYS'}-${crypto.randomUUID()}`,

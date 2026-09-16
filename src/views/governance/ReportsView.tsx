@@ -9,7 +9,9 @@ import {
   Clock, 
   Loader2, 
   FileBarChart,
-  FilePieChart
+  FilePieChart,
+  UserCheck,
+  AlertCircle
 } from 'lucide-react';
 import { generateGasMindPDFReport } from '../../utils';
 import { ParticleCard } from '../../components';
@@ -80,20 +82,27 @@ const reportConfigs: ReportConfig[] = [
 ];
 
 export const ReportsView: React.FC = () => {
-  const { gasMetrics, nodes, auditLogs, triggerExport } = useGasData();
+  const { gasMetrics, nodes, auditLogs, addAuditLog } = useGasData();
   const [selectedReport, setSelectedReport] = useState<ReportType>('executive');
   const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
   const [isGenerating, setIsGenerating] = useState(false);
   const [dateRange, setDateRange] = useState({ from: '2026-09-01', to: '2026-09-08' });
   const [shift, setShift] = useState<string>('all');
 
+  // Mandatory Operator Credentials State
+  const [operatorName, setOperatorName] = useState<string>('Rajesh Kumar');
+  const [employeeId, setEmployeeId] = useState<string>('EMP-4819');
+  const [operatorDesignation, setOperatorDesignation] = useState<string>('Shift In-Charge / Sr. Energy Engineer');
+  const [operatorDept, setOperatorDept] = useState<string>('Energy Management Division');
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   const activeConfig = reportConfigs.find(r => r.id === selectedReport)!;
   const [selectedSections, setSelectedSections] = useState<string[]>(activeConfig.sections);
 
   const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([
-    { id: 'rep-1', name: 'Executive Gas Balance Summary (PDF)', format: 'pdf', date: '2026-09-08', time: '21:12 UTC', size: '2.4 MB', status: 'completed' },
-    { id: 'rep-2', name: 'Incident Failure Impact Logs (CSV)', format: 'csv', date: '2026-09-08', time: '17:05 UTC', size: '840 KB', status: 'completed' },
-    { id: 'rep-3', name: 'Shift Operations Log - Morning (PDF)', format: 'pdf', date: '2026-09-07', time: '14:02 UTC', size: '1.8 MB', status: 'completed' },
+    { id: 'rep-1', name: 'Executive Gas Balance Summary (PDF)', format: 'pdf', date: '2026-09-08', time: '21:12 IST', size: '2.4 MB', status: 'completed' },
+    { id: 'rep-2', name: 'Incident Failure Impact Logs (CSV)', format: 'csv', date: '2026-09-08', time: '17:05 IST', size: '840 KB', status: 'completed' },
+    { id: 'rep-3', name: 'Shift Operations Log - Morning (PDF)', format: 'pdf', date: '2026-09-07', time: '14:02 IST', size: '1.8 MB', status: 'completed' },
   ]);
 
   const toggleSection = (section: string) => {
@@ -103,6 +112,13 @@ export const ReportsView: React.FC = () => {
   };
 
   const handleGenerate = () => {
+    // Validate mandatory operator credentials
+    if (!operatorName.trim() || !employeeId.trim() || !operatorDesignation.trim() || !operatorDept.trim()) {
+      setValidationError('All operator credentials (Name, Employee ID, Designation, Department) are mandatory to export report and register audit entry.');
+      return;
+    }
+
+    setValidationError(null);
     setIsGenerating(true);
 
     if (exportFormat === 'pdf') {
@@ -114,7 +130,10 @@ export const ReportsView: React.FC = () => {
             auditLogs,
             reportTitle: activeConfig.name,
             dateRange: `${dateRange.from} to ${dateRange.to}`,
-            operatorName: 'Rajesh Kumar (Shift In-Charge / EMP-4819)'
+            operatorName: operatorName,
+            employeeId: employeeId,
+            operatorDesignation: operatorDesignation,
+            operatorDept: operatorDept
           });
         } catch (e) {
           console.error(e);
@@ -123,20 +142,51 @@ export const ReportsView: React.FC = () => {
         }
         setIsGenerating(false);
 
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }) + ' IST';
+
         const newRep: GeneratedReport = {
           id: `rep-${Date.now()}`,
           name: `${activeConfig.name} (${exportFormat.toUpperCase()})`,
           format: exportFormat,
-          date: new Date().toISOString().split('T')[0],
-          time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ' UTC',
+          date: now.toISOString().split('T')[0],
+          time: timeStr,
           size: exportFormat === 'pdf' ? '2.6 MB' : '420 KB',
           status: 'completed'
         };
         setGeneratedReports(prev => [newRep, ...prev]);
-        triggerExport();
+
+        // Register official audit log record with operator credentials
+        addAuditLog({
+          category: 'report_export',
+          userName: operatorName,
+          userDesignation: operatorDesignation,
+          userDepartment: `${operatorDept} (Emp ID: ${employeeId})`,
+          actionTitle: `Exported Official Report: ${activeConfig.name}`,
+          details: {
+            exportFormat: 'PDF',
+            reportType: activeConfig.name,
+            resultsProduced: `Generated official PDF report for period ${dateRange.from} to ${dateRange.to}. Included sections: ${selectedSections.join(', ')}.`
+          }
+        });
       }, 1200);
     } else {
       setTimeout(() => {
+        const formattedDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(',', '') + ' IST';
+        const metaHeader = [
+          `# ================================================================================`,
+          `# GASMIND OFFICIAL EXPORTED REPORT DATASET`,
+          `# Report Title      : ${activeConfig.name}`,
+          `# Date Range        : ${dateRange.from} to ${dateRange.to}`,
+          `# Shift Filter      : ${shift.toUpperCase()}`,
+          `# Operator Name     : ${operatorName}`,
+          `# Employee ID       : ${employeeId}`,
+          `# Shift Designation : ${operatorDesignation}`,
+          `# Department        : ${operatorDept}`,
+          `# Timestamp (IST)   : ${formattedDate}`,
+          `# ================================================================================`
+        ].join('\n');
+
         const headers = ['Metric ID', 'Gas Stream Name', 'Generation (Nm3/h)', 'Consumption (Nm3/h)', 'Net Balance (Nm3/h)', 'Holder Level (%)', 'Status'];
         const rows = gasMetrics.map(m => [
           m.id,
@@ -147,7 +197,7 @@ export const ReportsView: React.FC = () => {
           m.holderLevel,
           m.status
         ]);
-        const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const csvContent = [metaHeader, headers.join(','), ...rows.map(r => r.join(','))].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -159,17 +209,33 @@ export const ReportsView: React.FC = () => {
 
         setIsGenerating(false);
 
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }) + ' IST';
+
         const newRep: GeneratedReport = {
           id: `rep-${Date.now()}`,
           name: `${activeConfig.name} (${exportFormat.toUpperCase()})`,
           format: exportFormat,
-          date: new Date().toISOString().split('T')[0],
-          time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + ' UTC',
+          date: now.toISOString().split('T')[0],
+          time: timeStr,
           size: '420 KB',
           status: 'completed'
         };
         setGeneratedReports(prev => [newRep, ...prev]);
-        triggerExport();
+
+        // Register official audit log record with operator credentials
+        addAuditLog({
+          category: 'report_export',
+          userName: operatorName,
+          userDesignation: operatorDesignation,
+          userDepartment: `${operatorDept} (Emp ID: ${employeeId})`,
+          actionTitle: `Exported Official CSV Telemetry: ${activeConfig.name}`,
+          details: {
+            exportFormat: 'CSV',
+            reportType: activeConfig.name,
+            resultsProduced: `Exported raw CSV dataset for period ${dateRange.from} to ${dateRange.to} with operator metadata header.`
+          }
+        });
       }, 800);
     }
   };
@@ -183,9 +249,77 @@ export const ReportsView: React.FC = () => {
           Reports & Exports Center
         </h2>
         <p className="text-xs text-zinc-400 font-mono mt-1">
-          Generate, customize, and export operational reports in PDF or CSV/Excel format.
+          Generate, customize, and export operational reports with mandatory operator credentials and audit logging.
         </p>
       </div>
+
+      {/* Mandatory Operator Credentials Section */}
+      <ParticleCard clickEffect={true} glowColor="255, 255, 255" className="bg-zinc-950 border border-zinc-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+        <div className="flex items-center justify-between border-b border-zinc-800 pb-3 mb-4">
+          <div className="flex items-center gap-2">
+            <UserCheck className="w-5 h-5 text-white" />
+            <h3 className="font-mono text-sm font-bold text-white">
+              Mandatory Operator Credentials & Audit Tracking
+            </h3>
+          </div>
+          <span className="px-2 py-0.5 bg-zinc-900 border border-zinc-700 text-white text-[10px] font-mono font-bold rounded uppercase">
+            Audit Security Standard
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 font-mono text-xs">
+          <div>
+            <label className="text-zinc-400 text-[10px] uppercase font-bold block mb-1">Operator Full Name *</label>
+            <input
+              type="text"
+              value={operatorName}
+              onChange={(e) => setOperatorName(e.target.value)}
+              placeholder="e.g. Rajesh Kumar"
+              className="w-full p-2.5 bg-black border border-zinc-800 rounded text-xs text-white focus:border-white focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-zinc-400 text-[10px] uppercase font-bold block mb-1">Employee ID *</label>
+            <input
+              type="text"
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+              placeholder="e.g. EMP-4819"
+              className="w-full p-2.5 bg-black border border-zinc-800 rounded text-xs text-white focus:border-white focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-zinc-400 text-[10px] uppercase font-bold block mb-1">Shift Designation *</label>
+            <input
+              type="text"
+              value={operatorDesignation}
+              onChange={(e) => setOperatorDesignation(e.target.value)}
+              placeholder="e.g. Shift In-Charge"
+              className="w-full p-2.5 bg-black border border-zinc-800 rounded text-xs text-white focus:border-white focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-zinc-400 text-[10px] uppercase font-bold block mb-1">Department *</label>
+            <input
+              type="text"
+              value={operatorDept}
+              onChange={(e) => setOperatorDept(e.target.value)}
+              placeholder="e.g. Energy Management"
+              className="w-full p-2.5 bg-black border border-zinc-800 rounded text-xs text-white focus:border-white focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {validationError && (
+          <div className="mt-3 p-2.5 bg-zinc-900 border border-zinc-700 rounded-lg flex items-center gap-2 text-white text-xs font-mono font-bold">
+            <AlertCircle className="w-4 h-4 shrink-0 text-white" />
+            <span>{validationError}</span>
+          </div>
+        )}
+      </ParticleCard>
 
       {/* Report Builder */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -328,6 +462,10 @@ export const ReportsView: React.FC = () => {
             <div className="flex justify-between">
               <span>Report:</span>
               <span className="font-bold text-white">{activeConfig.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Operator:</span>
+              <span className="font-bold text-white">{operatorName || 'Not Set'} ({employeeId || 'No ID'})</span>
             </div>
             <div className="flex justify-between">
               <span>Format:</span>
