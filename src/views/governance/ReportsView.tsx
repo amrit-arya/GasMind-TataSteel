@@ -90,8 +90,8 @@ export const ReportsView: React.FC = () => {
   const [shift, setShift] = useState<string>('all');
 
   // Mandatory Operator Credentials State
-  const [operatorName, setOperatorName] = useState<string>('Rajesh Kumar');
-  const [employeeId, setEmployeeId] = useState<string>('EMP-4819');
+  const [operatorName, setOperatorName] = useState<string>('Energy Engineer Alpha');
+  const [employeeId, setEmployeeId] = useState<string>('EMP-1001');
   const [operatorDesignation, setOperatorDesignation] = useState<string>('Shift In-Charge / Sr. Energy Engineer');
   const [operatorDept, setOperatorDept] = useState<string>('Energy Management Division');
   const [validationError, setValidationError] = useState<string | null>(null);

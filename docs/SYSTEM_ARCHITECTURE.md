@@ -4,35 +4,36 @@
 
 ```mermaid
 graph TD
-    A[Browser Client / User Interface] --> B[App Component Layout]
-    B --> C[Header Bar Component]
-    B --> D[Sidebar Navigation Drawer]
-    B --> E[View Router & Main Container]
+    A[Browser Client / User Interface] --> B[App Component Layout & Hash Router]
+    B --> C[ErrorBoundary Subsystem]
+    B --> D[Header Bar Component & Command Palette]
+    B --> E[Sidebar Navigation Drawer]
+    B --> F[View Router & Main Container]
     
-    E --> F[Overview Dashboard]
-    E --> G[Gas Generation View]
-    E --> H[Gas Consumption View]
-    E --> I[Gas Balance View]
-    E --> J[Gas Network Sankey SVG]
-    E --> K[Simulation Workspace]
-    E --> L[Scenario Analysis Engine]
-    E --> M[Operational Alerts Console]
-    E --> N[Reports & Exports Generator]
-    E --> O[Event Timeline Register]
-    E --> P[Departmental Audit Trail]
+    F --> G[Overview Dashboard]
+    F --> H[Gas Generation View]
+    F --> I[Gas Consumption View]
+    F --> J[Gas Balance View]
+    F --> K[Gas Network Sankey SVG]
+    F --> L[Simulation Workspace]
+    F --> M[Scenario Analysis Engine]
+    F --> N[Operational Alerts Console]
+    F --> O[Reports & Exports Generator]
+    F --> P[Event Timeline Register]
+    F --> Q[Departmental Audit Trail]
 
     subgraph Core System Services
-        Q[GasDataContext Central State Engine]
-        R[Web Audio API Sound Notifications]
-        S[Telemetry Live Pulse Simulation Engine]
-        T[Report & Audit Export Engine (html2canvas / jsPDF / CSV)]
+        R[GasDataContext Central State Engine]
+        S[Web Audio API Sound Notifications]
+        T[Telemetry Live Pulse Simulation Engine]
+        U[Report & Audit Export Engine - Dynamic jsPDF / CSV]
     end
 
-    B <--> Q
-    E <--> Q
-    Q --> R
-    Q --> S
-    Q --> T
+    B <--> R
+    F <--> R
+    R --> S
+    R --> T
+    R --> U
 ```
 
 ---
@@ -40,17 +41,17 @@ graph TD
 ## 2. Component Hierarchy & Layering
 
 ### 2.1 Presentation Layer (`/src/views` & `/src/components`)
-- **`App.tsx`**: Top-level layout container managing mobile drawer visibility (`mobileOpen`), sidebar collapse state (`isCollapsed`), and main view routing.
-- **`Header.tsx`**: Contains the command palette global search bar (`⌘K`), sound mute toggle, live telemetry pulse switch, quick export button, and alerts drop-down menu.
+- **`App.tsx`**: Top-level layout container managing mobile drawer visibility (`mobileOpen`), sidebar collapse state (`isCollapsed`), hash-based URL routing, and `ErrorBoundary` wrapping.
+- **`Header.tsx`**: Contains the command palette global search bar (`⌘K`), sound mute toggle, live telemetry pulse switch, quick export button, and accessible alerts drop-down menu.
 - **`Sidebar.tsx`**: Left navigation drawer supporting collapsed mode (`68px`) and expanded mode (`280px`), highlighting active routes with LED badges.
+- **`ErrorBoundary.tsx`**: React class component catching rendering errors and displaying an industrial dark recovery banner without crashing the entire display.
 
 ### 2.2 Application State Layer (`/src/context/GasDataContext.tsx`)
 - Centralized React Context (`GasDataContext`) serving as the Single Source of Truth for:
-  - `gasMetrics`: Array of `GasTypeMetrics` (BF Gas, CO Gas, LD Gas, Natural Gas).
-  - `nodes` & `pipelines`: Network graph vertices and edges for Sankey & Topology diagrams.
-  - `alerts`: List of `AlertItem` alarms with severity levels and acknowledgment states.
-  - `auditLogs`: Array of `AuditItem` records tracking simulation executions and report exports.
-  - `simParams`: Parameters for contingency sandbox modeling.
+  - `gasMetrics`: Array of `GasTypeMetrics` (BF Gas, CO Gas, LD Gas). Baseline generation: 2,010,000 Nm³/h; Baseline consumption: 1,870,000 Nm³/h.
+  - `nodes`: Network graph vertices for Sankey topology diagram.
+  - `alerts`: List of `AlertItem` alarms with severity levels (`critical`, `warning`, `info`) and acknowledgment states.
+  - `auditLogs`: Array of `AuditItem` records tracking simulation executions and report exports with mandatory operator credentials.
   - `isLive`: Boolean flag toggling real-time telemetry pulse generation.
 
 ### 2.3 Audio Synthesis Subsystem (`/src/utils/soundNotifications.ts`)
@@ -77,7 +78,7 @@ sequenceDiagram
     participant Sound as soundNotifications
     participant AuditStore as auditLogs State
 
-    Operator->>SimView: Enter Operator Name & Designation
+    Operator->>SimView: Enter Operator Credentials (Name, ID, Designation, Dept)
     Operator->>SimView: Select Generator Outage (e.g. BF-I) & Run Simulation
     SimView->>SimView: Validate Operator Credentials
     alt Credentials Missing
@@ -96,10 +97,10 @@ sequenceDiagram
 
 ## 4. Export & Report Generation Subsystem
 
-1. **PDF Export**:
-   - Uses `html2canvas` to render document DOM nodes into HTML5 Canvas bitmaps.
-   - Compresses canvas bitmaps into a structured multipage PDF using `jspdf`.
+1. **Dynamic PDF Export**:
+   - Dynamic async import (`await import('jspdf')`, `await import('jspdf-autotable')`) defers ~380 KB of PDF libraries until report generation is invoked.
+   - Generates structured multipage vector PDF documents with custom header metadata, operator credentials, telemetry tables, and page numbering.
 2. **CSV Export**:
-   - Assembles comma-separated text content with standard headers.
+   - Assembles comma-separated text content with standard headers and CSV injection sanitization.
    - Wraps CSV strings into `Blob([csvContent], { type: 'text/csv;charset=utf-8;' })`.
-   - Triggers browser file download using `URL.createObjectURL` and anchor click injection.
+   - Triggers browser file download using `URL.createObjectURL` and `URL.revokeObjectURL` cleanup.
