@@ -62,8 +62,11 @@ export const GasConsumptionView: React.FC = () => {
     .reduce((acc, c) => acc + c.flow, 0);
 
   // Top consumers for chart visualization
-  const chartItems = filteredConsumers.slice(0, 7);
-  const otherTotal = filteredConsumers.slice(7).reduce((acc, c) => acc + c.flow, 0);
+  const sortedConsumers = [...filteredConsumers]
+    .filter(c => c.status !== 'Holder Storage Only')
+    .sort((a, b) => b.flow - a.flow);
+  const chartItems = sortedConsumers.slice(0, 7);
+  const otherTotal = sortedConsumers.slice(7).reduce((acc, c) => acc + c.flow, 0);
 
   const labels = [...chartItems.map(c => c.name), ...(otherTotal > 0 ? ['Other Plant Consumers'] : [])];
   const chartDataValues = [...chartItems.map(c => c.flow), ...(otherTotal > 0 ? [otherTotal] : [])];

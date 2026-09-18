@@ -96,7 +96,7 @@ export const ReportsView: React.FC = () => {
   const [operatorDept, setOperatorDept] = useState<string>('Energy Management Division');
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const activeConfig = reportConfigs.find(r => r.id === selectedReport)!;
+  const activeConfig = reportConfigs.find(r => r.id === selectedReport) || reportConfigs[0];
   const [selectedSections, setSelectedSections] = useState<string[]>(activeConfig.sections);
 
   const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([
@@ -143,14 +143,13 @@ export const ReportsView: React.FC = () => {
         setIsGenerating(false);
 
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }) + ' IST';
 
         const newRep: GeneratedReport = {
           id: `rep-${Date.now()}`,
           name: `${activeConfig.name} (${exportFormat.toUpperCase()})`,
           format: exportFormat,
           date: now.toISOString().split('T')[0],
-          time: timeStr,
+          time: now.toISOString(),
           size: exportFormat === 'pdf' ? '2.6 MB' : '420 KB',
           status: 'completed'
         };
@@ -172,7 +171,8 @@ export const ReportsView: React.FC = () => {
       }, 1200);
     } else {
       setTimeout(() => {
-        const formattedDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(',', '') + ' IST';
+        const now = new Date();
+        const isoTimestamp = now.toISOString();
         const metaHeader = [
           `# ================================================================================`,
           `# GASMIND OFFICIAL EXPORTED REPORT DATASET`,
@@ -183,19 +183,29 @@ export const ReportsView: React.FC = () => {
           `# Employee ID       : ${employeeId}`,
           `# Shift Designation : ${operatorDesignation}`,
           `# Department        : ${operatorDept}`,
-          `# Timestamp (IST)   : ${formattedDate}`,
+          `# Timestamp (UTC)   : ${isoTimestamp}`,
           `# ================================================================================`
         ].join('\n');
 
+        const sanitizeCSV = (val: any) => {
+          if (val === null || val === undefined) return '""';
+          let str = String(val);
+          str = str.replace(/"/g, '""');
+          if (/^[=+\-@\t\r]/.test(str)) {
+            str = `'${str}`;
+          }
+          return `"${str}"`;
+        };
+
         const headers = ['Metric ID', 'Gas Stream Name', 'Generation (Nm3/h)', 'Consumption (Nm3/h)', 'Net Balance (Nm3/h)', 'Holder Level (%)', 'Status'];
         const rows = gasMetrics.map(m => [
-          m.id,
-          `"${m.name}"`,
-          m.generation,
-          m.consumption,
-          m.balance,
-          m.holderLevel,
-          m.status
+          sanitizeCSV(m.id),
+          sanitizeCSV(m.name),
+          sanitizeCSV(m.generation),
+          sanitizeCSV(m.consumption),
+          sanitizeCSV(m.balance),
+          sanitizeCSV(m.holderLevel),
+          sanitizeCSV(m.status)
         ]);
         const csvContent = [metaHeader, headers.join(','), ...rows.map(r => r.join(','))].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -206,18 +216,16 @@ export const ReportsView: React.FC = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
 
         setIsGenerating(false);
-
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }) + ' IST';
 
         const newRep: GeneratedReport = {
           id: `rep-${Date.now()}`,
           name: `${activeConfig.name} (${exportFormat.toUpperCase()})`,
           format: exportFormat,
           date: now.toISOString().split('T')[0],
-          time: timeStr,
+          time: isoTimestamp,
           size: '420 KB',
           status: 'completed'
         };

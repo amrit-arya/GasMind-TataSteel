@@ -180,10 +180,20 @@ const initialInsights: AIInsight[] = [
 
 const GasDataContext = createContext<GasDataContextType | undefined>(undefined);
 
-// Helper: generate timestamp string in IST
+// Helper: generate ISO timestamp string
 function nowTimestamp(): string {
-  const d = new Date();
-  return d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) + ' IST';
+  return new Date().toISOString();
+}
+
+// Helper: sanitize CSV cell value to prevent CSV injection and escape double quotes
+function sanitizeCSVCell(val: any): string {
+  if (val === null || val === undefined) return '""';
+  let str = String(val);
+  str = str.replace(/"/g, '""');
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
+  return `"${str}"`;
 }
 
 export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -458,20 +468,10 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const addAuditLog = useCallback((entry: Omit<AuditItem, 'id' | 'timestamp'>): AuditItem => {
     const now = new Date();
-    const formattedDate = now.toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    }).replace(',', '') + ' IST';
     const newLog: AuditItem = {
       ...entry,
       id: `AUD-${entry.category === 'simulation' ? 'SIM' : entry.category === 'report_export' ? 'EXP' : 'SYS'}-${crypto.randomUUID()}`,
-      timestamp: formattedDate
+      timestamp: now.toISOString()
     };
     setAuditLogs(prev => [newLog, ...prev]);
     return newLog;
@@ -480,15 +480,15 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const exportAuditLogsToCSV = useCallback(() => {
     const headers = ['Audit ID', 'Timestamp', 'Category', 'User Name', 'Designation', 'Department', 'Action Title', 'Target Equipment', 'Export Format / Result'];
     const rows = auditLogs.map(item => [
-      item.id,
-      item.timestamp,
-      item.category,
-      `"${item.userName}"`,
-      `"${item.userDesignation}"`,
-      `"${item.userDepartment || ''}"`,
-      `"${item.actionTitle}"`,
-      `"${item.details.targetEquipment || ''}"`,
-      `"${item.details.resultsProduced || item.details.exportFormat || ''}"`
+      sanitizeCSVCell(item.id),
+      sanitizeCSVCell(item.timestamp),
+      sanitizeCSVCell(item.category),
+      sanitizeCSVCell(item.userName),
+      sanitizeCSVCell(item.userDesignation),
+      sanitizeCSVCell(item.userDepartment || ''),
+      sanitizeCSVCell(item.actionTitle),
+      sanitizeCSVCell(item.details.targetEquipment || ''),
+      sanitizeCSVCell(item.details.resultsProduced || item.details.exportFormat || '')
     ]);
 
     const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -500,6 +500,7 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     setExportNotification('Departmental Audit Trail exported successfully to CSV.');
     setTimeout(() => setExportNotification(null), 4000);
   }, [auditLogs]);

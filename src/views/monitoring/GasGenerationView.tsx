@@ -173,7 +173,7 @@ export const GasGenerationView: React.FC = () => {
               <div className="w-full bg-zinc-900 h-2 rounded overflow-hidden border border-zinc-800">
                 <div 
                   className="bg-white h-full rounded transition-all duration-500" 
-                  style={{ width: `${(unit.output / unit.maxCapacity) * 100}%` }}
+                  style={{ width: `${Math.min(100, (unit.output / unit.maxCapacity) * 100)}%` }}
                 />
               </div>
             </div>

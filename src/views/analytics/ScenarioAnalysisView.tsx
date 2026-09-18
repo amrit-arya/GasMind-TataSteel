@@ -48,7 +48,7 @@ const tabs: { id: ScenarioTab; label: string; shortLabel: string; icon: React.FC
 export const ScenarioAnalysisView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ScenarioTab>('root-cause');
 
-  const activeTabData = tabs.find(t => t.id === activeTab)!;
+  const activeTabData = tabs.find(t => t.id === activeTab) || tabs[0];
 
   return (
     <div className="space-y-5 text-white">

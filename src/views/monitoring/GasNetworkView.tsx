@@ -125,7 +125,7 @@ export const GasNetworkView: React.FC = () => {
 
     const srcNode = nodes.find(n => n.id === link.sourceId);
     const tgtNode = nodes.find(n => n.id === link.targetId);
-    
+
     const srcH = (link.value / (srcNode?.value || link.value)) * srcPos.height;
     const tgtH = (link.value / (tgtNode?.value || link.value)) * tgtPos.height;
 
