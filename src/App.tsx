@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GasDataProvider, useGasData } from './context';
-import { Header, Sidebar } from './components';
+import { Header, Sidebar, ErrorBoundary } from './components';
 import { 
   OverviewDashboard, 
   GasGenerationView, 
@@ -64,7 +64,9 @@ const MainContent: React.FC<{
         isCollapsed={isCollapsed}
       />
       <main className="flex-1 pt-20 md:pt-24 pb-8 px-4 md:px-6 overflow-y-auto max-w-[1600px] w-full mx-auto">
-        {renderView()}
+        <ErrorBoundary key={currentView}>
+          {renderView()}
+        </ErrorBoundary>
       </main>
     </div>
   );
@@ -75,21 +77,23 @@ export function App() {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <GasDataProvider>
-      <div className="flex min-h-screen bg-black font-sans selection:bg-white selection:text-black">
-        <Sidebar 
-          mobileOpen={mobileOpen} 
-          setMobileOpen={setMobileOpen}
-          isCollapsed={isCollapsed}
-          setIsCollapsed={setIsCollapsed}
-        />
-        <MainContent 
-          setMobileOpen={setMobileOpen}
-          isCollapsed={isCollapsed}
-          setIsCollapsed={setIsCollapsed}
-        />
-      </div>
-    </GasDataProvider>
+    <ErrorBoundary fallbackTitle="GasMind System Error">
+      <GasDataProvider>
+        <div className="flex min-h-screen bg-black font-sans selection:bg-white selection:text-black">
+          <Sidebar 
+            mobileOpen={mobileOpen} 
+            setMobileOpen={setMobileOpen}
+            isCollapsed={isCollapsed}
+            setIsCollapsed={setIsCollapsed}
+          />
+          <MainContent 
+            setMobileOpen={setMobileOpen}
+            isCollapsed={isCollapsed}
+            setIsCollapsed={setIsCollapsed}
+          />
+        </div>
+      </GasDataProvider>
+    </ErrorBoundary>
   );
 }
 

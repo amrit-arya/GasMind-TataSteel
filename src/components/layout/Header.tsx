@@ -282,6 +282,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={() => setIsCollapsed && setIsCollapsed(!isCollapsed)}
               className="hidden md:flex p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer shrink-0"
+              aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
               title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             >
               {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
@@ -292,6 +293,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={() => { setSearchOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
             className="flex items-center gap-2 px-2.5 py-1.5 bg-zinc-900 border border-zinc-800 rounded-lg hover:border-white hover:bg-zinc-800/80 transition-all cursor-pointer flex-1 max-w-[280px]"
+            aria-label="Open global search and command palette"
           >
             <Search className="w-4 h-4 text-zinc-400 shrink-0" />
             <span className="text-xs font-mono text-zinc-400 flex-1 text-left truncate">Search anything...</span>
@@ -311,6 +313,7 @@ export const Header: React.FC<HeaderProps> = ({
                 ? 'text-zinc-200 hover:bg-zinc-800'
                 : 'text-zinc-500 hover:bg-zinc-900'
             }`}
+            aria-label={soundEnabled ? 'Mute audio alerts' : 'Enable audio alerts'}
             title={soundEnabled ? 'Sound notifications ON' : 'Sound notifications OFF'}
           >
             {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
@@ -324,6 +327,7 @@ export const Header: React.FC<HeaderProps> = ({
                 ? 'bg-zinc-800 text-white border-zinc-600 hover:bg-zinc-700'
                 : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800'
             }`}
+            aria-label={isLive ? 'Pause live telemetry stream' : 'Resume live telemetry stream'}
             title="Toggle live telemetry stream"
           >
             <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-white animate-pulse glow-flame' : 'bg-zinc-600'}`} />
@@ -333,6 +337,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Export */}
           <button
             onClick={triggerExport}
+            aria-label="Export operational telemetry data"
             className="flex items-center gap-1 px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-zinc-800 text-white border border-zinc-700 hover:border-white rounded text-[11px] sm:text-xs font-bold transition-all shadow-md cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
@@ -343,6 +348,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative">
             <button
               onClick={() => setAlertsMenuOpen(!alertsMenuOpen)}
+              aria-label="Toggle active operational alerts drawer"
               className="p-1.5 sm:p-2 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer relative"
             >
               <Bell className="w-4 h-4 sm:w-5 sm:h-5" />

@@ -1,10 +1,36 @@
 import React from 'react';
 import { useGasData } from '../../context';
-import { Scale, Database, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Scale, Database, ArrowUpRight, ArrowDownRight, AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { ParticleCard } from '../../components';
 
 export const GasBalanceView: React.FC = () => {
   const { gasMetrics } = useGasData();
+
+  const renderStatusBadge = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === 'critical' || s === 'deficit') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-red-950 border border-red-800 text-red-400 inline-flex items-center gap-1">
+          <AlertCircle className="w-3 h-3 shrink-0" />
+          {status}
+        </span>
+      );
+    }
+    if (s === 'warning' || s === 'surplus' || s === 'high buffer') {
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-amber-950 border border-amber-800 text-amber-400 inline-flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3 shrink-0" />
+          {status}
+        </span>
+      );
+    }
+    return (
+      <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-zinc-900 border border-zinc-700 text-zinc-300 inline-flex items-center gap-1">
+        <CheckCircle2 className="w-3 h-3 shrink-0 text-zinc-400" />
+        {status}
+      </span>
+    );
+  };
 
   return (
     <div className="space-y-6 text-white">
@@ -79,17 +105,21 @@ export const GasBalanceView: React.FC = () => {
                     {typeof g.consumption === 'number' ? `${(g.consumption / 1000).toFixed(0)}k Nm³/h` : '—'}
                   </td>
                   <td className="py-3.5 font-mono font-bold">
-                    <span className="flex items-center gap-1 text-white">
-                      {g.balance < 0 ? <ArrowDownRight className="w-4 h-4 text-zinc-400" /> : <ArrowUpRight className="w-4 h-4 text-white" />}
-                      {(g.balance / 1000).toFixed(1)}k Nm³/h
+                    <span className="flex items-center gap-1">
+                      {g.balance < 0 ? (
+                        <ArrowDownRight className="w-4 h-4 text-red-400 font-bold" />
+                      ) : (
+                        <ArrowUpRight className="w-4 h-4 text-zinc-400" />
+                      )}
+                      <span className={g.balance < 0 ? 'text-red-400 font-bold' : 'text-white'}>
+                        {(g.balance / 1000).toFixed(1)}k Nm³/h
+                      </span>
                     </span>
                   </td>
                   <td className="py-3.5 text-zinc-400">{g.pressure} kPa</td>
                   <td className="py-3.5 text-zinc-400">{g.calorificValue} kcal/Nm³</td>
                   <td className="py-3.5">
-                    <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-zinc-900 border border-zinc-700 text-white">
-                      {g.status}
-                    </span>
+                    {renderStatusBadge(g.status)}
                   </td>
                 </tr>
               ))}

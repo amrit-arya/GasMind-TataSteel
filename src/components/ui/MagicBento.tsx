@@ -110,12 +110,14 @@ export const ParticleCard: React.FC<{
     magnetismAnimationRef.current?.kill();
 
     particlesRef.current.forEach(particle => {
+      gsap.killTweensOf(particle);
       gsap.to(particle, {
         scale: 0,
         opacity: 0,
         duration: 0.3,
         ease: 'back.in(1.7)',
         onComplete: () => {
+          gsap.killTweensOf(particle);
           particle.parentNode?.removeChild(particle);
         }
       });

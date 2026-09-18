@@ -130,15 +130,17 @@ export const ReportsView: React.FC = () => {
     setIsGenerating(true);
 
     if (exportFormat === 'pdf') {
-      setTimeout(() => {
+      setTimeout(async () => {
         let pdfBytes = 0;
         try {
-          pdfBytes = generateGasMindPDFReport({
+          pdfBytes = await generateGasMindPDFReport({
             metrics: gasMetrics,
             nodes,
             auditLogs,
             reportTitle: activeConfig.name,
             dateRange: `${dateRange.from} to ${dateRange.to}`,
+            shiftFilter: shift,
+            selectedSections: selectedSections,
             operatorName: operatorName,
             employeeId: employeeId,
             operatorDesignation: operatorDesignation,
@@ -177,7 +179,7 @@ export const ReportsView: React.FC = () => {
             resultsProduced: `Generated official PDF report for period ${dateRange.from} to ${dateRange.to}. Included sections: ${selectedSections.join(', ')}.`
           }
         });
-      }, 1200);
+      }, 300);
     } else {
       setTimeout(() => {
         const now = new Date();

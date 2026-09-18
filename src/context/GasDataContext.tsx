@@ -180,7 +180,32 @@ function sanitizeCSVCell(val: any): string {
 }
 
 export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentView, setCurrentView] = useState<ViewMode>('overview');
+  const getInitialView = (): ViewMode => {
+    const hash = window.location.hash.replace('#', '').trim() as ViewMode;
+    const validViews: ViewMode[] = ['overview', 'generation', 'consumption', 'balance', 'network', 'simulation', 'scenario', 'alerts', 'reports', 'timeline', 'audit', 'about'];
+    return validViews.includes(hash) ? hash : 'overview';
+  };
+
+  const [currentView, setCurrentViewState] = useState<ViewMode>(getInitialView);
+
+  const setCurrentView = useCallback((view: ViewMode) => {
+    setCurrentViewState(view);
+    if (window.location.hash !== `#${view}`) {
+      window.location.hash = view;
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '').trim() as ViewMode;
+      const validViews: ViewMode[] = ['overview', 'generation', 'consumption', 'balance', 'network', 'simulation', 'scenario', 'alerts', 'reports', 'timeline', 'audit', 'about'];
+      if (validViews.includes(hash)) {
+        setCurrentViewState(hash);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
   const [gasMetrics, setGasMetrics] = useState<GasTypeMetrics[]>(initialMetrics);
   const [nodes, setNodes] = useState<NetworkNode[]>(initialNodes);
   const [alerts, setAlerts] = useState<AlertItem[]>(initialAlerts);

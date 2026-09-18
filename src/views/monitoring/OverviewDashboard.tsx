@@ -36,7 +36,7 @@ ChartJS.register(
 );
 
 export const OverviewDashboard: React.FC = () => {
-  const { gasMetrics, insights, applyInsight, setCurrentView } = useGasData();
+  const { gasMetrics, insights, applyInsight, setCurrentView, isLive } = useGasData();
 
   const totalGen = gasMetrics.reduce((acc, m) => acc + m.generation, 0);
   const totalCons = gasMetrics.reduce((acc, m) => acc + (typeof m.consumption === 'number' ? m.consumption : 0), 0);
@@ -45,12 +45,18 @@ export const OverviewDashboard: React.FC = () => {
 
   const hours = ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', 'Now'];
   
+  const genRatios = [0.985, 0.995, 0.988, 1.002, 0.999, 1.006, 0.992, 0.997, 1.0];
+  const consRatios = [0.989, 0.994, 0.991, 1.002, 0.999, 0.996, 0.993, 0.998, 1.0];
+  const dynamicGenData = genRatios.map(r => Math.round(totalGen * r));
+  const dynamicConsData = consRatios.map(r => Math.round(totalCons * r));
+  const dynamicNetData = dynamicGenData.map((g, i) => g - dynamicConsData[i]);
+
   const chartData = {
     labels: hours,
     datasets: [
       {
         label: 'Total Byproduct Generation (Nm³/h)',
-        data: [1980000, 2005000, 1990000, 2020000, 2015000, 2030000, 2000000, 2010000, totalGen],
+        data: dynamicGenData,
         borderColor: '#FFFFFF',
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
         fill: true,
@@ -59,7 +65,7 @@ export const OverviewDashboard: React.FC = () => {
       },
       {
         label: 'Total Plant Consumption (Nm³/h)',
-        data: [1850000, 1860000, 1855000, 1875000, 1870000, 1865000, 1860000, 1870000, totalCons],
+        data: dynamicConsData,
         borderColor: '#A1A1AA',
         backgroundColor: 'rgba(161, 161, 170, 0.05)',
         fill: true,
@@ -68,7 +74,7 @@ export const OverviewDashboard: React.FC = () => {
       },
       {
         label: 'Net Byproduct Surplus (Nm³/h)',
-        data: [130000, 145000, 135000, 145000, 145000, 165000, 140000, 140000, netBal],
+        data: dynamicNetData,
         borderColor: '#71717A',
         borderDash: [5, 5],
         fill: false,
@@ -131,11 +137,12 @@ export const OverviewDashboard: React.FC = () => {
         </div>
         <div className="flex items-center gap-3">
           <div className="px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center gap-2 text-xs font-mono text-white font-bold shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            Live Telemetry Feed
+            <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-white animate-pulse' : 'bg-zinc-600'}`} />
+            {isLive ? 'Live Telemetry Feed' : 'Telemetry Paused'}
           </div>
           <button 
             onClick={() => setCurrentView('reports')}
+            aria-label="Navigate to reports center to export operational report"
             className="px-3.5 py-1.5 bg-white text-black font-mono rounded-lg text-xs font-bold hover:bg-zinc-200 transition-colors shadow-sm cursor-pointer"
           >
             Export Report

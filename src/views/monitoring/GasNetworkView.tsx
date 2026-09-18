@@ -210,7 +210,9 @@ export const GasNetworkView: React.FC = () => {
 
         {/* SVG Sankey Canvas */}
         <div className="overflow-x-auto">
-          <svg className="w-full min-w-[900px] h-[720px]" viewBox={`0 0 ${svgWidth} ${svgHeight}`}>
+          <svg className="w-full min-w-[900px] h-[720px]" viewBox={`0 0 ${svgWidth} ${svgHeight}`} role="img" aria-label="Industrial Byproduct Gas Flow Sankey Diagram">
+            <title>Industrial Byproduct Gas Flow Sankey Diagram</title>
+            <desc>Visualizes volumetric gas distribution from generating furnaces through distribution headers to downstream consumer units.</desc>
             <defs>
               <linearGradient id="grad-bf" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.45" />
