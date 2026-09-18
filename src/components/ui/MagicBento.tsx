@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { gsap } from 'gsap';
 
 export interface BentoCardProps {
@@ -11,6 +11,7 @@ export interface BentoCardProps {
 }
 
 export interface BentoProps {
+  cardData?: BentoCardProps[];
   textAutoHide?: boolean;
   enableStars?: boolean;
   enableSpotlight?: boolean;
@@ -27,46 +28,6 @@ export interface BentoProps {
 const DEFAULT_PARTICLE_COUNT = 12;
 const DEFAULT_SPOTLIGHT_RADIUS = 300;
 const DEFAULT_GLOW_COLOR = '255, 255, 255';
-const MOBILE_BREAKPOINT = 768;
-
-const cardData: BentoCardProps[] = [
-  {
-    color: '#120F17',
-    title: 'Analytics',
-    description: 'Track user behavior',
-    label: 'Insights'
-  },
-  {
-    color: '#120F17',
-    title: 'Dashboard',
-    description: 'Centralized data view',
-    label: 'Overview'
-  },
-  {
-    color: '#120F17',
-    title: 'Collaboration',
-    description: 'Work together seamlessly',
-    label: 'Teamwork'
-  },
-  {
-    color: '#120F17',
-    title: 'Automation',
-    description: 'Streamline workflows',
-    label: 'Efficiency'
-  },
-  {
-    color: '#120F17',
-    title: 'Integration',
-    description: 'Connect favorite tools',
-    label: 'Connectivity'
-  },
-  {
-    color: '#120F17',
-    title: 'Security',
-    description: 'Enterprise-grade protection',
-    label: 'Protection'
-  }
-];
 
 const createParticleElement = (x: number, y: number, color: string = DEFAULT_GLOW_COLOR): HTMLDivElement => {
   const el = document.createElement('div');
@@ -352,7 +313,7 @@ export const ParticleCard: React.FC<{
   );
 };
 
-export const GlobalSpotlight: React.FC<{
+const GlobalSpotlight: React.FC<{
   gridRef: React.RefObject<any>;
   disableAnimations?: boolean;
   enabled?: boolean;
@@ -490,7 +451,7 @@ export const GlobalSpotlight: React.FC<{
   return null;
 };
 
-export const BentoCardGrid: React.FC<{
+const BentoCardGrid: React.FC<{
   children: React.ReactNode;
   gridRef?: React.RefObject<any>;
 }> = ({ children, gridRef }) => (
@@ -503,22 +464,8 @@ export const BentoCardGrid: React.FC<{
   </div>
 );
 
-const useMobileDetection = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  return isMobile;
-};
-
 export const MagicBento: React.FC<BentoProps> = ({
+  cardData = [],
   textAutoHide = true,
   enableStars = true,
   enableSpotlight = true,
@@ -532,8 +479,6 @@ export const MagicBento: React.FC<BentoProps> = ({
   enableMagnetism = true
 }) => {
   const gridRef = useRef<HTMLDivElement>(null);
-  const isMobile = useMobileDetection();
-  const shouldDisableAnimations = disableAnimations || isMobile;
 
   return (
     <>
@@ -668,7 +613,7 @@ export const MagicBento: React.FC<BentoProps> = ({
       {enableSpotlight && (
         <GlobalSpotlight
           gridRef={gridRef}
-          disableAnimations={shouldDisableAnimations}
+          disableAnimations={disableAnimations}
           enabled={enableSpotlight}
           spotlightRadius={spotlightRadius}
           glowColor={glowColor}
@@ -698,7 +643,7 @@ export const MagicBento: React.FC<BentoProps> = ({
                   key={index}
                   className={baseClassName}
                   style={cardStyle}
-                  disableAnimations={shouldDisableAnimations}
+                  disableAnimations={disableAnimations}
                   particleCount={particleCount}
                   glowColor={glowColor}
                   enableTilt={enableTilt}
@@ -731,7 +676,7 @@ export const MagicBento: React.FC<BentoProps> = ({
                   if (!el) return;
 
                   const handleMouseMove = (e: MouseEvent) => {
-                    if (shouldDisableAnimations) return;
+                    if (disableAnimations) return;
 
                     const rect = el.getBoundingClientRect();
                     const x = e.clientX - rect.left;
@@ -766,7 +711,7 @@ export const MagicBento: React.FC<BentoProps> = ({
                   };
 
                   const handleMouseLeave = () => {
-                    if (shouldDisableAnimations) return;
+                    if (disableAnimations) return;
 
                     if (enableTilt) {
                       gsap.to(el, {
@@ -788,7 +733,7 @@ export const MagicBento: React.FC<BentoProps> = ({
                   };
 
                   const handleClick = (e: MouseEvent) => {
-                    if (!clickEffect || shouldDisableAnimations) return;
+                    if (!clickEffect || disableAnimations) return;
 
                     const rect = el.getBoundingClientRect();
                     const x = e.clientX - rect.left;

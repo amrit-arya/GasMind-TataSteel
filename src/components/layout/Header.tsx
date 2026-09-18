@@ -79,8 +79,6 @@ export const Header: React.FC<HeaderProps> = ({
   setIsCollapsed
 }) => {
   const {
-    searchQuery,
-    setSearchQuery,
     isLive,
     setIsLive,
     alerts,
@@ -261,18 +259,6 @@ export const Header: React.FC<HeaderProps> = ({
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [searchOpen]);
-
-  const categoryColor = (cat: string) => {
-    switch (cat) {
-      case 'navigation': return { bg: 'bg-[#FF6B00]/10', text: 'text-[#FF6B00]' };
-      case 'generator': return { bg: 'bg-[#059669]/10', text: 'text-[#059669]' };
-      case 'consumer': return { bg: 'bg-[#DC2626]/10', text: 'text-[#DC2626]' };
-      case 'holder': return { bg: 'bg-[#2563EB]/10', text: 'text-[#2563EB]' };
-      case 'alert': return { bg: 'bg-[#DC2626]/10', text: 'text-[#DC2626]' };
-      case 'gas-type': return { bg: 'bg-[#7C3AED]/10', text: 'text-[#7C3AED]' };
-      default: return { bg: 'bg-[#64748B]/10', text: 'text-[#64748B]' };
-    }
-  };
 
   return (
     <>

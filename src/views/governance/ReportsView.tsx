@@ -111,6 +111,14 @@ export const ReportsView: React.FC = () => {
     );
   };
 
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  };
+
   const handleGenerate = () => {
     // Validate mandatory operator credentials
     if (!operatorName.trim() || !employeeId.trim() || !operatorDesignation.trim() || !operatorDept.trim()) {
@@ -123,8 +131,9 @@ export const ReportsView: React.FC = () => {
 
     if (exportFormat === 'pdf') {
       setTimeout(() => {
+        let pdfBytes = 0;
         try {
-          generateGasMindPDFReport({
+          pdfBytes = generateGasMindPDFReport({
             metrics: gasMetrics,
             nodes,
             auditLogs,
@@ -150,7 +159,7 @@ export const ReportsView: React.FC = () => {
           format: exportFormat,
           date: now.toISOString().split('T')[0],
           time: now.toISOString(),
-          size: exportFormat === 'pdf' ? '2.6 MB' : '420 KB',
+          size: formatBytes(pdfBytes),
           status: 'completed'
         };
         setGeneratedReports(prev => [newRep, ...prev]);
@@ -209,6 +218,7 @@ export const ReportsView: React.FC = () => {
         ]);
         const csvContent = [metaHeader, headers.join(','), ...rows.map(r => r.join(','))].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const sizeFormatted = formatBytes(blob.size);
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -226,7 +236,7 @@ export const ReportsView: React.FC = () => {
           format: exportFormat,
           date: now.toISOString().split('T')[0],
           time: isoTimestamp,
-          size: '420 KB',
+          size: sizeFormatted,
           status: 'completed'
         };
         setGeneratedReports(prev => [newRep, ...prev]);

@@ -41,7 +41,7 @@ export const OverviewDashboard: React.FC = () => {
   const totalGen = gasMetrics.reduce((acc, m) => acc + m.generation, 0);
   const totalCons = gasMetrics.reduce((acc, m) => acc + (typeof m.consumption === 'number' ? m.consumption : 0), 0);
   const netBal = totalGen - totalCons;
-  const globalUtil = 98.2;
+  const globalUtil = totalGen > 0 ? ((totalCons / totalGen) * 100).toFixed(1) : '0';
 
   const hours = ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00', 'Now'];
   
@@ -160,7 +160,7 @@ export const OverviewDashboard: React.FC = () => {
             <span className="text-xs font-mono text-zinc-400">Nm³/h</span>
           </div>
           <p className="text-[11px] text-zinc-400 font-mono mt-2">
-            +2.4% vs last hour
+            Active generation telemetry
           </p>
         </ParticleCard>
 
@@ -179,7 +179,7 @@ export const OverviewDashboard: React.FC = () => {
             <span className="text-xs font-mono text-zinc-400">Nm³/h</span>
           </div>
           <p className="text-[11px] text-zinc-400 font-mono mt-2">
-            +1.8% vs last hour
+            Active plant load demand
           </p>
         </ParticleCard>
 

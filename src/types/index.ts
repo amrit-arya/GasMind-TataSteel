@@ -84,14 +84,6 @@ export interface AlertItem {
   actionRequired?: string;
 }
 
-export interface SimulationParams {
-  bf1Shutdown: boolean;
-  cob2Maintenance: boolean;
-  rollingMillRampUp: number; // %
-  flareLossReduction: number; // %
-  externalGasPrice: number; // $/MMBtu
-}
-
 export interface AIInsight {
   id: string;
   type: 'Deficit Forecast' | 'Optimization Opportunity' | 'Safety Warning' | 'Efficiency Boost';

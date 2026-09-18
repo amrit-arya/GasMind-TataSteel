@@ -14,7 +14,7 @@ interface PDFReportOptions {
   operatorDept?: string;
 }
 
-export function generateGasMindPDFReport(options: PDFReportOptions): void {
+export function generateGasMindPDFReport(options: PDFReportOptions): number {
   const doc = new jsPDF();
   const { 
     metrics = [], 
@@ -221,4 +221,7 @@ export function generateGasMindPDFReport(options: PDFReportOptions): void {
 
   const cleanFileName = reportTitle.toLowerCase().replace(/[^a-z0-9]/g, '_');
   doc.save(`GASMIND_${cleanFileName}_Report.pdf`);
+  const arrayBuf = doc.output('arraybuffer');
+  return arrayBuf.byteLength;
 }
+

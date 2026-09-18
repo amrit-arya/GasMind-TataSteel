@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { ViewMode, GasTypeMetrics, NetworkNode, NetworkPipeline, AlertItem, SimulationParams, AIInsight, AuditItem } from '../types';
-import { playAlertSound, playSuccessSound, setMuted as setSoundMuted, getMuted } from '../utils/soundNotifications';
+import { ViewMode, GasTypeMetrics, NetworkNode, AlertItem, AIInsight, AuditItem } from '../types';
+import { playAlertSound, playSuccessSound, setMuted as setSoundMuted } from '../utils/soundNotifications';
 import { generateGasMindPDFReport } from '../utils';
 
 interface GasDataContextType {
@@ -8,18 +8,13 @@ interface GasDataContextType {
   setCurrentView: (view: ViewMode) => void;
   gasMetrics: GasTypeMetrics[];
   nodes: NetworkNode[];
-  pipelines: NetworkPipeline[];
   alerts: AlertItem[];
   acknowledgeAlert: (id: string) => void;
   dismissAlert: (id: string) => void;
   insights: AIInsight[];
   applyInsight: (id: string) => void;
-  simParams: SimulationParams;
-  setSimParams: React.Dispatch<React.SetStateAction<SimulationParams>>;
   isLive: boolean;
   setIsLive: (live: boolean) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
   triggerExport: () => void;
   exportNotification: string | null;
   soundEnabled: boolean;
@@ -108,18 +103,6 @@ const initialNodes: NetworkNode[] = [
   { id: 'pellet', name: 'Pelletizing Plant', type: 'consumer', gasType: 'CO Gas', flowRate: 78000, pressure: 27.0, status: 'normal', x: 800, y: 720, details: 'BF Gas: 60,000 Nm³/h + CO Gas: 18,000 Nm³/h.' }
 ];
 
-const initialPipelines: NetworkPipeline[] = [
-  { id: 'p1', fromId: 'bf-i', toId: 'holder-bf', flowRate: 465000, capacity: 500000, gasType: 'BF Gas', status: 'active' },
-  { id: 'p2', fromId: 'bf-h', toId: 'holder-bf', flowRate: 450000, capacity: 500000, gasType: 'BF Gas', status: 'active' },
-  { id: 'p3', fromId: 'bf-g', toId: 'holder-bf', flowRate: 322000, capacity: 400000, gasType: 'BF Gas', status: 'active' },
-  { id: 'p4', fromId: 'holder-bf', toId: 'ph6', flowRate: 300000, capacity: 350000, gasType: 'BF Gas', status: 'active' },
-  { id: 'p5', fromId: 'holder-bf', toId: 'coke-plant', flowRate: 270000, capacity: 300000, gasType: 'BF Gas', status: 'active' },
-  { id: 'p6', fromId: 'co-old', toId: 'holder-co', flowRate: 62000, capacity: 100000, gasType: 'CO Gas', status: 'active' },
-  { id: 'p7', fromId: 'co-new', toId: 'holder-co', flowRate: 80000, capacity: 120000, gasType: 'CO Gas', status: 'active' },
-  { id: 'p8', fromId: 'holder-co', toId: 'hsm', flowRate: 30000, capacity: 50000, gasType: 'CO Gas', status: 'active' },
-  { id: 'p9', fromId: 'holder-co', toId: 'ph4', flowRate: 22000, capacity: 35000, gasType: 'CO Gas', status: 'active' }
-];
-
 const initialAlerts: AlertItem[] = [
   {
     id: 'alt-101',
@@ -200,21 +183,11 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [currentView, setCurrentView] = useState<ViewMode>('overview');
   const [gasMetrics, setGasMetrics] = useState<GasTypeMetrics[]>(initialMetrics);
   const [nodes, setNodes] = useState<NetworkNode[]>(initialNodes);
-  const [pipelines] = useState<NetworkPipeline[]>(initialPipelines);
   const [alerts, setAlerts] = useState<AlertItem[]>(initialAlerts);
   const [insights, setInsights] = useState<AIInsight[]>(initialInsights);
   const [isLive, setIsLive] = useState<boolean>(true);
-  const [searchQuery, setSearchQuery] = useState<string>('');
   const [exportNotification, setExportNotification] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabledState] = useState<boolean>(true);
-
-  const [simParams, setSimParams] = useState<SimulationParams>({
-    bf1Shutdown: false,
-    cob2Maintenance: false,
-    rollingMillRampUp: 100,
-    flareLossReduction: 85,
-    externalGasPrice: 8.5
-  });
 
   // Track which auto-alert IDs have already been triggered to prevent duplicate sounds
   const triggeredAlertIds = useRef<Set<string>>(new Set(['alt-101', 'alt-102', 'alt-103']));
@@ -564,18 +537,13 @@ export const GasDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setCurrentView,
       gasMetrics,
       nodes,
-      pipelines,
       alerts,
       acknowledgeAlert,
       dismissAlert,
       insights,
       applyInsight,
-      simParams,
-      setSimParams,
       isLive,
       setIsLive,
-      searchQuery,
-      setSearchQuery,
       triggerExport,
       exportNotification,
       soundEnabled,
