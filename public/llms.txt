@@ -1,0 +1,30 @@
+# GASMIND AI — Industrial Gas Telemetry & Command Center
+
+> GASMIND AI is an enterprise-grade, real-time industrial gas telemetry, contingency simulation, and smart redistribution command center designed for integrated steel plants (Tata Steel). It monitors, analyzes, and optimizes the generation, consumption, balance, and pipeline distribution of Blast Furnace Gas (BF Gas), Coke Oven Gas (CO Gas), and Linz-Donawitz Converter Gas (LD Gas).
+
+## Core Application Views & Hash Navigation
+
+- [Overview Dashboard](https://gasmind.vercel.app/#overview): Command center high-level summary of total generation (2.01M Nm³/h), consumption (1.87M Nm³/h), active alerts, and net gas balance.
+- [Gas Generation Telemetry](https://gasmind.vercel.app/#generation): Breakdown of Blast Furnace Gas (BF-I, H, G, F, C, E), Coke Oven Gas (Old BPP & New BPP), and LD Converter Gas generation rates, pressures, and calorific values.
+- [Gas Consumption Telemetry](https://gasmind.vercel.app/#consumption): Real-time demand tracking across major industrial consumers (Power House #6, #5, #4, #3, Coke Plant Underfiring, HSM Mill, Pelletizing Plant).
+- [Gas Balance & Gasholders](https://gasmind.vercel.app/#balance): Tri-gas balance overview showing stock levels, buffer capacities (100k m³ BF, 80k m³ CO, 50k m³ LD), and reserve depletion timeframes.
+- [Gas Sankey Pipeline Flow Network](https://gasmind.vercel.app/#network): Interactive node distribution topology showing volumetric flow transfers between generators, gasholders, and consumer units.
+- [Contingency Simulation Workspace](https://gasmind.vercel.app/#simulation): Interactive sandbox modeling generator trips (e.g., Blast Furnace 1 failure), load shedding, priority redistribution physics, and gasholder depletion windows.
+- [Scenario Analysis & Root Cause](https://gasmind.vercel.app/#scenario): Deep analytics matrix providing root cause identification, furnace outage criticality, and side-by-side scenario comparisons (Baseline vs. Partial vs. Full shutdown).
+- [Operational Alerts Console](https://gasmind.vercel.app/#alerts): Filterable alarm register categorized by severity (Critical, Warning, Info, Success) with Web Audio API sound alert triggers.
+- [Chronological Event Timeline](https://gasmind.vercel.app/#timeline): Historical register tracking plant incidents, telemetry anomalies, and operational logs on Daily, Weekly, and Monthly timelines.
+- [Custom Reports & Export Engine](https://gasmind.vercel.app/#reports): Executive report generator producing dynamic vectors PDF reports (via jsPDF) and raw CSV/Excel telemetry data files.
+- [Departmental Audit Trail Register](https://gasmind.vercel.app/#audit): Immutable operator log requiring credentials (Name, Designation, Department, Employee ID) for simulation executions and exports, with downloadable audit certificates.
+- [About GASMIND & Technology](https://gasmind.vercel.app/#about): Comprehensive system documentation, technology stack details (React, TypeScript, Vite, Tailwind CSS), and developer credits.
+
+## Key Industrial Telemetry Metrics
+
+- **Blast Furnace Gas (BF Gas)**: Generation ~1,721,200 Nm³/h | Demand ~1,736,000 Nm³/h | Calorific Value: 920 kcal/Nm³ | Gasholder: 100,000 m³
+- **Coke Oven Gas (CO Gas)**: Generation ~142,000 Nm³/h | Demand ~134,600 Nm³/h | Calorific Value: 4,250 kcal/Nm³ | Gasholder: 80,000 m³
+- **Linz-Donawitz Gas (LD Gas)**: Generation ~150,000 Nm³/h | Calorific Value: 2,100 kcal/Nm³ | Gasholder: 50,000 m³
+- **Imported Natural Gas (Buffer)**: Calorific Value: 8,500 kcal/Nm³ | Backup pressure: 45.0 kPa
+
+## Full Specification & Documentation
+
+- [Full LLM Specification Text](https://gasmind.vercel.app/llms-full.txt): Complete technical architecture, dataset schemas, and simulation physics documentation.
+- [GitHub Repository](https://github.com/amrit-arya/GasMind-TataSteel): Source code, Vitest unit tests, and CI/CD pipelines.

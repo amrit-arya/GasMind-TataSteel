@@ -6,7 +6,7 @@
 
   <!-- Main Entry Point -->
   <url>
-    <loc>https://gasmind-ai.vercel.app/</loc>
+    <loc>https://gasmind.vercel.app/</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
@@ -14,31 +14,31 @@
 
   <!-- Real-Time Telemetry Views -->
   <url>
-    <loc>https://gasmind-ai.vercel.app/#overview</loc>
+    <loc>https://gasmind.vercel.app/#overview</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>always</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://gasmind-ai.vercel.app/#generation</loc>
+    <loc>https://gasmind.vercel.app/#generation</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>always</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://gasmind-ai.vercel.app/#consumption</loc>
+    <loc>https://gasmind.vercel.app/#consumption</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>always</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://gasmind-ai.vercel.app/#balance</loc>
+    <loc>https://gasmind.vercel.app/#balance</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>always</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://gasmind-ai.vercel.app/#network</loc>
+    <loc>https://gasmind.vercel.app/#network</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>always</changefreq>
     <priority>0.85</priority>
@@ -46,13 +46,13 @@
 
   <!-- Intelligence & Optimization Views -->
   <url>
-    <loc>https://gasmind-ai.vercel.app/#simulation</loc>
+    <loc>https://gasmind.vercel.app/#simulation</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://gasmind-ai.vercel.app/#scenario</loc>
+    <loc>https://gasmind.vercel.app/#scenario</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
@@ -60,13 +60,13 @@
 
   <!-- Diagnostics & Events Views -->
   <url>
-    <loc>https://gasmind-ai.vercel.app/#alerts</loc>
+    <loc>https://gasmind.vercel.app/#alerts</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>always</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://gasmind-ai.vercel.app/#timeline</loc>
+    <loc>https://gasmind.vercel.app/#timeline</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -74,13 +74,13 @@
 
   <!-- Governance & Compliance Views -->
   <url>
-    <loc>https://gasmind-ai.vercel.app/#reports</loc>
+    <loc>https://gasmind.vercel.app/#reports</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://gasmind-ai.vercel.app/#audit</loc>
+    <loc>https://gasmind.vercel.app/#audit</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.70</priority>
@@ -88,7 +88,7 @@
 
   <!-- Project Documentation & About -->
   <url>
-    <loc>https://gasmind-ai.vercel.app/#about</loc>
+    <loc>https://gasmind.vercel.app/#about</loc>
     <lastmod>2026-10-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.65</priority>

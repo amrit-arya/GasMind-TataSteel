@@ -1,0 +1,72 @@
+# GASMIND AI — Technical Architecture & Complete Knowledge Base
+
+> Comprehensive technical specification, data models, state management, and simulation physics for GASMIND AI (Tata Steel Industrial Gas Network Command Center).
+
+---
+
+## 1. System Overview & Technology Stack
+
+GASMIND AI is built with modern, high-performance web standards:
+- **Framework**: React 18.2 + TypeScript 5.3
+- **Build Engine**: Vite 6.2
+- **Styling**: Tailwind CSS 3.4 with custom dark industrial palette (`#0A0A0B`, `#18181B`, `#27272A`)
+- **Data Visualization**: Chart.js 4.4 + React-ChartJS-2 5.2
+- **PDF Vector Engine**: jsPDF 4.2 + jspdf-autotable 5.0
+- **Audio Synthesis**: Pure HTML5 Web Audio API (Synthesized dual-tone & triple-tone alarms)
+- **State Management**: Centralized React Context (`GasDataContext`) with real-time telemetry animation loops and hash-synchronization.
+
+---
+
+## 2. Telemetry Equipment & Data Schema
+
+### 2.1 Gas Generators (Sources)
+- **Blast Furnace I (`bf-i`)**: 465,000 Nm³/h @ 14.8 kPa (Net: 271k Nm³/h)
+- **Blast Furnace H (`bf-h`)**: 450,000 Nm³/h @ 14.5 kPa (Net: 335k Nm³/h)
+- **Blast Furnace G (`bf-g`)**: 322,000 Nm³/h @ 14.2 kPa (Net: 232k Nm³/h)
+- **Blast Furnace F (`bf-f`)**: 240,000 Nm³/h @ 13.9 kPa
+- **Blast Furnace C (`bf-c`)**: 162,000 Nm³/h @ 13.8 kPa
+- **Blast Furnace E (`bf-e`)**: 82,200 Nm³/h @ 13.5 kPa
+- **Old Coke Battery 8 & 9 (`co-old`)**: 62,000 Nm³/h CO Gas @ 29.0 kPa
+- **New Coke Battery 10 & 11 (`co-new`)**: 80,000 Nm³/h CO Gas @ 28.5 kPa
+
+### 2.2 Industrial Consumers (Sinks)
+- **Power House #6 (`ph6`)**: Consumes 300,000 Nm³/h BF Gas + 3,000 Nm³/h CO Gas
+- **Coke Plant Underfiring (`coke-plant`)**: Consumes 270,000 Nm³/h BF Gas
+- **Power House #3 (`ph3`)**: Consumes 190,000 Nm³/h BF Gas + 1,100 Nm³/h CO Gas
+- **Power House #4 (`ph4`)**: Consumes 150,000 Nm³/h BF Gas + 22,000 Nm³/h CO Gas
+- **Power House #5 (`ph5`)**: Consumes 130,000 Nm³/h BF Gas + 2,000 Nm³/h CO Gas
+- **HSM Reheating Mill (`hsm`)**: Consumes 75,000 Nm³/h BF Gas + 30,000 Nm³/h CO Gas
+- **Pelletizing Plant (`pellet`)**: Consumes 60,000 Nm³/h BF Gas + 18,000 Nm³/h CO Gas
+
+---
+
+## 3. Simulation & Redistribution Physics
+
+The simulation engine calculates gasholder depletion windows when generator outages occur:
+$$\text{Depletion Time (hours)} = \frac{\text{Current Stock Volume }(m^3)}{\text{Net Volumetric Deficit }(\text{Nm}^3/\text{h})}$$
+
+When a generator fails:
+1. Volumetric deficit is recalculated instantaneously across the network.
+2. Gasholder level drawdown rate is projected.
+3. Priority-based load shedding recommendations are generated:
+   - Tier 1 (High Priority): Coke Oven Battery Heating (Must preserve refractory integrity).
+   - Tier 2 (Medium Priority): Power Houses (Load shift to alternate boilers or dual-fuel co-firing).
+   - Tier 3 (Flexible): Reheating mills (HSM / Pellet plant buffer throttling).
+
+---
+
+## 4. API & Client Routing Architecture
+
+The application uses hash-based client routing with native browser history synchronization:
+- `#overview` -> Dashboard view
+- `#generation` -> Generator telemetry
+- `#consumption` -> Consumer demand view
+- `#balance` -> Gas balance & gasholder inventory
+- `#network` -> Sankey flow diagram
+- `#simulation` -> Sandbox workspace
+- `#scenario` -> Multi-dimensional scenario comparison
+- `#alerts` -> Operational alarms
+- `#timeline` -> Incident timeline log
+- `#reports` -> PDF/CSV export builder
+- `#audit` -> Departmental audit trail register
+- `#about` -> System information & developer specs
