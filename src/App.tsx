@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GasDataProvider, useGasData } from './context';
-import { Header, Sidebar, ErrorBoundary } from './components';
+import { Header, Sidebar, ErrorBoundary, MetaSEO } from './components';
 import { 
   OverviewDashboard, 
   GasGenerationView, 
@@ -79,6 +79,7 @@ export function App() {
   return (
     <ErrorBoundary fallbackTitle="GasMind System Error">
       <GasDataProvider>
+        <MetaSEO />
         <div className="flex min-h-screen bg-black font-sans selection:bg-white selection:text-black">
           <Sidebar 
             mobileOpen={mobileOpen} 
