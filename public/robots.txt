@@ -1,3 +1,4 @@
+# GASMIND AI — Digital Provenance Signature: Amrit Arya (AA-GM-2026-TATASTEEL)
 User-agent: *
 Allow: /
 
